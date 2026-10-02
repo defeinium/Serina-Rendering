@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Serina · Whole-Home Space Review</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
+</head>
+<body>
+  <main id="app">
+    <canvas id="scene"></canvas>
+    <header class="topbar">
+      <div><strong>SERINA</strong><span>Whole-home space · cabinetry · furniture</span></div>
+      <div class="status"><i></i>Plan-based model · verify every point on site</div>
+    </header>
+
+    <aside class="panel collapsed">
+      <div class="panel-head">
+        <div><small>INTERACTIVE UNIT PLAN</small><h1>Whole-home review</h1></div>
+        <button id="collapse" aria-label="Collapse panel">−</button>
+      </div>
+
+      <section>
+          <label>View space</label>
+        <div id="roomFilters" class="chips"></div>
+      </section>
+
+      <section>
+          <label>Show on plan</label>
+        <div id="typeFilters" class="toggles"></div>
+      </section>
+
+      <section>
+          <label>Lighting scheme</label>
+        <div class="segmented" id="ceilingMode">
+          <button data-mode="local" class="active">Current scheme</button>
+          <button data-mode="full">Common + master/B2 flat ceiling</button>
+        </div>
+        <p id="ceilingNote" class="note">Current scheme: living window pelmet and sofa-wall cove; master window pelmet. Existing light and fan positions remain indicative.</p>
+      </section>
+
+      <section class="legend">
+        <label>Legend</label>
+        <div><span class="dot light"></span>Light point</div><div><span class="dot fan"></span>Fan point</div>
+        <div><span class="dot socket"></span>Socket / power</div><div><span class="dot data"></span>TV / fibre</div>
+        <div><span class="dot fixed"></span>Air-con / water heater</div><div><span class="dot proposed"></span>Proposed</div>
+      </section>
+
+      <section id="detail" class="detail">
+        <small>Select a coloured marker to inspect</small>
+        <h2>Developer points + design notes</h2>
+        <p>Drag to rotate and scroll to zoom. Select a space for its top view. Cabinetry and furniture follow the current confirmed scheme.</p>
+      </section>
+
+      <footer>Walls follow the developer Original Plan; lights and fans are translated from the Type A electrical drawing. Sockets and equipment are indicative only. Verify all openings, cabinetry and outlets on site; do not issue this model directly for construction.</footer>
+    </aside>
+
+    <button id="panelToggle" class="panel-toggle">☰ Points & circuits</button>
+
+      <button id="lightPanelToggle" class="light-panel-toggle" type="button">☀ Lighting</button>
+    <aside id="lightPanel" class="light-panel" hidden>
+      <div class="light-panel-head"><strong>Individual lights</strong><button id="lightPanelClose" type="button" aria-label="Close">×</button></div>
+      <p>Toggle each circuit · approx. 3500K. No photometric glare or illuminance calculation.</p>
+      <button id="daylightToggle" class="daylight-toggle" type="button" aria-pressed="false">☾ Night mode</button>
+      <div class="light-all"><button id="lightsAllOn" type="button">All on</button><button id="lightsAllOff" type="button">All off</button></div>
+      <div id="lightSwitches"></div>
+    </aside>
+    <div class="viewtools">
+      <button id="homeView">⌂ Whole home</button>
+      <button id="livingView">Living room</button><button id="kitchenView">Kitchen</button><button id="furnitureToggle">Furniture</button><button id="topView">▦ Top view</button>
+      <button id="insideView">Inside view</button><button id="cutaway">Wall cutaway</button>
+    </div>
+    <div id="walktools" class="walktools" hidden>
+      <label class="inside-room-picker">Stand in
+          <select id="insideRoom" aria-label="Choose standing space">
+          <option value="common">Common area</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter · dining side</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
+        </select>
+      </label>
+      <button data-place="entry">Entry</button><button data-place="dining">Dining</button><button data-place="living">Living</button><button data-place="kitchen">Kitchen</button>
+      <button data-walk="left" aria-label="Move left">←</button><button data-walk="forward" aria-label="Move forward">↑</button><button data-walk="back" aria-label="Move back">↓</button><button data-walk="right" aria-label="Move right">→</button>
+    </div>
+    <div class="hint">Drag to rotate · scroll to zoom · select markers</div>
+  </main>
+  <script type="module" src="app.js?v=104"></script>
+</body>
+</html>
