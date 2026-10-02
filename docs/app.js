@@ -414,9 +414,19 @@ function buildInterior(){
  box('hob inset',2.325,.45,.925,.56,.44,.012,mats.black,.012);
  box('sink rim',3.60,.45,.925,.67,.49,.013,mats.metal,.014);
  box('sink bowl',3.60,.45,.939,.60,.42,.012,mats.graphite,.014);
- // Full-height entrance storage on the right of the foyer.
- box('foyer full height shoe cabinet',1.48,.48,.02,.42,.82,2.65,mats.lightCab,.015);
- lineGap(1.27,.48,.04,.012,.82,2.55,mats.graphite,2,'y');
+ // Entry shoe cabinet beside the inner main door, not beside the outer grill.
+ // Owner target: a 2700 mm cabinet BODY floated 120 mm above the finished
+ // floor. Its nominal top is 2820 mm under the 2850 mm slab; the remaining
+ // 30 mm is a site-cut scribe. Width/depth are visual targets pending Ace's
+ // final measurement and a check of the inward-opening main-door swing.
+ box('entry floating shoe cabinet carcass 820W 380D 2700H',1.48,.48,.12,.38,.82,2.70,mats.lightCab,.008);
+ // Four practical door leaves, rather than a single 2700 mm hinged leaf.
+ for(const y of [.275,.685]){
+  box('entry lower handleless shoe door',1.279,y,.132,.018,.398,1.32,mats.lightCab,.003);
+  box('entry upper handleless shoe door',1.279,y,1.468,.018,.398,1.34,mats.lightCab,.003);
+  box('entry lower shadow pull',1.267,y,1.448,.004,.384,.012,mats.graphite,.001);
+ }
+ box('entry cabinet horizontal shadow reveal',1.267,.48,1.461,.004,.805,.012,mats.graphite,.001);
  // Master: king headboard at the west partition. The inward room door opens
  // through y=5.35..6.25, so keep the lower bedside wholly north of y=6.35.
  bed(7.50,7.60,1.88,2.05,'master king');rotateNamed('master king',7.50,7.60,-Math.PI/2);
@@ -940,6 +950,7 @@ if(initialView==='b2cabinet'){indoorPlace('b2');controls.target.set(4.88,1.35,-6
 if(initialView==='b3inside'){indoorPlace('b3');controls.target.set(5.65,2.46,-4.00);camera.position.set(7.42,1.57,-3.15);controls.update()}
 if(initialView==='b3cabinet'){indoorPlace('b3');controls.target.set(6.30,1.30,-4.82);camera.position.set(5.33,1.57,-3.35);controls.update()}
 if(initialView==='masterinside'){indoorPlace('master');controls.target.set(7.98,1.40,-8.93);camera.position.set(7.98,1.57,-5.62);controls.update()}
+if(initialView==='shoe'){setInside(true);controls.target.set(1.47,1.43,-.47);camera.position.set(-1.10,1.65,2.00);controls.update()}
 if(initialView==='b2')focusRoom('B2');
 if(initialView==='yard')focusRoom('Yard');
 if(initialView==='kitchen')focusRoom('厨房');
