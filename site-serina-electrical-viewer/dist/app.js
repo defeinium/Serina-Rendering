@@ -98,9 +98,9 @@ const englishPointDetails={
  'K-S1':['Kitchen counter power A','Verify the 13A/15A circuit and keep clear of the backsplash.'],
  'K-S2':['Kitchen counter power B','Verify the 13A/15A circuit and keep clear of upper cabinets.'],
  'K-FR':['Fridge power point','Leave plug, ventilation and maintenance access behind the fridge cabinet.'],
- 'Y-S1':['Yard socket 1','Check against the selected washer location.'],
- 'Y-S2':['Yard socket 2','Check against the selected dryer location.'],
- 'Y-S3':['Yard socket 3','Confirm the final location before ordering storage.'],
+ 'Y-S1':['Yard socket 1','Marker location is provisional; confirm power reaches the washer at the Bath 2 service end.'],
+ 'Y-S2':['Yard socket 2','Marker location is provisional; confirm dryer power and safe cable routing at the service end.'],
+ 'Y-S3':['Yard socket 3','Confirm the outlet and AC-ledge-door clearance before ordering storage.'],
  'M-S1':['Master double socket A','Check the bedside location after bed placement.'],
  'M-S2':['Master double socket B','Check the opposite wall location on site.'],
  'M-S3':['Master single socket','Check the door-side location on site.'],
@@ -155,7 +155,9 @@ let model; const markerGroup=new THREE.Group(); scene.add(markerGroup); const ma
 function buildShell(){
  // Jotun 1928 Summer Snow is a greyish white (NCS 1102-Y10R). The sRGB swatch
  // here is only a screen approximation; the paint recipe must come from Jotun.
- const wallMat=new THREE.MeshStandardMaterial({color:0xe5e2d8,roughness:.91});
+ // Jotun's on-screen 1928 Summer Snow swatch is RGB(229,226,216).
+ // Keep the base material anchored to that actual swatch; scene lights change its appearance.
+ const wallMat=new THREE.MeshStandardMaterial({color:0xe5e2d8,roughness:.94});
  const frameMat=new THREE.MeshStandardMaterial({color:0x24282b,roughness:.43});
  const glassMat=new THREE.MeshPhysicalMaterial({color:0xa5c5d3,roughness:.08,transparent:true,opacity:.43,side:THREE.DoubleSide});
  const doorMat=new THREE.MeshStandardMaterial({color:0x333d43,roughness:.62});
@@ -223,8 +225,8 @@ function buildShell(){
  return shell;
 }
 
-function tileTexture(tone='public'){const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');x.fillStyle=tone==='bath'?'#62686a':'#cbc9c3';x.fillRect(0,0,512,512);const g=x.createLinearGradient(0,0,512,512);g.addColorStop(0,'rgba(255,255,255,.085)');g.addColorStop(.5,'rgba(255,255,255,.012)');g.addColorStop(1,'rgba(92,94,91,.035)');x.fillStyle=g;x.fillRect(0,0,512,512);x.strokeStyle=tone==='bath'?'rgba(205,209,207,.42)':'rgba(100,104,103,.31)';x.lineWidth=2;x.strokeRect(1,1,510,510);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
-function woodTexture(){const c=document.createElement('canvas');c.width=c.height=1024;const x=c.getContext('2d');x.fillStyle='#d3cec2';x.fillRect(0,0,1024,1024);for(let i=0;i<12;i++){x.fillStyle=i%2?'rgba(90,80,65,.025)':'rgba(255,255,255,.035)';x.fillRect(i*86,0,82,1024);x.strokeStyle='rgba(85,78,64,.045)';x.beginPath();x.moveTo(i*86,0);x.bezierCurveTo(i*86+16,320,i*86-10,690,i*86+9,1024);x.stroke()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
+function tileTexture(tone='public'){const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');x.fillStyle=tone==='bath'?'#62686a':'#bcbab2';x.fillRect(0,0,512,512);const g=x.createLinearGradient(0,0,512,512);g.addColorStop(0,'rgba(255,255,255,.045)');g.addColorStop(.5,'rgba(255,255,255,.008)');g.addColorStop(1,'rgba(92,94,91,.025)');x.fillStyle=g;x.fillRect(0,0,512,512);x.strokeStyle=tone==='bath'?'rgba(205,209,207,.42)':'rgba(89,91,89,.25)';x.lineWidth=2;x.strokeRect(1,1,510,510);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
+function woodTexture(){const c=document.createElement('canvas');c.width=c.height=1024;const x=c.getContext('2d');x.fillStyle='#c3c2ba';x.fillRect(0,0,1024,1024);for(let i=0;i<12;i++){x.fillStyle=i%2?'rgba(82,83,77,.019)':'rgba(255,255,255,.026)';x.fillRect(i*86,0,82,1024);x.strokeStyle='rgba(82,83,77,.040)';x.beginPath();x.moveTo(i*86,0);x.bezierCurveTo(i*86+16,320,i*86-10,690,i*86+9,1024);x.stroke()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
 function floorPlane(x,y,w,d,kind='tile'){const tex=kind==='wood'?woodTexture():tileTexture(kind==='bath'?'bath':'public');tex.repeat.set(kind==='wood'?w/.18:w/.60,kind==='wood'?d/1.2:d/.60);const mat=kind==='wood'?new THREE.MeshStandardMaterial({map:tex,roughness:.60}):new THREE.MeshPhysicalMaterial({map:tex,roughness:kind==='bath'?.7:.085,metalness:0,clearcoat:kind==='bath'?0:.82,clearcoatRoughness:.065});const p=new THREE.Mesh(new THREE.PlaneGeometry(w,d),mat);p.rotation.x=-Math.PI/2;p.position.set(x,.018,-y);p.receiveShadow=true;scene.add(p)}
 function buildSurfaces(){
  // Same room extents as the plan-calibrated Blender structural script. The
@@ -247,12 +249,10 @@ const mats={
  black:new THREE.MeshStandardMaterial({color:0x17191c,roughness:.55}),
  graphite:new THREE.MeshStandardMaterial({color:0x3f454a,roughness:.68}),
  cabinet:new THREE.MeshStandardMaterial({color:0x4d5357,roughness:.82}),
- islandCabinet:new THREE.MeshStandardMaterial({color:0xa6adaf,roughness:.84}),
  lightCab:new THREE.MeshStandardMaterial({color:0xb9b8b3,roughness:.72}),
  counter:new THREE.MeshStandardMaterial({color:0xdcd7cc,roughness:.48}),
  bed:new THREE.MeshPhysicalMaterial({color:0xd7d4cd,roughness:.88}),
  wood:new THREE.MeshStandardMaterial({color:0x756e66,roughness:.76}),
- nicheWood:new THREE.MeshStandardMaterial({color:0x906f52,roughness:.82}),
  metal:new THREE.MeshStandardMaterial({color:0x30343a,roughness:.35,metalness:.7}),
  glass:new THREE.MeshPhysicalMaterial({color:0x91b3bf,roughness:.12,transmission:.55,transparent:true,opacity:.55}),
  screen:new THREE.MeshStandardMaterial({color:0x101215,roughness:.35}),
@@ -260,8 +260,14 @@ const mats={
 };
 function travertineTexture(){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');g.fillStyle='#d9d3c7';g.fillRect(0,0,512,512);let seed=314159;const rand=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);for(let i=0;i<32;i++){const y=rand()*512;g.strokeStyle=`rgba(124,116,99,${.025+rand()*.075})`;g.lineWidth=1+rand()*5;g.beginPath();g.moveTo(0,y);g.bezierCurveTo(100,y-9+rand()*18,320,y-9+rand()*18,512,y-5+rand()*10);g.stroke()}for(let i=0;i<2800;i++){g.fillStyle=`rgba(105,98,82,${.018+rand()*.052})`;g.fillRect(rand()*512,rand()*512,1+rand()*13,.3+rand()*2)}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
 const travertineMat=new THREE.MeshPhysicalMaterial({map:travertineTexture(),roughness:.62,clearcoat:.07,clearcoatRoughness:.55});
-function greyAshTexture(){const c=document.createElement('canvas');c.width=256;c.height=768;const g=c.getContext('2d');g.fillStyle='#a59f94';g.fillRect(0,0,c.width,c.height);let seed=3184;const rand=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);for(let i=0;i<1100;i++){const x=rand()*256,w=.2+rand()*1.7;g.strokeStyle=`rgba(67,65,60,${.012+rand()*.045})`;g.lineWidth=w;g.beginPath();g.moveTo(x,0);g.bezierCurveTo(x-3+rand()*6,220,x-4+rand()*8,520,x-3+rand()*6,768);g.stroke()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+function greyAshTexture(){const c=document.createElement('canvas');c.width=256;c.height=768;const g=c.getContext('2d');g.fillStyle='#a8aaa6';g.fillRect(0,0,c.width,c.height);let seed=3184;const rand=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);for(let i=0;i<1100;i++){const x=rand()*256,w=.2+rand()*1.7;g.strokeStyle=`rgba(65,70,68,${.010+rand()*.035})`;g.lineWidth=w;g.beginPath();g.moveTo(x,0);g.bezierCurveTo(x-3+rand()*6,220,x-4+rand()*8,520,x-3+rand()*6,768);g.stroke()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
 const greyAshMat=new THREE.MeshStandardMaterial({map:greyAshTexture(),roughness:.86});
+// Repeat the light upper/fridge door finish on the open prep base. Bedroom
+// wardrobes are a slightly cooler matte mineral grey; niches keep one quiet
+// grey-ash grain rather than the former orange-brown lining.
+mats.islandCabinet=mats.lightCab;
+mats.wardrobeCab=new THREE.MeshStandardMaterial({color:0xc5c5c1,roughness:.88});
+mats.nicheWood=greyAshMat;
 const interior=new THREE.Group();interior.visible=true;scene.add(interior);
 function linenTexture(){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.fillStyle='#e5ddd0';g.fillRect(0,0,256,256);let seed=1978;const rand=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);for(let i=0;i<13000;i++){const v=130+Math.floor(rand()*85);g.fillStyle=`rgba(${v},${v-4},${v-10},${.035+rand()*.075})`;g.fillRect(rand()*256,rand()*256,rand()*2+.4,rand()*5+.6)}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(3,5);return t}
 function box(name,x,y,z,w,d,h,mat,r=.04){const g=r?new RoundedBoxGeometry(w,h,d,4,r):new THREE.BoxGeometry(w,h,d);const m=new THREE.Mesh(g,mat);m.name=name;m.position.set(x,z+h/2,-y);m.castShadow=true;m.receiveShadow=true;interior.add(m);return m}
@@ -432,17 +438,17 @@ function buildInterior(){
  // Use the complete solid run of B2's south wall (3.245..5.225 m) up to its
  // door. The door-side bay has an open mid-height niche so the original wall
  // switch stays accessible and a small desktop circulator can sit on a shelf.
- box('B2 three-door gear wardrobe carcass',4.02,6.77,.02,1.48,.60,2.71,mats.lightCab,.012);
+ box('B2 three-door gear wardrobe carcass',4.02,6.77,.02,1.48,.60,2.71,mats.wardrobeCab,.012);
  for(let i=0;i<3;i++){
   const x=3.526+i*.494;
-  box('B2 wardrobe door '+(i+1),x,7.079,.10,.477,.018,2.58,mats.lightCab,.005);
+  box('B2 wardrobe door '+(i+1),x,7.079,.10,.477,.018,2.58,mats.wardrobeCab,.005);
   box('B2 wardrobe slim pull '+(i+1),x+.18,7.091,1.10,.009,.008,.14,mats.metal,.003);
  }
- box('B2 door-side small niche lower cabinet',4.97,6.77,.02,.42,.60,.93,mats.lightCab,.009);
- box('B2 door-side small niche upper cabinet',4.97,6.77,1.55,.42,.60,1.18,mats.lightCab,.009);
+ box('B2 door-side small niche lower cabinet',4.97,6.77,.02,.42,.60,.93,mats.wardrobeCab,.009);
+ box('B2 door-side small niche upper cabinet',4.97,6.77,1.55,.42,.60,1.18,mats.wardrobeCab,.009);
  // Only the inner divider is continuous; the door-facing end is open at
  // niche height, so the display cavity can be accessed from two sides.
- box('B2 niche inner divider',4.76,6.77,.02,.018,.60,2.71,mats.lightCab,.003);
+ box('B2 niche inner divider',4.76,6.77,.02,.018,.60,2.71,mats.wardrobeCab,.003);
  box('B2 niche warm wood lower shelf',4.97,6.78,.95,.40,.56,.025,mats.nicheWood,.003);
  box('B2 niche warm wood upper soffit',4.97,6.78,1.53,.40,.56,.025,mats.nicheWood,.003);
  box('B2 niche warm wood inner reveal',4.775,6.77,.975,.015,.58,.555,mats.nicheWood,.002);
@@ -457,11 +463,11 @@ function buildInterior(){
  for(let i=0;i<3;i++){const blade=new THREE.Mesh(new RoundedBoxGeometry(.075,.011,.028,2,.007),b2FanMat);blade.position.set(.042*Math.cos(i*2*Math.PI/3),.175,.042*Math.sin(i*2*Math.PI/3));blade.rotation.y=i*2*Math.PI/3;b2Circulator.add(blade)}
  // B3 stays a four-bay wardrobe. Only the first 450 mm bay beside the door
  // has a modest two-sided cutout; the other three doors stay full height.
- box('B3 wardrobe three full-door carcass',7.045,4.82,.02,1.35,.60,2.62,mats.lightCab,.012);
- for(const x of [6.595,7.045,7.495])box('B3 wardrobe full-height door',x,4.509,.09,.435,.018,2.49,mats.lightCab,.004);
- box('B3 first-door lower section',6.145,4.82,.02,.45,.60,.93,mats.lightCab,.009);
- box('B3 first-door upper section',6.145,4.82,1.55,.45,.60,1.09,mats.lightCab,.009);
- box('B3 small niche inner divider',6.37,4.82,.02,.018,.60,2.62,mats.lightCab,.003);
+ box('B3 wardrobe three full-door carcass',7.045,4.82,.02,1.35,.60,2.62,mats.wardrobeCab,.012);
+ for(const x of [6.595,7.045,7.495])box('B3 wardrobe full-height door',x,4.509,.09,.435,.018,2.49,mats.wardrobeCab,.004);
+ box('B3 first-door lower section',6.145,4.82,.02,.45,.60,.93,mats.wardrobeCab,.009);
+ box('B3 first-door upper section',6.145,4.82,1.55,.45,.60,1.09,mats.wardrobeCab,.009);
+ box('B3 small niche inner divider',6.37,4.82,.02,.018,.60,2.62,mats.wardrobeCab,.003);
  box('B3 small niche warm wood lower shelf',6.145,4.82,.95,.43,.57,.025,mats.nicheWood,.003);
  box('B3 small niche warm wood upper soffit',6.145,4.82,1.53,.43,.57,.025,mats.nicheWood,.003);
  box('B3 small niche warm wood inner reveal',6.355,4.82,.975,.015,.58,.555,mats.nicheWood,.002);
@@ -470,10 +476,13 @@ function buildInterior(){
  box('B3 guest mattress',6.75,3.22,.30,1.84,.87,.20,mats.bed,.08);
  box('B3 guest headboard',7.64,3.22,.02,.12,.95,.88,mats.graphite,.05);
  box('B3 guest pillow',7.32,3.22,.51,.34,.52,.10,mats.bed,.06);
- // Yard: washer and dryer stacked at the outer end; litter below Bath 2 window.
- box('washing machine',4.96,.52,.02,.62,.65,.86,mats.lightCab,.035);
- box('stacked dryer',4.96,.52,.92,.62,.65,.86,mats.lightCab,.035);
- litterBox('litter box 1',4.45,2.18);litterBox('litter box 2',4.99,2.18);
+ // Yard: the developer plan places the laundry at the Bath 2/service end.
+ // The actual-unit photo shows its tap and floor trap there. Keep the stack
+ // clear of the AC-ledge opening; put the two litter boxes at the dry end.
+ // Final washer clearance and waste routing still need a site measurement.
+ box('washing machine at service end',4.52,2.18,.02,.62,.65,.86,mats.lightCab,.035);
+ box('stacked dryer at service end',4.52,2.18,.92,.62,.65,.86,mats.lightCab,.035);
+ litterBox('dry-end litter box 1',4.45,.52);litterBox('dry-end litter box 2',4.99,.52);
  // Actual unit photos show grey bathroom tiles, a toilet midway down each
  // outer wall and an open shower at the window end of both bathrooms.
  box('bath1 vanity cabinet',9.24,4.895,.02,.50,.45,.78,mats.lightCab,.02);
@@ -493,7 +502,9 @@ buildShell();buildSurfaces();buildInterior();fitWholeHome();
 // Both light channels are shown as one visual proposal, not a lux simulation.
 const ceilingConcept=new THREE.Group();ceilingConcept.name='Living curtain pelmet + west-wall uplight concept';scene.add(ceilingConcept);
 const pelmetMat=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:0,roughness:.95,side:THREE.DoubleSide});
-const LIGHT_3500K=0xffe2c5;
+// Approximate 3500 K after visual white balance; avoid an orange cast that
+// incorrectly turns Jotun Summer Snow into tan in the night preview.
+const LIGHT_3500K=0xffead6;
 const stripMat=new THREE.MeshStandardMaterial({color:0xffe1bd,emissive:LIGHT_3500K,emissiveIntensity:1.5,roughness:.45});
 function ceilingPiece(name,x,planY,w,d,bottom,h,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.name=name;m.position.set(x,bottom+h/2,-planY);ceilingConcept.add(m);return m}
 // Slim curtain pelmet: the room-side lip and LED sit below the original
@@ -561,7 +572,7 @@ for(const [x,planY,w,d] of [[4.83,5.825,9.48,6.45],[2.065,1.34,3.95,2.52],[4.705
 const lightCircuits=[];
 let lightingScheme='local';
 const fixtureNames={'L-L2':'Living room globe pendant','D-L1':'Dining slim ceiling light','F-L1':'Entry slim ceiling light','K-L2':'Kitchen slim ceiling light','Y-L1':'Yard light','H-L1':'Hall light','M-FAN':'Master bedroom slim ceiling light','B2-F':'Bedroom 2 slim ceiling light','B3-F':'Bedroom 3 slim ceiling light','B1-L':'Bath 1 light','B2B-L':'Bath 2 light'};
-const defaultLights=new Set(['L-L1','L-L2','D-L1','F-L1','K-L2','SOFA-COVE','M-L1','M-FAN','B2-F','B3-F']);
+const defaultLights=new Set(['L-L1','L-L2','D-L1','F-L1','K-L2','SOFA-COVE','M-L1','B2-F','B3-F']);
 // Broad, continuous luminous washes are visual placeholders for the concealed
 // linear strips. Do not fake them with separate point lights: those create
 // scallops and make the strip look like a row of spotlights.
@@ -569,7 +580,19 @@ const defaultLights=new Set(['L-L1','L-L2','D-L1','F-L1','K-L2','SOFA-COVE','M-L
 // lights would create false bright spots on the ceiling and window wall.
 lightCircuits.push({id:'L-L1',room:'客厅',name:'Window pelmet downlight strip',scheme:'local',on:true,objects:[curtainWash]});
 lightCircuits.push({id:'SOFA-COVE',room:'客厅',name:'Sofa-wall uplight strip · concept',scheme:'local',on:true,objects:[westStrip,westWash,coveFaceWash]});
-lightCircuits.push({id:'M-L1',room:'主人房',name:'Master window pelmet hidden strip',scheme:'local',on:false,objects:[masterCurtainWash]});
+lightCircuits.push({id:'M-L1',room:'主人房',name:'Master window pelmet hidden strip',scheme:'local',on:true,objects:[masterCurtainWash]});
+// Bedside sources sit below eye height and are controlled separately from the
+// ceiling. The bedroom can be used at night without looking into a ceiling LED.
+for(const [id,planY] of [['M-BEDSIDE-ENTRY',6.50],['M-BEDSIDE-WINDOW',8.72]]){
+ const x=6.72;
+ const base=new THREE.Mesh(new THREE.CylinderGeometry(.082,.09,.028,32),new THREE.MeshStandardMaterial({color:0x555958,roughness:.77}));base.position.set(x,.477,-planY);interior.add(base);
+ const stem=new THREE.Mesh(new THREE.CylinderGeometry(.011,.011,.19,16),new THREE.MeshStandardMaterial({color:0x555958,roughness:.77}));stem.position.set(x,.58,-planY);interior.add(stem);
+ const shadeOff=new THREE.MeshStandardMaterial({color:0xc5c6c1,roughness:.94,side:THREE.DoubleSide});
+ const shadeOn=new THREE.MeshStandardMaterial({color:0xd0ccc2,emissive:LIGHT_3500K,emissiveIntensity:.12,roughness:.94,side:THREE.DoubleSide});
+ const shade=new THREE.Mesh(new THREE.CylinderGeometry(.095,.125,.145,32,1,true),shadeOff);shade.position.set(x,.725,-planY);interior.add(shade);
+ const lamp=new THREE.PointLight(LIGHT_3500K,.38,1.65,2);lamp.position.set(x,.68,-planY);lamp.visible=false;scene.add(lamp);
+ lightCircuits.push({id,room:'主人房',name:planY<7?'Entry-side shielded bedside lamp':'Window-side shielded bedside lamp',scheme:'both',on:true,light:lamp,lens:shade,onMat:shadeOn,offMat:shadeOff,objects:[base,stem,shade],keepObjects:true});
+}
 const fixtureShellMat=new THREE.MeshStandardMaterial({color:0xf5f5f2,roughness:.78});
 const diffuserOnMat=new THREE.MeshBasicMaterial({color:0xfff0d9});
 const diffuserOffMat=new THREE.MeshStandardMaterial({color:0xe6e6e2,roughness:.9});
@@ -632,13 +655,23 @@ function flatLight(id,room,name,x,planY,{kind='downlight',on=true,power=1.25,aim
   const uplens=new THREE.Mesh(new THREE.BoxGeometry(.035,.004,1.08),diffuserOffMat);uplens.position.set(x,1.795,-planY);group.add(uplens);
   group.userData.uplens=uplens;
  }else if(kind==='islandPendant'){
-  // A restrained 700 mm suspended baton runs with the 1370 mm prep counter.
-  for(const offset of [-.25,.25]){
-   const canopy=new THREE.Mesh(new THREE.CylinderGeometry(.029,.029,.015,24),flatBlack);canopy.position.set(x+offset,2.735,-planY);group.add(canopy);
-   const cable=new THREE.Mesh(new THREE.CylinderGeometry(.0025,.0025,.87,8),flatBlack);cable.position.set(x+offset,2.29,-planY);group.add(cable);
+  // Three small down-facing pendants follow the 1370 mm open preparation counter.
+  // Their shared circuit and narrow shades keep the dining-side aisle uncluttered.
+  group.userData.extraLights=[];group.userData.extraLenses=[];
+  for(const offset of [-.42,0,.42]){
+   const px=x+offset;
+   const canopy=new THREE.Mesh(new THREE.CylinderGeometry(.036,.036,.015,24),flatBlack);canopy.position.set(px,2.735,-planY);group.add(canopy);
+   const cable=new THREE.Mesh(new THREE.CylinderGeometry(.0025,.0025,.86,8),flatBlack);cable.position.set(px,2.30,-planY);group.add(cable);
+   const shade=new THREE.Mesh(new THREE.CylinderGeometry(.045,.105,.14,32,1,true),flatBlack);shade.position.set(px,1.80,-planY);group.add(shade);
+   const pendantLens=new THREE.Mesh(new THREE.CircleGeometry(.088,32),diffuserOffMat);pendantLens.rotation.x=-Math.PI/2;pendantLens.position.set(px,1.727,-planY);group.add(pendantLens);
+   if(offset===0)lens=pendantLens;
+   else{
+    group.userData.extraLenses.push(pendantLens);
+    const extra=new THREE.SpotLight(LIGHT_3500K,2.35,2.0,.49,1,1.35);
+    extra.position.set(px,1.72,-planY);extra.target.position.set(px,.88,-planY);
+    scene.add(extra,extra.target);group.userData.extraLights.push(extra);
+   }
   }
-  const bar=new THREE.Mesh(new THREE.BoxGeometry(.70,.044,.050),flatBlack);bar.position.set(x,1.84,-planY);group.add(bar);
-  lens=new THREE.Mesh(new THREE.BoxGeometry(.64,.006,.032),diffuserOffMat);lens.position.set(x,1.815,-planY);group.add(lens);
   // Approximate soft bounce from the lit counter and light floor onto its
   // dining-facing base; direct-only WebGL would render the pale grey as black.
   const bounce=new THREE.RectAreaLight(LIGHT_3500K,1.15,1.28,.82);
@@ -657,8 +690,8 @@ function flatLight(id,room,name,x,planY,{kind='downlight',on=true,power=1.25,aim
   const aperture=kind==='linear'?new THREE.BoxGeometry(.90,.007,.17):new THREE.CylinderGeometry(.205,.205,.006,48);
   lens=new THREE.Mesh(aperture,diffuserOffMat);lens.position.set(x,2.728,-planY);group.add(lens);
  }
- const lamp=kind==='pendant'?new THREE.SpotLight(LIGHT_3500K,8.0,4.0,1.03,1,1.3):kind==='islandPendant'?new THREE.SpotLight(LIGHT_3500K,5.5,2.8,.85,1,1.3):new THREE.SpotLight(LIGHT_3500K,power*(kind==='downlight'?3.7:5.5),5.0,kind==='downlight'?beamAngle:1.20,1,1.35);
- lamp.position.set(x,kind==='pendant'?1.72:kind==='islandPendant'?1.81:kind==='downlight'?2.805:2.70,-planY);
+ const lamp=kind==='pendant'?new THREE.SpotLight(LIGHT_3500K,8.0,4.0,1.03,1,1.3):kind==='islandPendant'?new THREE.SpotLight(LIGHT_3500K,2.35,2.0,.49,1,1.35):new THREE.SpotLight(LIGHT_3500K,power*(kind==='downlight'?3.7:5.5),5.0,kind==='downlight'?beamAngle:1.20,1,1.35);
+ lamp.position.set(x,kind==='pendant'?1.72:kind==='islandPendant'?1.72:kind==='downlight'?2.805:2.70,-planY);
  lamp.target.position.set(aimX,kind==='pendant'?.70:kind==='islandPendant'?.88:.20,-aimPlanY);scene.add(lamp.target);
  scene.add(lamp);
  lightCircuits.push({id,room,name,scheme:'full',on,light:lamp,lens,group,kind});
@@ -686,17 +719,18 @@ for(const [id,x,y] of [['FL-L-F',.48,5.87],['FL-L-T1',2.66,6.55],['FL-L-T2',2.66
  flatLight(id,'客厅','Living anti-glare downlight '+id.slice(-2),x,y,{power:x<1?.68:1.00,aimX:x<1?.91:2.40,beamAngle:x<1?.64:.72});
 flatLight('FL-D-P','餐厅','Dining linear up/down pendant',2.20,4.35,{kind:'pendant'});
 flatLight('FL-E','玄关','Entry anti-glare downlight',.88,1.71,{power:.85});
-flatLight('FL-K-1','厨房','Kitchen anti-glare downlight A',2.47,1.12,{power:1.08,aimX:2.47,aimPlanY:1.20,beamAngle:.62});
-flatLight('FL-K-2','厨房','Kitchen anti-glare downlight B',3.48,1.12,{power:1.08,aimX:3.48,aimPlanY:1.20,beamAngle:.62});
-flatLight('FL-K-ISLAND','厨房','Open prep counter slim pendant',2.48,2.27,{kind:'islandPendant',power:1.05});
+flatLight('FL-K-1','厨房','Wet-counter anti-glare downlight A',2.40,.98,{power:.96,aimX:2.40,aimPlanY:.71,beamAngle:.62});
+flatLight('FL-K-2','厨房','Wet-counter anti-glare downlight B',3.20,.98,{power:.96,aimX:3.20,aimPlanY:.71,beamAngle:.62});
+flatLight('FL-K-FR','厨房','Fridge-front anti-glare downlight',3.65,1.55,{power:.74,aimX:3.59,aimPlanY:1.78,beamAngle:.60});
+flatLight('FL-K-ISLAND','厨房','Three prep-counter down-facing pendants',2.48,2.27,{kind:'islandPendant',power:1.05});
 flatLight('FL-H-1','走道','Hall anti-glare deep-cup downlight A',3.98,5.77,{power:.72,beamAngle:.70});
 flatLight('FL-H-2','走道','Hall anti-glare deep-cup downlight B',5.52,5.77,{power:.72,beamAngle:.70});
 flatStrip('FL-M-W','主人房','Master concealed window strip',7.93,8.80,2.98);
-flatLight('FL-M-A','主人房','Master foot-side anti-glare light',8.91,6.33,{power:.70});
-flatLight('FL-M-B','主人房','Master entrance anti-glare light',7.15,5.75,{power:.65});
+flatLight('FL-M-A','主人房','Master foot-side deep-cup downlight',8.91,6.33,{power:.58,aimX:8.91,aimPlanY:6.20,beamAngle:.60});
+flatLight('FL-M-B','主人房','Master entrance deep-cup downlight',7.15,5.75,{power:.55,aimX:7.05,aimPlanY:5.70,beamAngle:.60});
 flatStrip('FL-B2-W','B2','Bedroom 2 concealed window strip',4.77,8.80,2.73);
-flatLight('FL-B2-D','B2','Bedroom 2 desk-side deep-cup downlight',4.13,7.50,{power:.76,beamAngle:.72});
-flatLight('FL-B2-C','B2','Bedroom 2 wardrobe-side deep-cup downlight',5.43,7.36,{power:.75,beamAngle:.72});
+flatLight('FL-B2-D','B2','Bedroom 2 desk-aisle 60° deep-cup downlight',4.13,7.50,{power:.66,aimX:4.34,aimPlanY:7.42,beamAngle:Math.PI/6});
+flatLight('FL-B2-C','B2','Bedroom 2 wardrobe 60° deep-cup downlight',5.43,7.36,{power:.64,aimX:5.48,aimPlanY:6.98,beamAngle:Math.PI/6});
 const taskGroup=new THREE.Group();taskGroup.name='Kitchen concealed under-cabinet task strip';flatFixtures.add(taskGroup);
 const taskProfile=new THREE.Mesh(new THREE.BoxGeometry(1.70,.018,.024),flatShell);taskProfile.position.set(3.02,1.447,-.54);taskGroup.add(taskProfile);
 const taskLens=new THREE.Mesh(new THREE.BoxGeometry(1.66,.006,.016),diffuserOffMat);taskLens.position.set(3.02,1.433,-.54);taskGroup.add(taskLens);
@@ -725,7 +759,7 @@ for(const slab of flatCeiling.children){
  slab.position.set(x,2.7525,-planY);slab.rotation.x=-Math.PI/2;
 }
 function circuitActive(c){return c.scheme==='both'||c.scheme===lightingScheme}
-function syncLights(){flatCeiling.visible=inside&&lightingScheme==='full';flatFixtures.visible=inside&&lightingScheme==='full';ceilingConcept.visible=lightingScheme==='local';syncFanHeights();for(const c of lightCircuits){const active=inside&&circuitActive(c);if(c.light)c.light.visible=active&&c.on;if(c.lens){c.lens.visible=active;c.lens.material=c.on?(c.onMat||diffuserOnMat):(c.offMat||diffuserOffMat)}if(c.shell){c.shell.visible=active;c.shell.material.emissiveIntensity=c.on?.17:0}if(c.group){c.group.visible=active;if(c.group.userData.glow)c.group.userData.glow.visible=c.on;if(c.group.userData.bounce)c.group.userData.bounce.visible=active&&c.on;if(c.group.userData.uplens)c.group.userData.uplens.material=c.on?diffuserOnMat:diffuserOffMat}if(c.wash)c.wash.visible=c.on;if(c.objects)for(const object of c.objects)object.visible=active&&(c.keepObjects||c.on)}if(inside)syncEnvironment()}
+function syncLights(){flatCeiling.visible=inside&&lightingScheme==='full';flatFixtures.visible=inside&&lightingScheme==='full';ceilingConcept.visible=lightingScheme==='local';syncFanHeights();for(const c of lightCircuits){const active=inside&&circuitActive(c);if(c.light)c.light.visible=active&&c.on;if(c.lens){c.lens.visible=active;c.lens.material=c.on?(c.onMat||diffuserOnMat):(c.offMat||diffuserOffMat)}if(c.shell){c.shell.visible=active;c.shell.material.emissiveIntensity=c.on?.17:0}if(c.group){c.group.visible=active;if(c.group.userData.glow)c.group.userData.glow.visible=c.on;if(c.group.userData.bounce)c.group.userData.bounce.visible=active&&c.on;if(c.group.userData.uplens)c.group.userData.uplens.material=c.on?diffuserOnMat:diffuserOffMat;if(c.group.userData.extraLights)for(const lamp of c.group.userData.extraLights)lamp.visible=active&&c.on;if(c.group.userData.extraLenses)for(const lens of c.group.userData.extraLenses)lens.material=c.on?diffuserOnMat:diffuserOffMat}if(c.wash)c.wash.visible=c.on;if(c.objects)for(const object of c.objects)object.visible=active&&(c.keepObjects||c.on)}if(inside)syncEnvironment()}
 function renderLightSwitches(){
  const host=document.querySelector('#lightSwitches');host.replaceChildren();
  const rooms=['客厅','餐厅','玄关','厨房','Yard','走道','主人房','B2','B3','Bath 1','Bath 2'];
@@ -789,13 +823,13 @@ function syncEnvironment(){
  // Three.js has no path-traced bounce in this viewer. Give the lit room a
  // restrained warm fill when the concealed strips are on, without adding
  // point-source blobs along the ceiling. An all-off room stays dark.
- hemi.color.set(daylight?0xeaf5ff:0xffe6cc);
- hemi.groundColor.set(daylight?0xb8b2a9:0x77746f);
- hemi.intensity=daylight?.82:stripsOn?.55:anyLampOn?.45:.012;
+ hemi.color.set(daylight?0xeaf5ff:0xfaf8f4);
+ hemi.groundColor.set(daylight?0xb8b2a9:0xa8a6a0);
+ hemi.intensity=daylight?.82:stripsOn?.61:anyLampOn?.50:.012;
  ceilingMat.emissiveIntensity=daylight?0:stripsOn?.075:anyLampOn?.035:0;
  flatMat.emissiveIntensity=daylight?.22:stripsOn?.18:anyLampOn?.12:.012;
  pelmetMat.emissiveIntensity=daylight?0:stripsOn?.075:0;
- renderer.toneMappingExposure=daylight?1.00:1.22;
+ renderer.toneMappingExposure=daylight?1.00:1.08;
  document.querySelector('#daylightToggle').textContent=daylight?'☀ Daylight: on':'☾ Night mode';
  document.querySelector('#daylightToggle').setAttribute('aria-pressed',String(daylight));
 }
@@ -829,7 +863,7 @@ addEventListener('keydown',e=>{if(e.target.closest?.('select,input,textarea'))re
 document.querySelector('#insideView').onclick=()=>setInside(!inside);
 document.querySelector('#homeView').onclick=()=>{setInside(false);focusRoom('全屋')};document.querySelector('#furnitureToggle').addEventListener('click',e=>{interior.visible=!interior.visible;e.currentTarget.classList.toggle('active',interior.visible)});document.querySelector('#livingView').onclick=()=>{setInside(false);focusRoom('客厅')};document.querySelector('#kitchenView').addEventListener('click',()=>{setInside(false);focusRoom('厨房')});document.querySelector('#topView').onclick=()=>{setInside(false);controls.target.set(5,0,-4.8);camera.position.set(5,24,-4.65);controls.update()};
 let faded=false;document.querySelector('#cutaway').onclick=e=>{faded=!faded;e.currentTarget.classList.toggle('active',faded);if(model)model.traverse(o=>{if(o.isMesh&&/wall|shell/i.test(o.name)){o.material.transparent=faded;o.material.opacity=faded?.48:1;o.material.depthWrite=!faded}})};
-document.querySelectorAll('#ceilingMode button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#ceilingMode button').forEach(x=>x.classList.remove('active'));b.classList.add('active');lightingScheme=b.dataset.mode;const notes={local:'Current scheme: living dropped pelmet and sofa-wall cove; master dropped pelmet. Existing light and fan positions remain indicative.',full:'Flat scheme: 100 mm drop to a 2.75 m finished plane in the common area, master and B2 only. B3 retains the original ceiling, central slim light and small ceiling-mounted wall fan. No dropped pelmet or sofa L-box; windows use recessed continuous strips. Living lights avoid the sofa. Dining and prep-counter pendants, two matching hall deep-cup downlights, entry/kitchen downlights and kitchen task strip are proposed. Fan anchors still need the structural slab and on-site checks.'};document.querySelector('#ceilingNote').textContent=notes[lightingScheme];syncLights();renderLightSwitches()});
+document.querySelectorAll('#ceilingMode button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#ceilingMode button').forEach(x=>x.classList.remove('active'));b.classList.add('active');lightingScheme=b.dataset.mode;const notes={local:'Current scheme: living dropped pelmet and sofa-wall cove; master dropped pelmet. Existing light and fan positions remain indicative.',full:'Flat scheme: 100 mm drop to a 2.75 m finished plane in the common area, master and B2 only. B3 retains the original ceiling, central slim light and small ceiling-mounted wall fan. No dropped pelmet or sofa L-box; windows use recessed continuous strips. Living lights avoid the sofa. Dining pendant, three prep-counter pendants, two matching hall deep-cup downlights, entry/kitchen/fridge downlights and kitchen task strip are proposed. Fan anchors still need the structural slab and on-site checks.'};document.querySelector('#ceilingNote').textContent=notes[lightingScheme];syncLights();renderLightSwitches()});
 const initialView=new URLSearchParams(location.search).get('view');
 if(initialView==='inside')setInside(true);
 if(initialView==='tv'){indoorPlace('living');controls.target.set(3.10,1.03,-7.62);camera.position.set(1.34,1.58,-7.60);controls.update()}
