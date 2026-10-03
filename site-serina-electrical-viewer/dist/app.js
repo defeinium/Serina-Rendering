@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS,fixtureMeta} from './planning-data.js';
 
 RectAreaLightUniformsLib.init();
 
@@ -62,7 +63,7 @@ let points=[
 // Lighting/fan points below are rebuilt from the RIGHT-HAND Type A unit in
 // Electrical Detail Unit.pdf (foyer west/left, yard and ledge central).
 // Socket/data points remain hidden by default until elevation-by-elevation audit.
-points=points.filter(p=>!['light','fan'].includes(p.type));
+points=points.filter(p=>!['light','fan'].includes(p.type)&&!['F-S1','B2-S1','B2-S2','AC-1'].includes(p.id));
 points.push(
  P('L-L1','客厅','light',1.62,8.62,2.72,'客厅窗侧灯位','Developer ceiling light point','右侧 Type A 电气图原始灯点；坐标为按图转译，须现场复量。','图纸转译'),
  P('L-L2','客厅','light',1.62,6.72,2.72,'客厅餐厅侧灯位','Developer ceiling light point','右侧 Type A 电气图原始灯点；须现场复量。','图纸转译'),
@@ -145,10 +146,13 @@ for(const p of points){
  p.status=p.type==='proposed'?'Proposed · not approved':'Plan indication · verify on site';
 }
 
-const canvas=document.querySelector('#scene'); const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.96;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const canvas=document.querySelector('#scene'); const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});
+const isMobile=matchMedia('(max-width: 720px)').matches;
+const maxDpr=Math.min(devicePixelRatio,isMobile?1.35:1.8);
+renderer.setPixelRatio(maxDpr);renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.96;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0xdfe3e5); scene.fog=new THREE.Fog(0xdfe3e5,28,52); const camera=new THREE.PerspectiveCamera(32,1,.1,100); camera.position.set(14.5,15.5,13.5);
 const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.target.set(5,0,-4.8); controls.minDistance=.4; controls.maxDistance=32; controls.maxPolarAngle=Math.PI*.68;
-const hemi=new THREE.HemisphereLight(0xeaf5ff,0xa79d8e,1.65);scene.add(hemi); const sun=new THREE.DirectionalLight(0xffe7c8,1.8); sun.position.set(-5,15,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun);
+const hemi=new THREE.HemisphereLight(0xeaf5ff,0xa79d8e,1.65);scene.add(hemi); const sun=new THREE.DirectionalLight(0xffe7c8,1.8); sun.position.set(-5,15,8);sun.castShadow=true;sun.shadow.mapSize.set(isMobile?1024:2048,isMobile?1024:2048);scene.add(sun);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.MeshStandardMaterial({color:0xc8cdd0,roughness:.96})); ground.rotation.x=-Math.PI/2; ground.position.y=-.04; ground.receiveShadow=true;scene.add(ground);
 let model; const markerGroup=new THREE.Group(); scene.add(markerGroup); const markerMeshes=[];
 
@@ -742,8 +746,8 @@ function flatStrip(id,room,name,x,planY,w,windowSide='north'){
 flatStrip('FL-L-W','客厅','Living concealed window strip',1.665,8.80,2.75);
 // No ceiling fixture is over the two-seat module or chaise. The front light
 // is beyond the sofa's leading edge; two others serve the TV-side circulation.
-for(const [id,x,y] of [['FL-L-F',.48,5.87],['FL-L-T1',2.66,6.55],['FL-L-T2',2.66,8.20]])
- flatLight(id,'客厅','Living anti-glare downlight '+id.slice(-2),x,y,{power:x<1?.68:1.00,aimX:x<1?.91:2.40,beamAngle:x<1?.64:.72});
+for(const [id,x,y,name] of [['FL-L-F',.48,5.87,'Living wall-side circulation downlight'],['FL-L-T1',2.66,6.55,'Living TV-side downlight A'],['FL-L-T2',2.66,8.20,'Living TV-side downlight B']])
+ flatLight(id,'客厅',name,x,y,{power:x<1?.68:1.00,aimX:x<1?.91:2.40,beamAngle:x<1?.64:.72});
 flatLight('FL-D-P','餐厅','Dining linear up/down pendant',2.20,4.35,{kind:'pendant'});
 flatLight('FL-E','玄关','Entry anti-glare downlight',.88,1.71,{power:.85});
 flatLight('FL-K-1','厨房','Wet-counter anti-glare downlight A',2.40,.98,{power:.96,aimX:2.40,aimPlanY:.71,beamAngle:.62});
@@ -819,21 +823,36 @@ function syncLights(){
  if(inside)syncEnvironment();
 }
 function renderLightSwitches(){
- const host=document.querySelector('#lightSwitches');host.replaceChildren();
- const rooms=['客厅','餐厅','玄关','厨房','Yard','走道','主人房','B2','B3','Bath 1','Bath 2'];
- for(const room of rooms){const circuits=lightCircuits.filter(c=>c.room===room&&circuitActive(c));if(!circuits.length)continue;
-  const heading=document.createElement('h3');heading.textContent=ROOM_LABELS[room]||room;host.append(heading);
-  for(const c of circuits){const button=document.createElement('button');button.type='button';button.className='light-switch'+(c.on?' on':'');button.setAttribute('aria-pressed',String(c.on));button.textContent=`${c.on?'●':'○'} ${c.name} · ${c.id}`;
-   button.onclick=()=>{c.on=!c.on;syncLights();renderLightSwitches()};host.append(button)}
- }
+ const quick=document.querySelector('#quickLightSwitches'),more=document.querySelector('#lightSwitches');
+ quick.replaceChildren();more.replaceChildren();
+ const selected=document.querySelector('#lightRoomSelect').value||'客厅';
+ const circuits=lightCircuits.filter(c=>c.room===selected&&circuitActive(c));
+ const makeRow=(c,compact)=>{
+  const row=document.createElement('div');row.className='light-row'+(compact?' compact':'');
+  const toggle=document.createElement('button');toggle.type='button';toggle.className='light-switch'+(c.on?' on':'');toggle.setAttribute('aria-pressed',String(c.on));
+  const label=document.createElement('span');label.className='fixture-name';label.textContent=c.name;
+  const state=document.createElement('span');state.className='light-state';state.textContent=c.on?'ON':'OFF';
+  toggle.append(label,state);toggle.onclick=()=>{c.on=!c.on;syncLights();renderLightSwitches()};
+  const pin=document.createElement('button');pin.type='button';pin.className='light-pin'+(quickLightIds.has(c.id)?' pinned':'');pin.textContent=quickLightIds.has(c.id)?'★':'☆';pin.setAttribute('aria-label',`${quickLightIds.has(c.id)?'Remove':'Add'} ${c.name} ${quickLightIds.has(c.id)?'from':'to'} quick controls`);pin.setAttribute('aria-pressed',String(quickLightIds.has(c.id)));
+  pin.onclick=()=>{quickLightIds.has(c.id)?quickLightIds.delete(c.id):quickLightIds.add(c.id);try{localStorage.setItem(QUICK_LIGHTS_KEY,JSON.stringify([...quickLightIds]))}catch{}renderLightSwitches()};
+  row.append(toggle,pin);
+  if(!compact){const meta=fixtureMeta(c),detail=document.createElement('small');detail.className='fixture-meta';detail.textContent=`${c.id} · ${meta?.size||'Size pending'} · ${meta?`X ${Math.round(meta.x*1000)} / Y ${Math.round(meta.y*1000)} mm`:'Position to measure'}`;row.append(detail)}
+  return row;
+ };
+ for(const c of circuits)(quickLightIds.has(c.id)?quick:more).append(makeRow(c,quickLightIds.has(c.id)));
+ if(!quick.children.length){const empty=document.createElement('p');empty.className='light-empty';empty.textContent=circuits.length?'Pin a light from More below.':'No lighting circuit in this space.';quick.append(empty)}
+ if(!more.children.length){const empty=document.createElement('p');empty.className='light-empty';empty.textContent='All room lights are in quick controls.';more.append(empty)}
 }
-renderLightSwitches();
-const lightPanel=document.querySelector('#lightPanel');
-function setLightingOpen(open){lightPanel.hidden=!open;document.querySelector('#app').classList.toggle('lighting-open',open);document.querySelector('#lightPanelToggle').setAttribute('aria-expanded',String(open))}
-document.querySelector('#lightPanelToggle').onclick=()=>setLightingOpen(lightPanel.hidden);
-document.querySelector('#lightPanelClose').onclick=()=>setLightingOpen(false);
-document.querySelector('#lightsAllOn').onclick=()=>{lightCircuits.filter(circuitActive).forEach(c=>c.on=true);syncLights();renderLightSwitches()};
-document.querySelector('#lightsAllOff').onclick=()=>{lightCircuits.filter(circuitActive).forEach(c=>c.on=false);syncLights();renderLightSwitches()};
+const QUICK_LIGHTS_KEY='serina-quick-lights-v1';
+const DEFAULT_QUICK_LIGHTS=['L-L1','L-L2','FL-L-W','FL-L-F','D-L1','FL-D-P','F-L1','FL-E','K-L2','FL-K-TASK','FL-K-1','M-L1','M-FAN','FL-M-W','FL-M-A','B2-F','FL-B2-D','HY-B2-DESK','B3-F','Y-L1','B1-L','B2B-L'];
+let savedQuickLights;try{savedQuickLights=JSON.parse(localStorage.getItem(QUICK_LIGHTS_KEY))}catch{}
+const quickLightIds=new Set(Array.isArray(savedQuickLights)?savedQuickLights:DEFAULT_QUICK_LIGHTS);
+const lightPanel=document.querySelector('#lightPanel'),lightPanelToggle=document.querySelector('#lightPanelToggle');
+function setLightPanelOpen(open){lightPanel.hidden=!open;lightPanelToggle.setAttribute('aria-expanded',String(open));if(open){closeDrawer();renderLightSwitches()}}
+lightPanelToggle.onclick=()=>setLightPanelOpen(lightPanel.hidden);
+document.querySelector('#lightPanelClose').onclick=()=>setLightPanelOpen(false);
+document.querySelector('#lightsAllOn').onclick=()=>{lightCircuits.filter(c=>circuitActive(c)&&c.room===lightRoomSelect.value).forEach(c=>c.on=true);syncLights();renderLightSwitches()};
+document.querySelector('#lightsAllOff').onclick=()=>{lightCircuits.filter(c=>circuitActive(c)&&c.room===lightRoomSelect.value).forEach(c=>c.on=false);syncLights();renderLightSwitches()};
 // The 48-inch sweep is centred on the developer fan hook. The flat scheme
 // lowers the visible fan by 100 mm so its canopy meets the new ceiling plane.
 // Both schemes still require a structural-slab anchor, never gypsum alone.
@@ -860,16 +879,57 @@ function syncFanHeights(){
 }
 for(const p of points){if(['socket','data','fixed'].includes(p.type))p.status='Plan indication · verify on site'}
 for(const p of points){const geo=new THREE.SphereGeometry(p.type==='fan'?.105:.085,20,20); const mat=new THREE.MeshStandardMaterial({color:TYPES[p.type].color,emissive:TYPES[p.type].color,emissiveIntensity:.65,roughness:.25}); const m=new THREE.Mesh(geo,mat); m.position.set(...p.pos); m.userData=p; markerGroup.add(m); markerMeshes.push(m); const ring=new THREE.Mesh(new THREE.RingGeometry(.12,.15,32),new THREE.MeshBasicMaterial({color:TYPES[p.type].color,transparent:true,opacity:.48,side:THREE.DoubleSide})); ring.rotation.x=-Math.PI/2; ring.position.copy(m.position); ring.position.y-=.002; markerGroup.add(ring); m.userData.ring=ring;}
-const roomFilters=document.querySelector('#roomFilters'); let activeRoom='全屋'; ROOMS.forEach(r=>{const b=document.createElement('button'); b.textContent=ROOM_LABELS[r]||r;b.className=r==='全屋'?'active':'';b.onclick=()=>{activeRoom=r;[...roomFilters.children].forEach(x=>x.classList.toggle('active',x===b));applyFilters();focusRoom(r);panel.classList.remove('open');panel.classList.add('collapsed')};roomFilters.append(b)});
-const activeTypes=new Set(); const typeFilters=document.querySelector('#typeFilters'); Object.entries(TYPES).forEach(([k,v])=>{const available=k!=='proposed';const b=document.createElement('button');b.className='';b.disabled=!available;b.title=available?'Translated from the developer drawing; verify outlets on site':'New point not yet confirmed';b.innerHTML=`<i class="mini" style="background:#${v.color.toString(16).padStart(6,'0')}"></i>${v.label} · ${available?(['light','fan'].includes(k)?'Drawing translation':'Drawing indication'):'Pending'}`;b.onclick=()=>{if(!available)return;activeTypes.has(k)?activeTypes.delete(k):activeTypes.add(k);b.classList.toggle('active');applyFilters()};typeFilters.append(b)});
+let activeRoom='全屋';
+const roomSelect=document.querySelector('#roomSelect');
+const drawerRoomSelect=document.querySelector('#drawerRoomSelect');
+const lightRoomSelect=document.querySelector('#lightRoomSelect');
+ROOMS.forEach(r=>{for(const select of [roomSelect,drawerRoomSelect,...(r==='全屋'?[]:[lightRoomSelect])]){const option=document.createElement('option');option.value=r;option.textContent=ROOM_LABELS[r]||r;select.append(option)}});
+roomSelect.value=drawerRoomSelect.value=activeRoom;lightRoomSelect.value='客厅';renderLightSwitches();
+function selectRoom(room){activeRoom=room;roomSelect.value=drawerRoomSelect.value=room;if(room!=='全屋')lightRoomSelect.value=room;applyFilters();if(inside){const key={'玄关':'entry','客厅':'living','餐厅':'dining','厨房':'kitchen','Yard':'yard','走道':'hall','主人房':'master','B2':'b2','B3':'b3','Bath 1':'bath1','Bath 2':'bath2','AC Ledge':'ledge'}[activeRoom];if(key)indoorPlace(key)}else focusRoom(activeRoom);renderPointRegister();renderMeasurements();renderLightSwitches()}
+roomSelect.onchange=()=>selectRoom(roomSelect.value);
+drawerRoomSelect.onchange=()=>selectRoom(drawerRoomSelect.value);
+lightRoomSelect.onchange=()=>selectRoom(lightRoomSelect.value);
+const activeTypes=new Set(); const typeFilters=document.querySelector('#typeFilters'); Object.entries(TYPES).forEach(([k,v])=>{const b=document.createElement('button');b.className=activeTypes.has(k)?'active':'';b.setAttribute('aria-pressed',String(activeTypes.has(k)));b.innerHTML=`<i class="mini" style="background:#${v.color.toString(16).padStart(6,'0')}"></i>${v.label}`;b.onclick=()=>{activeTypes.has(k)?activeTypes.delete(k):activeTypes.add(k);b.classList.toggle('active');b.setAttribute('aria-pressed',String(activeTypes.has(k)));applyFilters()};typeFilters.append(b)});
 function applyFilters(){for(const m of markerMeshes){const on=(activeRoom==='全屋'||m.userData.room===activeRoom)&&activeTypes.has(m.userData.type);m.visible=on;m.userData.ring.visible=on}}
 applyFilters();
-const roomCenters={'全屋':[5,0,-4.8],'玄关':[1,0,-.6],'客厅':[1.6,0,-7.3],'餐厅':[1.6,0,-4.3],'厨房':[2.9,0,-1.3],'Yard':[4.8,0,-1.3],'走道':[4.85,0,-5.9],'主人房':[8.7,0,-7.2],'B2':[4.85,0,-7.8],'B3':[6.4,0,-4],'Bath 1':[8.9,0,-4],'Bath 2':[4.1,0,-4],'AC Ledge':[5.9,0,-1.3]};
-function fitWholeHome(){controls.target.set(5,0,-4.65);camera.position.set(5.0,24.0,-4.65);controls.update()}
-function focusRoom(r){if(r==='全屋'){fitWholeHome();return}const t=roomCenters[r]||roomCenters['全屋'];controls.target.set(...t);camera.position.set(t[0],11.5,t[2]);controls.update()}
-const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();canvas.addEventListener('pointerup',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(mouse,camera);const hit=ray.intersectObjects(markerMeshes.filter(x=>x.visible))[0];if(hit)showDetail(hit.object.userData)});
-function showDetail(p){document.querySelector('#detail').innerHTML=`<small>${p.id} · ${ROOM_LABELS[p.room]||p.room}</small><h2>${p.title}</h2><div class="meta"><span class="badge">${TYPES[p.type].label}</span><span class="badge">${p.status==='现有'?'Existing':p.status}</span></div><p><b>${p.spec}</b><br>${p.note}<br><br>Nominal plan coordinates: X ${Math.round(p.pos[0]*1000)} mm / Y ${Math.round(-p.pos[2]*1000)} mm (origin at the unit's lower-left external wall). Translated from the developer drawing; verify the outlet on site.</p>`}
-document.querySelector('#collapse').onclick=()=>document.querySelector('.panel').classList.toggle('collapsed');const panel=document.querySelector('.panel'),panelToggle=document.querySelector('#panelToggle');panelToggle.addEventListener('click',()=>{panel.classList.toggle('collapsed');panel.classList.toggle('open')});
+function topHeight(width,depth){const tan=Math.tan(THREE.MathUtils.degToRad(camera.fov/2));return Math.max(7,(width+1.0)/(2*tan*camera.aspect),(depth+1.0)/(2*tan))}
+function fitWholeHome(){const x=4.83,y=4.57;controls.target.set(x,0,-y);camera.position.set(x,Math.max(24,topHeight(9.48,8.97)),-y);controls.update()}
+function focusRoom(r){if(r==='全屋'){fitWholeHome();return}const survey=ROOM_SURVEY[r];if(!survey){fitWholeHome();return}const xs=survey.corners.map(c=>c[0]),ys=survey.corners.map(c=>c[1]),x=(Math.min(...xs)+Math.max(...xs))/2,y=(Math.min(...ys)+Math.max(...ys))/2;controls.target.set(x,0,-y);camera.position.set(x,topHeight(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)),-y);controls.update()}
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();canvas.addEventListener('pointerup',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(mouse,camera);const hit=ray.intersectObjects(markerMeshes.filter(x=>x.visible))[0];if(hit){showDetail(hit.object.userData);openDrawer('points')}});
+function modelOffsets(x,y,room){const survey=ROOM_SURVEY[room];if(!survey)return 'Horizontal wall offsets unmeasured';const xs=survey.corners.map(c=>c[0]),ys=survey.corners.map(c=>c[1]);return `Model offset from west/south room bounds: ≈ ${Math.max(0,Math.round((x-Math.min(...xs))*1000))} / ${Math.max(0,Math.round((y-Math.min(...ys))*1000))} mm`}
+function pointSource(p){if(p.type==='proposed')return 'Proposed addition · approval and route pending';if(p.id==='AC-1')return 'Equipment planning indication; confirm isolators';if(p.id.startsWith('Y-S'))return 'Developer drawing: three Yard groups; horizontal offsets unmeasured';if(p.type==='light'||p.type==='fan')return 'Developer right-hand Type A electrical drawing, translated to model';return 'Developer outlet schedule/elevation; marker approximate'}
+function pointHeight(p){if(p.type==='light'||p.type==='fan')return '≈ 2850 mm ceiling/slab target; marker rendered lower for visibility';if(p.id.endsWith('-AC'))return '2525 mm AFFL (developer legend; site-check)';return `≈ ${Math.round(p.pos[1]*1000)} mm AFFL (drawing legend/model; site-check)`}
+function showDetail(p){
+ const detail=document.querySelector('#detail'),x=p.pos[0],y=-p.pos[2];
+ detail.innerHTML=`<small>${p.id} · ${ROOM_LABELS[p.room]||p.room}</small><h2>${p.title}</h2><div class="meta"><span class="badge">${TYPES[p.type].label}</span><span class="badge">Model position · verify</span></div><p><b>${p.spec}</b> · ${p.note}</p><p><b>Source:</b> ${pointSource(p)}</p><p><b>Model plan centre:</b> X ≈ ${Math.round(x*1000)} / Y ≈ ${Math.round(y*1000)} mm from the south-west model origin.<br><b>Mounting height:</b> ${pointHeight(p)}.<br>${modelOffsets(x,y,p.room)}</p>`;
+}
+function showUnlocatedPoint(p){document.querySelector('#detail').innerHTML=`<small>${p.id} · ${ROOM_LABELS[p.room]||p.room}</small><h2>${p.name}</h2><div class="meta"><span class="badge">${p.kind}</span><span class="badge">No model marker</span></div><p><b>Source:</b> ${p.source}</p><p><b>Height:</b> ${p.height}. Horizontal offset not measured.</p><p>${p.note}</p>`}
+function renderPointRegister(){
+ const host=document.querySelector('#pointRegister');host.replaceChildren();
+ const chosen=activeRoom==='全屋'?ROOMS.slice(1):[activeRoom];
+ document.querySelector('#pointListTitle').textContent=activeRoom==='全屋'?'Point register · all rooms':`${ROOM_LABELS[activeRoom]} · point register`;
+ for(const room of chosen){const entries=points.filter(p=>p.room===room),extras=UNLOCATED_POINTS.filter(p=>p.room===room);if(!entries.length&&!extras.length)continue;
+  if(activeRoom==='全屋'){const h=document.createElement('div');h.className='register-group';h.textContent=ROOM_LABELS[room];host.append(h)}
+  for(const p of entries){const b=document.createElement('button');b.type='button';const x=p.pos[0],y=-p.pos[2];b.innerHTML=`<span class="row-main"><strong>${p.id} · ${p.title}</strong><small>${pointSource(p)} · ${pointHeight(p)}</small></span><span class="row-value">X ${Math.round(x*1000)}<br>Y ${Math.round(y*1000)}</span>`;b.onclick=()=>showDetail(p);host.append(b)}
+  for(const p of extras){const b=document.createElement('button');b.type='button';b.innerHTML=`<span class="row-main"><strong>${p.id} · ${p.name}</strong><small>${p.source} · ${p.height}</small></span><span class="row-value">Locate<br>on site</span>`;b.onclick=()=>showUnlocatedPoint(p);host.append(b)}
+ }
+}
+renderPointRegister();
+const panel=document.querySelector('.panel'),panelToggle=document.querySelector('#panelToggle'),scrim=document.querySelector('#drawerScrim');
+let currentTab='layout';
+function openDrawer(tab='layout'){
+ setLightPanelOpen(false);
+ currentTab=tab;panel.classList.remove('collapsed');panel.setAttribute('aria-hidden','false');scrim.hidden=false;
+ document.querySelector('#drawerTitle').textContent={layout:'Layout',points:'Electrical points',measure:'Room dimensions'}[tab];
+ document.querySelectorAll('.drawer-tabs button').forEach(b=>{const selected=b.dataset.tab===tab;b.classList.toggle('active',selected);b.setAttribute('aria-selected',String(selected))});
+ document.querySelectorAll('.tab-pane').forEach(p=>p.hidden=p.id!==`tab-${tab}`);
+ panelToggle.setAttribute('aria-expanded','true');
+ if(tab==='measure')renderMeasurements();if(tab==='points')renderPointRegister();
+}
+function closeDrawer(){panel.classList.add('collapsed');panel.setAttribute('aria-hidden','true');scrim.hidden=true;panelToggle.setAttribute('aria-expanded','false')}
+panelToggle.onclick=()=>panel.classList.contains('collapsed')?openDrawer('points'):closeDrawer();
+document.querySelector('#collapse').onclick=closeDrawer;scrim.onclick=closeDrawer;
+document.querySelectorAll('.drawer-tabs button').forEach(b=>b.onclick=()=>openDrawer(b.dataset.tab));
 let inside=false,daylight=false;
 function syncEnvironment(){
  if(!inside){sun.intensity=1.8;sun.castShadow=true;hemi.color.set(0xeaf5ff);hemi.groundColor.set(0xa79d8e);hemi.intensity=1.65;renderer.toneMappingExposure=.96;return}
@@ -913,7 +973,83 @@ const roomPresets={
  bath1:{eye:[8.47,3.22],look:[8.80,4.67],bounds:[7.95,9.41,2.76,5.02]},
  bath2:{eye:[3.72,3.22],look:[4.23,4.67],bounds:[3.40,4.62,2.76,5.02]}
 };
-function setInside(on){inside=on;indoorCeiling.visible=on;syncLights();document.querySelector('#insideView').classList.toggle('active',on);document.querySelector('#walktools').hidden=!on;camera.fov=on?65:32;camera.updateProjectionMatrix();syncEnvironment();if(on){currentInsideRoom='common';insideRoomSelect.value='common';controls.target.set(1.60,1.47,-7.45);camera.position.set(1.62,1.57,-2.30)}else fitWholeHome();controls.update()}
+const measurementContent=document.querySelector('#measurementContent');
+let measureOn=false;
+const mm=value=>`${Math.round(value*1000).toLocaleString('en-US')} mm`;
+const cornerNames=['A · SW','B · SE','C · NE','D · NW'];
+const sideNames=['South','East','North','West'];
+function renderMeasurements(){
+ measurementContent.replaceChildren();
+ const rooms=activeRoom==='全屋'?Object.keys(ROOM_SURVEY):[activeRoom];
+ for(const room of rooms){const survey=ROOM_SURVEY[room];if(!survey)continue;
+  const card=document.createElement('article');card.className='measurement-card';
+  const h=document.createElement('h3');h.textContent=survey.label+' · provisional room outline';card.append(h);
+  const intro=document.createElement('p');intro.textContent=survey.notes;card.append(intro);
+  const table=document.createElement('div');table.className='measure-table';
+  survey.corners.forEach((corner,i)=>{const next=survey.corners[(i+1)%4],distance=Math.hypot(next[0]-corner[0],next[1]-corner[1]);
+   const row=document.createElement('div');row.className='measure-row';row.innerHTML=`<span>${sideNames[i]} wall · ${cornerNames[i][0]} → ${cornerNames[(i+1)%4][0]}</span><strong>≈ ${mm(distance)}</strong>`;table.append(row)});
+  card.append(table);
+  const corners=document.createElement('div');corners.className='measure-table';
+  survey.corners.forEach((corner,i)=>{const row=document.createElement('div');row.className='measure-row corner-row';row.innerHTML=`<b>${cornerNames[i]}</b><span class="measure-key">plan-model corner</span><strong>X ${mm(corner[0])} · Y ${mm(corner[1])}</strong>`;corners.append(row)});
+  card.append(corners);
+  const features=ROOM_FEATURES[room];if(features?.length){const sub=document.createElement('p');sub.innerHTML='<b>Openings and wall changes · model only</b>';card.append(sub);for(const feature of features){const line=document.createElement('p');line.textContent='• '+feature;card.append(line)}}
+  const roomPoints=points.filter(p=>p.room===room);
+  if(roomPoints.length){const sub=document.createElement('p');sub.innerHTML='<b>Point centres · model X/Y + AFFL</b>';card.append(sub);const list=document.createElement('div');list.className='measure-table';
+   for(const p of roomPoints){const row=document.createElement('div');row.className='measure-row';row.innerHTML=`<span>${p.id} · ${p.title}<br><span class="measure-key">${pointHeight(p)}<br>${modelOffsets(p.pos[0],-p.pos[2],room)}</span></span><strong>X/Y ${Math.round(p.pos[0]*1000)} / ${Math.round(-p.pos[2]*1000)} mm</strong>`;list.append(row)}card.append(list)}
+  const fixtures=lightCircuits.filter(c=>c.room===room&&circuitActive(c));
+  if(fixtures.length){const sub=document.createElement('p');sub.innerHTML='<b>Fixture targets · size and centre</b>';card.append(sub);const list=document.createElement('div');list.className='measure-table';
+   for(const c of fixtures){const meta=fixtureMeta(c),row=document.createElement('div');row.className='measure-row';row.innerHTML=`<span>${c.id} · ${c.name}<br><span class="measure-key">${meta?.size||'Size to select'} · ${meta?.mount||'Mounting to confirm'}<br>${meta?modelOffsets(meta.x,meta.y,room):'Offset to measure'}</span></span><strong>${meta?`${Math.round(meta.x*1000)} / ${Math.round(meta.y*1000)} mm`:'Locate on site'}</strong>`;list.append(row)}card.append(list)}
+  const foot=document.createElement('p');foot.className='measure-foot';foot.textContent='All X/Y figures are approximate from the model south-west origin. Wall runs include doors/windows as part of the envelope; measure each finished solid section and opening on site. Point centre offsets are not supplied by the electrical drawing.';card.append(foot);
+  measurementContent.append(card)
+ }
+}
+function setMeasurementOverlay(on){
+ measureOn=on;
+ if(measureOn&&activeRoom==='全屋')selectRoom(inside?({'entry':'玄关','living':'客厅','dining':'餐厅','kitchen':'厨房','yard':'Yard','hall':'走道','master':'主人房','b2':'B2','b3':'B3','bath1':'Bath 1','bath2':'Bath 2','ledge':'AC Ledge'}[currentInsideRoom]||'客厅'):'客厅');
+ for(const id of ['#measureToggle','#measureQuick'])document.querySelector(id).setAttribute('aria-pressed',String(measureOn));
+ document.querySelector('#measureQuick').classList.toggle('active',measureOn);
+ document.querySelector('#measureToggle').textContent=measureOn?'Hide dimensions on model':'Show dimensions on model';
+ renderMeasurements();if(!measureOn)measureContext.clearRect(0,0,measureCanvas.width,measureCanvas.height)
+}
+document.querySelector('#measureToggle').onclick=()=>setMeasurementOverlay(!measureOn);
+document.querySelector('#measureQuick').onclick=()=>setMeasurementOverlay(!measureOn);
+renderMeasurements();
+const measureCanvas=document.querySelector('#measureOverlay'),measureContext=measureCanvas.getContext('2d');
+function drawInsideMeasurements(ctx,w,h,survey){
+ const forward=new THREE.Vector3();camera.getWorldDirection(forward);
+ const project=([x,y],height)=>{const v=new THREE.Vector3(x,height,-y),relative=v.clone().sub(camera.position);if(relative.dot(forward)<.1)return null;v.project(camera);if(v.z>1||v.z< -1)return null;return [(v.x+1)*w/2,(1-v.y)*h/2]};
+ ctx.lineWidth=1.4;ctx.strokeStyle='rgba(40,85,78,.88)';ctx.font='700 12px system-ui';ctx.textAlign='center';
+ for(let i=0;i<4;i++){const a=survey.corners[i],b=survey.corners[(i+1)%4],mid=[(a[0]+b[0])/2,(a[1]+b[1])/2],screenMid=project(mid,2.25);if(!screenMid)continue;
+  const sa=project(a,2.25),sb=project(b,2.25);if(!sa||!sb)continue;
+  ctx.beginPath();ctx.moveTo(...sa);ctx.lineTo(...sb);ctx.stroke();
+  const label=`${sideNames[i]} ≈ ${mm(Math.hypot(b[0]-a[0],b[1]-a[1]))}`,tw=ctx.measureText(label).width+15,left=THREE.MathUtils.clamp(screenMid[0]-tw/2,4,w-tw-4),top=THREE.MathUtils.clamp(screenMid[1]-11,54,h-145);
+  ctx.fillStyle='rgba(248,250,245,.95)';ctx.fillRect(left,top,tw,22);ctx.fillStyle='#164c40';ctx.fillText(label,left+tw/2,top+15)
+ }
+ survey.corners.forEach((corner,i)=>{const p=project(corner,.12);if(!p||p[0]<8||p[0]>w-8||p[1]<55||p[1]>h-120)return;ctx.fillStyle='#174e44';ctx.beginPath();ctx.arc(...p,11,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillText('ABCD'[i],p[0],p[1]+4)});
+ for(const c of lightCircuits.filter(c=>c.room===activeRoom&&circuitActive(c)&&fixtureMeta(c)).slice(0,isMobile?5:12)){const m=fixtureMeta(c),p=project([m.x,m.y],2.65);if(!p||p[0]<8||p[0]>w-50||p[1]<54||p[1]>h-135)continue;ctx.fillStyle='#aa652e';ctx.beginPath();ctx.arc(...p,4,0,Math.PI*2);ctx.fill();ctx.font='700 10px system-ui';ctx.textAlign='left';ctx.fillText(c.id,p[0]+7,p[1]+3)}
+}
+function drawMeasurements(){
+ const dpr=Math.min(devicePixelRatio,1.5),w=innerWidth,h=innerHeight;
+ if(measureCanvas.width!==Math.round(w*dpr)||measureCanvas.height!==Math.round(h*dpr)){measureCanvas.width=Math.round(w*dpr);measureCanvas.height=Math.round(h*dpr)}
+ const ctx=measureContext;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ if(!measureOn||!ROOM_SURVEY[activeRoom])return;
+ const survey=ROOM_SURVEY[activeRoom],v=new THREE.Vector3();
+ if(inside){drawInsideMeasurements(ctx,w,h,survey);return}
+ const project=([x,y],z=.09)=>{v.set(x,z,-y).project(camera);return [(v.x+1)*w/2,(1-v.y)*h/2]};
+ const corners=survey.corners.map(p=>project(p));
+ ctx.lineWidth=1.5;ctx.strokeStyle='rgba(20,53,49,.9)';ctx.fillStyle='#164c40';ctx.font='700 12px system-ui';ctx.textAlign='center';
+ for(let i=0;i<corners.length;i++){
+  const a=corners[i],b=corners[(i+1)%corners.length],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;
+  ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
+  const len=mm(Math.hypot(survey.corners[(i+1)%4][0]-survey.corners[i][0],survey.corners[(i+1)%4][1]-survey.corners[i][1]));
+  const label=`≈ ${len}`;const tw=ctx.measureText(label).width+15,left=THREE.MathUtils.clamp(mx-tw/2,4,w-tw-4),top=THREE.MathUtils.clamp(my-11,48,h-135);
+  ctx.fillStyle='rgba(248,250,245,.96)';ctx.fillRect(left,top,tw,22);ctx.fillStyle='#164c40';ctx.fillText(label,left+tw/2,top+15)
+ }
+ corners.forEach((p,i)=>{ctx.fillStyle='#174e44';ctx.beginPath();ctx.arc(p[0],p[1],12,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillText('ABCD'[i],p[0],p[1]+4)});
+ const fixtures=lightCircuits.filter(c=>c.room===activeRoom&&circuitActive(c)&&fixtureMeta(c));
+ const maxLabels=isMobile?5:12;for(const c of fixtures.slice(0,maxLabels)){const m=fixtureMeta(c),[x,y]=project([m.x,m.y],2.86);if(x<5||x>w-5||y<5||y>h-5)continue;ctx.fillStyle='rgba(163,92,35,.92)';ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();ctx.font='700 10px system-ui';ctx.textAlign='left';ctx.fillText(c.id,x+8,y+3)}
+}
+function setInside(on){inside=on;indoorCeiling.visible=on;syncLights();document.querySelector('#insideView').classList.toggle('active',on);document.querySelector('#planView').classList.toggle('active',!on);document.querySelector('#walktools').hidden=!on;camera.fov=on?65:32;camera.updateProjectionMatrix();syncEnvironment();if(on){currentInsideRoom='common';insideRoomSelect.value='common';controls.target.set(1.60,1.47,-7.45);camera.position.set(1.62,1.57,-2.30)}else focusRoom(activeRoom);controls.update()}
 document.querySelector('#daylightToggle').onclick=()=>{daylight=!daylight;syncEnvironment()};
 function indoorPlace(place){if(!inside)setInside(true);const p=roomPresets[place];if(!p)return;currentInsideRoom=place;insideRoomSelect.value=place;camera.position.set(p.eye[0],1.57,-p.eye[1]);controls.target.set(p.look[0],p.lookHeight??1.44,-p.look[1]);controls.update()}
 insideRoomSelect.onchange=()=>indoorPlace(insideRoomSelect.value);
@@ -921,7 +1057,8 @@ function walkInside(dir){if(!inside)return;let dx=controls.target.x-camera.posit
 document.querySelectorAll('[data-place]').forEach(b=>b.onclick=()=>indoorPlace(b.dataset.place));document.querySelectorAll('[data-walk]').forEach(b=>b.onclick=()=>walkInside(b.dataset.walk));
 addEventListener('keydown',e=>{if(e.target.closest?.('select,input,textarea'))return;const key={w:'forward',s:'back',a:'left',d:'right',ArrowUp:'forward',ArrowDown:'back',ArrowLeft:'left',ArrowRight:'right'}[e.key];if(inside&&key){e.preventDefault();walkInside(key)}});
 document.querySelector('#insideView').onclick=()=>setInside(!inside);
-document.querySelector('#homeView').onclick=()=>{setInside(false);focusRoom('全屋')};document.querySelector('#furnitureToggle').addEventListener('click',e=>{interior.visible=!interior.visible;e.currentTarget.classList.toggle('active',interior.visible)});document.querySelector('#livingView').onclick=()=>{setInside(false);focusRoom('客厅')};document.querySelector('#kitchenView').addEventListener('click',()=>{setInside(false);focusRoom('厨房')});document.querySelector('#topView').onclick=()=>{setInside(false);controls.target.set(5,0,-4.8);camera.position.set(5,24,-4.65);controls.update()};
+document.querySelector('#planView').onclick=()=>setInside(false);
+document.querySelector('#homeView').onclick=()=>{setInside(false);selectRoom('全屋')};document.querySelector('#furnitureToggle').addEventListener('click',e=>{interior.visible=!interior.visible;e.currentTarget.classList.toggle('active',interior.visible)});document.querySelector('#livingView').onclick=()=>{setInside(false);selectRoom('客厅')};document.querySelector('#kitchenView').addEventListener('click',()=>{setInside(false);selectRoom('厨房')});document.querySelector('#topView').onclick=()=>{setInside(false);focusRoom(activeRoom)};
 let faded=false;document.querySelector('#cutaway').onclick=e=>{faded=!faded;e.currentTarget.classList.toggle('active',faded);if(model)model.traverse(o=>{if(o.isMesh&&/wall|shell/i.test(o.name)){o.material.transparent=faded;o.material.opacity=faded?.48:1;o.material.depthWrite=!faded}})};
 const schemeNotes={
  local:'Scheme 1: original ceiling with the living window pelmet and sofa-wall cove; master window pelmet. Existing light and fan positions remain indicative.',
@@ -939,7 +1076,7 @@ function selectLightingScheme(mode,updateUrl=true){
 document.querySelectorAll('#ceilingMode button').forEach(button=>button.onclick=()=>selectLightingScheme(button.dataset.mode));
 const initialParams=new URLSearchParams(location.search);
 daylight=initialParams.get('daylight')==='1';
-if(initialParams.has('scheme'))selectLightingScheme(initialParams.get('scheme'),false);
+selectLightingScheme(initialParams.get('scheme')||'local',false);
 const initialView=initialParams.get('view');
 if(initialView==='inside')setInside(true);
 if(initialView==='tv'){indoorPlace('living');controls.target.set(3.10,1.03,-7.62);camera.position.set(1.34,1.58,-7.60);controls.update()}
@@ -954,5 +1091,13 @@ if(initialView==='shoe'){setInside(true);controls.target.set(1.47,1.43,-.47);cam
 if(initialView==='b2')focusRoom('B2');
 if(initialView==='yard')focusRoom('Yard');
 if(initialView==='kitchen')focusRoom('厨房');
-function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();
-function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();if(!inside)focusRoom(activeRoom)}addEventListener('resize',resize);resize();
+// Never cap the loop below 60 Hz. Scale internal resolution only if this device
+// cannot sustain the display's cadence; the badge reports observed FPS.
+let frameCount=0,frameWindowStart=performance.now(),renderDpr=maxDpr,qualityCooldown=0;
+function animate(now){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);if(measureOn)drawMeasurements();
+ frameCount++;if(now-frameWindowStart>2500){const fps=Math.round(frameCount*1000/(now-frameWindowStart));document.querySelector('#fpsBadge').textContent=`FPS ${fps}`;
+  if(now>qualityCooldown){const next=fps<59?Math.max(.90,renderDpr-.10):fps>=68?Math.min(maxDpr,renderDpr+.06):renderDpr;
+   if(Math.abs(next-renderDpr)>.03){renderDpr=next;renderer.setPixelRatio(renderDpr);renderer.setSize(innerWidth,innerHeight,false);qualityCooldown=now+6000}}
+  frameCount=0;frameWindowStart=now}}
+requestAnimationFrame(animate);

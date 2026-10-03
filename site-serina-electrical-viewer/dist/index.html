@@ -2,94 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Serina · Whole-Home Space Review</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f1e9" />
+  <title>Serina · Home planning viewer</title>
+  <link rel="stylesheet" href="styles.css?v=123" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
   <main id="app">
-    <canvas id="scene"></canvas>
+    <canvas id="scene" aria-label="Interactive three-dimensional home plan"></canvas>
+    <canvas id="measureOverlay" aria-hidden="true"></canvas>
     <header class="topbar">
-      <div><strong>SERINA</strong><span>Whole-home space · cabinetry · furniture</span></div>
-      <div class="status"><i></i>Plan-based model · verify every point on site</div>
+      <div class="brand"><strong>SERINA</strong><span>Home planning viewer</span></div>
+      <div class="plan-caveat">Model estimates · confirm on site</div>
     </header>
 
-    <aside class="panel collapsed">
+    <div id="drawerScrim" class="drawer-scrim" hidden></div>
+    <aside class="panel collapsed" aria-label="Planning details" aria-hidden="true">
       <div class="panel-head">
-        <div><small>INTERACTIVE UNIT PLAN</small><h1>Whole-home review</h1></div>
-        <button id="collapse" aria-label="Collapse panel">−</button>
+        <div><small>PLANNING WORKSPACE</small><h1 id="drawerTitle">Layout</h1></div>
+        <button id="collapse" type="button" aria-label="Close details">×</button>
+      </div>
+      <nav class="drawer-tabs" aria-label="Planning categories">
+        <button type="button" data-tab="layout" class="active">Layout</button>
+        <button type="button" data-tab="points">Points</button>
+        <button type="button" data-tab="measure">Measure</button>
+      </nav>
+      <label class="drawer-room">SPACE <select id="drawerRoomSelect" aria-label="Select space for details"></select></label>
+
+      <div id="tab-layout" class="tab-pane">
+        <section><label>Lighting and ceiling scheme</label>
+          <div class="segmented" id="ceilingMode">
+            <button data-mode="local" class="active">1 · Original ceiling</button>
+            <button data-mode="full">2 · Flat ceiling + bedrooms</button>
+            <button data-mode="hybrid">3 · Recommended hybrid</button>
+          </div>
+          <p id="ceilingNote" class="note"></p>
+        </section>
+        <section><label>Camera and model</label>
+          <div class="viewtools">
+            <button id="homeView" type="button">Whole home</button>
+            <button id="livingView" type="button">Living</button>
+            <button id="kitchenView" type="button">Kitchen</button>
+            <button id="topView" type="button">Top view</button>
+            <button id="furnitureToggle" type="button" class="active">Furniture</button>
+            <button id="cutaway" type="button">Wall cutaway</button>
+          </div>
+        </section>
+        <section><a class="brief-panel-link" href="contractor.html">Open printable contractor brief ↗</a></section>
       </div>
 
-      <section>
-          <label>View space</label>
-        <div id="roomFilters" class="chips"></div>
-      </section>
+      <div id="tab-points" class="tab-pane" hidden>
+        <p class="source-note">Select a room. Marker positions are plan-model estimates; the developer drawing does not dimension horizontal offsets. Unlocated switches and disputed sockets appear in the register without invented markers.</p>
+        <section><label>Show markers on model</label><div id="typeFilters" class="toggles"></div></section>
+        <section id="detail" class="detail"><small>SELECT A MARKER OR LIST ITEM</small><h2>Point details</h2><p>Tap a coloured marker or a register row to inspect source, position and mounting height.</p></section>
+        <section><label id="pointListTitle">Point register</label><div id="pointRegister" class="register"></div></section>
+        <section class="legend"><label>Legend</label><div><span class="dot light"></span>Light</div><div><span class="dot fan"></span>Fan</div><div><span class="dot socket"></span>Power</div><div><span class="dot data"></span>TV / fibre</div><div><span class="dot fixed"></span>Fixed service</div><div><span class="dot proposed"></span>Proposed</div></section>
+      </div>
 
-      <section>
-          <label>Show on plan</label>
-        <div id="typeFilters" class="toggles"></div>
-      </section>
-
-      <section>
-          <label>Lighting scheme</label>
-        <div class="segmented" id="ceilingMode">
-          <button data-mode="local" class="active">1 · Existing ceiling</button>
-          <button data-mode="full">2 · Common + master/B2 flat</button>
-          <button data-mode="hybrid">3 · Recommended hybrid</button>
-        </div>
-        <p id="ceilingNote" class="note">Current scheme: living window pelmet and sofa-wall cove; master window pelmet. Existing light and fan positions remain indicative.</p>
-      </section>
-
-      <section>
-        <label>Contractor meeting</label>
-        <a class="brief-panel-link" href="contractor.html">Open dimensions & socket checklist ↗</a>
-        <p class="note">Design targets, existing outlet register and blank site-measurement fields. Print before ordering or cutting.</p>
-      </section>
-
-      <section class="legend">
-        <label>Legend</label>
-        <div><span class="dot light"></span>Light point</div><div><span class="dot fan"></span>Fan point</div>
-        <div><span class="dot socket"></span>Socket / power</div><div><span class="dot data"></span>TV / fibre</div>
-        <div><span class="dot fixed"></span>Air-con / water heater</div><div><span class="dot proposed"></span>Proposed</div>
-      </section>
-
-      <section id="detail" class="detail">
-        <small>Select a coloured marker to inspect</small>
-        <h2>Developer points + design notes</h2>
-        <p>Drag to rotate and scroll to zoom. Select a space for its top view. Cabinetry and furniture follow the current confirmed scheme.</p>
-      </section>
-
-      <footer>Walls follow the developer Original Plan; lights and fans are translated from the Type A electrical drawing. Sockets and equipment are indicative only. Verify all openings, cabinetry and outlets on site; do not issue this model directly for construction.</footer>
+      <div id="tab-measure" class="tab-pane" hidden>
+        <p class="source-note"><b>Approximate model dimensions only.</b> Corner coordinates and wall runs come from the current plan model. Amber labels mark fixture targets; coloured spheres mark existing points. Measure finished wall faces, openings and every point centre before ordering or building.</p>
+        <button id="measureToggle" type="button" class="measure-toggle" aria-pressed="false">Show dimensions on model</button>
+        <div id="measurementContent"></div>
+      </div>
+      <footer>Developer Original Plan + right-hand Type A electrical drawing, owner decisions, and the current model. No plan-model measurement is construction-ready.</footer>
     </aside>
 
-    <button id="panelToggle" class="panel-toggle">☰ Points & circuits</button>
-    <a class="brief-link" href="contractor.html" title="Open printable contractor brief">▤ Contractor brief</a>
-
-      <button id="lightPanelToggle" class="light-panel-toggle" type="button">☀ Lighting</button>
-    <aside id="lightPanel" class="light-panel" hidden>
-      <div class="light-panel-head"><strong>Individual lights</strong><button id="lightPanelClose" type="button" aria-label="Close">×</button></div>
-      <p>Toggle each circuit · approx. 3500K. No photometric glare or illuminance calculation.</p>
-      <button id="daylightToggle" class="daylight-toggle" type="button" aria-pressed="false">☾ Night mode</button>
-      <div class="light-all"><button id="lightsAllOn" type="button">All on</button><button id="lightsAllOff" type="button">All off</button></div>
-      <div id="lightSwitches"></div>
+    <aside id="lightPanel" class="light-panel" aria-label="Quick lighting controls" hidden>
+      <div class="light-panel-head"><div><small>QUICK CONTROLS</small><strong>Lighting</strong></div><button id="lightPanelClose" type="button" aria-label="Close lighting controls">×</button></div>
+      <label class="light-room-picker">Room <select id="lightRoomSelect" aria-label="Select room for lighting"></select></label>
+      <div id="quickLightSwitches" class="quick-light-switches"></div>
+      <details id="moreLights" class="more-lights"><summary>More lights &amp; settings</summary>
+        <div id="lightSwitches"></div>
+        <div class="light-actions"><button id="daylightToggle" class="daylight-toggle" type="button" aria-pressed="false">Night mode</button><button id="lightsAllOn" type="button">Room on</button><button id="lightsAllOff" type="button">Room off</button></div>
+        <p class="light-note">3500 K visual preview · model positions and sizes are provisional.</p>
+      </details>
     </aside>
-    <div class="viewtools">
-      <button id="homeView">⌂ Whole home</button>
-      <button id="livingView">Living room</button><button id="kitchenView">Kitchen</button><button id="furnitureToggle">Furniture</button><button id="topView">▦ Top view</button>
-      <button id="insideView">Inside view</button><button id="cutaway">Wall cutaway</button>
-    </div>
+
     <div id="walktools" class="walktools" hidden>
-      <label class="inside-room-picker">Stand in
-          <select id="insideRoom" aria-label="Choose standing space">
-          <option value="common">Common area</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter · dining side</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
-        </select>
-      </label>
-      <button data-place="entry">Entry</button><button data-place="dining">Dining</button><button data-place="living">Living</button><button data-place="kitchen">Kitchen</button>
-      <button data-walk="left" aria-label="Move left">←</button><button data-walk="forward" aria-label="Move forward">↑</button><button data-walk="back" aria-label="Move back">↓</button><button data-walk="right" aria-label="Move right">→</button>
+      <label class="inside-room-picker">Stand in <select id="insideRoom" aria-label="Choose standing space">
+        <option value="common">Common area</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
+      </select></label>
+      <div class="walk-arrows"><button data-walk="left" aria-label="Move left">←</button><button data-walk="forward" aria-label="Move forward">↑</button><button data-walk="back" aria-label="Move back">↓</button><button data-walk="right" aria-label="Move right">→</button></div>
+      <div class="walk-shortcuts"><button data-place="entry">Entry</button><button data-place="dining">Dining</button><button data-place="living">Living</button><button data-place="kitchen">Kitchen</button></div>
     </div>
-    <div class="hint">Drag to rotate · scroll to zoom · select markers</div>
+
+    <nav class="dock" aria-label="Main viewer controls">
+      <label class="room-control"><span>ROOM</span><select id="roomSelect" aria-label="Select room"></select></label>
+      <div class="dock-divider"></div>
+      <button id="planView" type="button" class="active">Plan</button>
+      <button id="insideView" type="button">Inside</button>
+      <button id="measureQuick" type="button" aria-pressed="false"><span class="desktop-label">Dimensions</span><span class="mobile-label">Dims</span></button>
+      <div class="dock-divider"></div>
+      <button id="panelToggle" type="button">Points</button>
+      <button id="lightPanelToggle" type="button">Lights</button>
+    </nav>
+    <div class="hint">Drag to orbit · pinch or scroll to zoom · tap points for details</div>
+    <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
+    <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=113"></script>
+  <script type="module" src="app.js?v=123"></script>
 </body>
 </html>
