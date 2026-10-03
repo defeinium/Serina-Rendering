@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f4f1e9" />
   <title>Serina · Home planning viewer</title>
-  <link rel="stylesheet" href="styles.css?v=123" />
+  <link rel="stylesheet" href="styles.css?v=125" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -49,7 +49,7 @@
             <button id="cutaway" type="button">Wall cutaway</button>
           </div>
         </section>
-        <section><a class="brief-panel-link" href="contractor.html">Open printable contractor brief ↗</a></section>
+        <section><a class="brief-panel-link" href="contractor.html">Open printable contractor brief ↗</a><a class="brief-panel-link" href="measure.html?v=4">Open mobile site-measurement list ↗</a></section>
       </div>
 
       <div id="tab-points" class="tab-pane" hidden>
@@ -62,6 +62,7 @@
 
       <div id="tab-measure" class="tab-pane" hidden>
         <p class="source-note"><b>Approximate model dimensions only.</b> Corner coordinates and wall runs come from the current plan model. Amber labels mark fixture targets; coloured spheres mark existing points. Measure finished wall faces, openings and every point centre before ordering or building.</p>
+        <a class="brief-panel-link" href="measure.html?v=4">Record actual dimensions on site ↗</a>
         <button id="measureToggle" type="button" class="measure-toggle" aria-pressed="false">Show dimensions on model</button>
         <div id="measurementContent"></div>
       </div>
@@ -84,11 +85,13 @@
         <option value="common">Common area</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
       </select></label>
       <div class="walk-arrows"><button data-walk="left" aria-label="Move left">←</button><button data-walk="forward" aria-label="Move forward">↑</button><button data-walk="back" aria-label="Move back">↓</button><button data-walk="right" aria-label="Move right">→</button></div>
+      <div class="look-arrows"><button data-look="left" aria-label="Turn left">⟲</button><button data-look="right" aria-label="Turn right">⟳</button></div>
       <div class="walk-shortcuts"><button data-place="entry">Entry</button><button data-place="dining">Dining</button><button data-place="living">Living</button><button data-place="kitchen">Kitchen</button></div>
+      <span class="walk-hint">Drag view to look · hold arrows to move</span>
     </div>
 
     <nav class="dock" aria-label="Main viewer controls">
-      <label class="room-control"><span>ROOM</span><select id="roomSelect" aria-label="Select room"></select></label>
+      <div class="room-control"><label for="roomSelect">ROOM</label><select id="roomSelect" aria-label="Select room"></select><button id="schemeQuick" type="button" aria-label="Choose ceiling scheme">Ceiling 3</button></div>
       <div class="dock-divider"></div>
       <button id="planView" type="button" class="active">Plan</button>
       <button id="insideView" type="button">Inside</button>
@@ -101,6 +104,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=123"></script>
+  <script type="module" src="app.js?v=125"></script>
 </body>
 </html>

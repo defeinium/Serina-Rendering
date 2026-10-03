@@ -1049,13 +1049,26 @@ function drawMeasurements(){
  const fixtures=lightCircuits.filter(c=>c.room===activeRoom&&circuitActive(c)&&fixtureMeta(c));
  const maxLabels=isMobile?5:12;for(const c of fixtures.slice(0,maxLabels)){const m=fixtureMeta(c),[x,y]=project([m.x,m.y],2.86);if(x<5||x>w-5||y<5||y>h-5)continue;ctx.fillStyle='rgba(163,92,35,.92)';ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();ctx.font='700 10px system-ui';ctx.textAlign='left';ctx.fillText(c.id,x+8,y+3)}
 }
-function setInside(on){inside=on;indoorCeiling.visible=on;syncLights();document.querySelector('#insideView').classList.toggle('active',on);document.querySelector('#planView').classList.toggle('active',!on);document.querySelector('#walktools').hidden=!on;camera.fov=on?65:32;camera.updateProjectionMatrix();syncEnvironment();if(on){currentInsideRoom='common';insideRoomSelect.value='common';controls.target.set(1.60,1.47,-7.45);camera.position.set(1.62,1.57,-2.30)}else focusRoom(activeRoom);controls.update()}
+function setInside(on){inside=on;document.querySelector('#app').classList.toggle('inside-mode',on);indoorCeiling.visible=on;syncLights();document.querySelector('#insideView').classList.toggle('active',on);document.querySelector('#planView').classList.toggle('active',!on);document.querySelector('#walktools').hidden=!on;camera.fov=on?(isMobile?85:65):32;camera.updateProjectionMatrix();syncEnvironment();if(on){currentInsideRoom='common';insideRoomSelect.value='common';controls.target.set(1.60,1.47,-7.45);camera.position.set(1.62,1.57,-2.30)}else focusRoom(activeRoom);controls.enableDamping=!(on&&isMobile);controls.enabled=!(on&&isMobile);controls.update()}
 document.querySelector('#daylightToggle').onclick=()=>{daylight=!daylight;syncEnvironment()};
 function indoorPlace(place){if(!inside)setInside(true);const p=roomPresets[place];if(!p)return;currentInsideRoom=place;insideRoomSelect.value=place;camera.position.set(p.eye[0],1.57,-p.eye[1]);controls.target.set(p.look[0],p.lookHeight??1.44,-p.look[1]);controls.update()}
 insideRoomSelect.onchange=()=>indoorPlace(insideRoomSelect.value);
-function walkInside(dir){if(!inside)return;let dx=controls.target.x-camera.position.x,dz=controls.target.z-camera.position.z;const len=Math.hypot(dx,dz)||1;dx/=len;dz/=len;let mx=0,mz=0;if(dir==='forward'){mx=dx;mz=dz}else if(dir==='back'){mx=-dx;mz=-dz}else if(dir==='left'){mx=dz;mz=-dx}else if(dir==='right'){mx=-dz;mz=dx}const [minX,maxX,minY,maxY]=roomPresets[currentInsideRoom].bounds,nx=THREE.MathUtils.clamp(camera.position.x+mx*.38,minX,maxX),nz=THREE.MathUtils.clamp(camera.position.z+mz*.38,-maxY,-minY);controls.target.x+=nx-camera.position.x;controls.target.z+=nz-camera.position.z;camera.position.x=nx;camera.position.z=nz;controls.update()}
-document.querySelectorAll('[data-place]').forEach(b=>b.onclick=()=>indoorPlace(b.dataset.place));document.querySelectorAll('[data-walk]').forEach(b=>b.onclick=()=>walkInside(b.dataset.walk));
-addEventListener('keydown',e=>{if(e.target.closest?.('select,input,textarea'))return;const key={w:'forward',s:'back',a:'left',d:'right',ArrowUp:'forward',ArrowDown:'back',ArrowLeft:'left',ArrowRight:'right'}[e.key];if(inside&&key){e.preventDefault();walkInside(key)}});
+function walkInside(dir,step=.38){if(!inside)return;let dx=controls.target.x-camera.position.x,dz=controls.target.z-camera.position.z;const len=Math.hypot(dx,dz)||1;dx/=len;dz/=len;let mx=0,mz=0;if(dir==='forward'){mx=dx;mz=dz}else if(dir==='back'){mx=-dx;mz=-dz}else if(dir==='left'){mx=dz;mz=-dx}else if(dir==='right'){mx=-dz;mz=dx}const [minX,maxX,minY,maxY]=roomPresets[currentInsideRoom].bounds,nx=THREE.MathUtils.clamp(camera.position.x+mx*step,minX,maxX),nz=THREE.MathUtils.clamp(camera.position.z+mz*step,-maxY,-minY);controls.target.x+=nx-camera.position.x;controls.target.z+=nz-camera.position.z;camera.position.x=nx;camera.position.z=nz;controls.update()}
+function lookInside(dx,dy=0){if(!inside)return;const direction=controls.target.clone().sub(camera.position).normalize();let yaw=Math.atan2(direction.x,-direction.z),pitch=Math.asin(THREE.MathUtils.clamp(direction.y,-1,1));yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-.92,.92);const cos=Math.cos(pitch);controls.target.copy(camera.position).add(new THREE.Vector3(Math.sin(yaw)*cos,Math.sin(pitch),-Math.cos(yaw)*cos).multiplyScalar(2));controls.update()}
+let lookPointer=null;
+canvas.addEventListener('pointerdown',event=>{if(!inside||!isMobile||!event.isPrimary)return;lookPointer={id:event.pointerId,x:event.clientX,y:event.clientY};canvas.setPointerCapture(event.pointerId)});
+canvas.addEventListener('pointermove',event=>{if(!lookPointer||lookPointer.id!==event.pointerId||!inside||!isMobile)return;lookInside(event.clientX-lookPointer.x,event.clientY-lookPointer.y);lookPointer.x=event.clientX;lookPointer.y=event.clientY});
+function stopLooking(event){if(lookPointer?.id===event.pointerId)lookPointer=null}
+canvas.addEventListener('pointerup',stopLooking);canvas.addEventListener('pointercancel',stopLooking);
+document.querySelectorAll('[data-place]').forEach(b=>b.onclick=()=>indoorPlace(b.dataset.place));
+for(const button of document.querySelectorAll('[data-walk],[data-look]')){
+ const act=(held=false)=>{if(button.dataset.walk)walkInside(button.dataset.walk,held?0.13:0.38);else lookInside((button.dataset.look==='left'?1:-1)*(held?18:52))};
+ let delay,repeat,wasHeld=false;
+ button.addEventListener('pointerdown',()=>{wasHeld=false;delay=setTimeout(()=>{wasHeld=true;act(true);repeat=setInterval(()=>act(true),90)},280)});
+ const stop=()=>{clearTimeout(delay);clearInterval(repeat)};button.addEventListener('pointerup',stop);button.addEventListener('pointercancel',stop);button.addEventListener('pointerleave',stop);
+ button.onclick=()=>{if(wasHeld){wasHeld=false;return}act(false)};
+}
+addEventListener('keydown',e=>{if(e.target.closest?.('select,input,textarea'))return;const key={w:'forward',s:'back',a:'left',d:'right',ArrowUp:'forward',ArrowDown:'back',ArrowLeft:'left',ArrowRight:'right'}[e.key];if(inside&&key){e.preventDefault();walkInside(key)}if(inside&&(e.key==='q'||e.key==='e')){e.preventDefault();lookInside(e.key==='q'?52:-52)}});
 document.querySelector('#insideView').onclick=()=>setInside(!inside);
 document.querySelector('#planView').onclick=()=>setInside(false);
 document.querySelector('#homeView').onclick=()=>{setInside(false);selectRoom('全屋')};document.querySelector('#furnitureToggle').addEventListener('click',e=>{interior.visible=!interior.visible;e.currentTarget.classList.toggle('active',interior.visible)});document.querySelector('#livingView').onclick=()=>{setInside(false);selectRoom('客厅')};document.querySelector('#kitchenView').addEventListener('click',()=>{setInside(false);selectRoom('厨房')});document.querySelector('#topView').onclick=()=>{setInside(false);focusRoom(activeRoom)};
@@ -1069,11 +1082,13 @@ function selectLightingScheme(mode,updateUrl=true){
  if(!Object.hasOwn(schemeNotes,mode))return;
  lightingScheme=mode;
  document.querySelectorAll('#ceilingMode button').forEach(button=>button.classList.toggle('active',button.dataset.mode===mode));
+ document.querySelector('#schemeQuick').textContent=`Ceiling ${mode==='local'?'1':mode==='full'?'2':'3'}`;
  document.querySelector('#ceilingNote').textContent=schemeNotes[mode];
  if(updateUrl){const url=new URL(location.href);url.searchParams.set('scheme',mode);history.replaceState(null,'',url)}
  syncLights();renderLightSwitches();
 }
-document.querySelectorAll('#ceilingMode button').forEach(button=>button.onclick=()=>selectLightingScheme(button.dataset.mode));
+document.querySelector('#schemeQuick').onclick=()=>openDrawer('layout');
+document.querySelectorAll('#ceilingMode button').forEach(button=>button.onclick=()=>{selectLightingScheme(button.dataset.mode);if(isMobile)closeDrawer()});
 const initialParams=new URLSearchParams(location.search);
 daylight=initialParams.get('daylight')==='1';
 selectLightingScheme(initialParams.get('scheme')||'local',false);

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f3f4ef">
+  <title>Serina · On-site measurement list</title>
+  <link rel="stylesheet" href="measure.css?v=4">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="index.html?scheme=hybrid&view=inside&v=125" aria-label="Back to 3D viewer">← <span>3D viewer</span></a>
+    <div class="identity"><strong>SERINA</strong><span>Site survey</span></div>
+    <button id="menuButton" class="menu-button" type="button" aria-expanded="false" aria-controls="tools">Export</button>
+  </header>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">TYPE A · WHOLE UNIT · MILLIMETRES</p>
+      <h1>Measure the actual unit.</h1>
+      <p>Record finished walls, openings and existing point centres in millimetres. Model sizes are <b>rough references only</b>; leave unverified fields blank.</p>
+      <details class="method"><summary>How to measure consistently</summary><span>Stand over the plan. A = south-west, B = south-east, C = north-east, D = north-west. Measure wall runs A→B, B→C, D→C and A→D. For an opening, measure its start from that wall's first corner. Ceiling points need offsets from two perpendicular finished walls; wall points need an along-wall offset and height above finished floor (AFFL).</span></details>
+    </section>
+
+    <section id="tools" class="tools" hidden aria-label="Survey backup and sharing">
+      <div><b>Your measurements stay on this phone.</b><p>Safari saves entries on this device. They do not sync to your computer or the 3D model automatically. Export the JSON before clearing browser data, then send it to me to rescale the model.</p></div>
+      <div class="tool-actions">
+        <button id="exportButton" type="button">Export JSON</button>
+        <button id="shareButton" type="button">Share file</button>
+        <button id="copyButton" type="button">Copy measured list</button>
+        <label class="import-button">Import JSON<input id="importInput" type="file" accept="application/json,.json" hidden></label>
+      </div>
+      <p id="exportMessage" class="tool-message" role="status"></p>
+    </section>
+
+    <section class="workspace">
+      <div class="room-head">
+        <div><p class="eyebrow">CURRENT SPACE</p><h2 id="roomTitle">Entry</h2><p id="roomNote"></p></div>
+        <div class="progress-ring" id="roomProgress" aria-label="Room measurement progress">0 / 0</div>
+      </div>
+      <label class="room-picker">Choose a room <select id="roomSelect" aria-label="Choose a room to measure"></select></label>
+      <div id="roomTabs" class="room-tabs" aria-label="Rooms"></div>
+      <div class="key-card">
+        <div class="room-sketch" role="img" aria-label="Room sketch: corner A south-west, B south-east, C north-east, D north-west"><span class="north">N ↑</span><span class="corner d">D</span><span class="corner c">C</span><span class="corner a">A</span><span class="corner b">B</span></div>
+        <p><b>Start here</b><br>Photograph the whole room and mark A–D on a quick hand sketch. The north arrow follows the <i>model</i>; verify the real wall, door and window arrangement before assigning a measurement.</p>
+      </div>
+      <div class="section-summary"><span id="sectionCount"></span><span>Tap a section to expand</span></div>
+      <div id="taskSections"></div>
+      <button id="addTask" class="add-task" type="button">+ Add an unlisted wall break, point or dimension</button>
+    </section>
+    <footer class="footer-note">Design and plan references are provisional. Measure from finished surfaces; do not infer structural or electrical safety from this list. Export the file when you finish each visit.</footer>
+  </main>
+  <nav class="bottom-nav" aria-label="Room navigation"><button id="prevRoom" type="button">← Previous</button><span id="overallProgress">0 / 0 checked</span><button id="nextRoom" type="button">Next →</button></nav>
+  <script type="module" src="measure.js?v=4"></script>
+</body>
+</html>
