@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS,fixtureMeta} from './planning-data.js';
+import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS,fixtureMeta} from './planning-data.js?v=127';
 
 RectAreaLightUniformsLib.init();
 
@@ -74,9 +74,9 @@ points.push(
  P('Y-L1','Yard','light',4.78,1.30,2.72,'Yard 灯位','Developer ceiling light point','右侧 Type A yard 原始点。','图纸核实'),
  P('H-L1','走道','light',4.85,5.78,2.72,'房间外走道灯位','Developer ceiling light point','浴室与卧室之间走道原始点；须现场复量。','图纸转译'),
  P('M-L1','主人房','light',8.10,8.45,2.72,'主人房窗侧灯位','Developer ceiling light point','方案供窗帘盒隐藏向下灯带；实际走线需在窗帘盒内可检修。','图纸核实'),
- P('M-L2','主人房','light',8.10,6.72,2.72,'主人房门侧灯位','Developer ceiling light point','右侧 Type A 原始点；现场复量。','图纸转译'),
+ P('M-L2','主人房','light',8.10,6.72,2.72,'主人房门侧灯位','Developer ceiling light point','Hybrid 方案在此原灯点装柔光薄吸顶灯；距床及墙的实际位置须现场复量。','图纸转译'),
  P('M-L3','主人房','light',8.10,5.78,2.72,'主人房入门前段灯位','Developer ceiling light point','第三颗原灯点在主人房入口与套卫动线附近；现场复量。','图纸转译'),
- P('M-FAN','主人房','fan',8.10,7.62,2.75,'主人房中央原风扇钩位','Developer fan point / hook','方案改为中央薄吸顶灯；原风扇钩处理及接线须电工现场确认。','图纸转译'),
+ P('M-FAN','主人房','fan',8.10,7.62,2.75,'主人房中央原风扇钩位','Developer fan point / hook','主人房不装风扇；原钩位保留并由电工安全封盖，灯改用 M-L2。','图纸转译'),
  P('B2-L1','B2','light',4.85,8.62,2.72,'B2 窗侧灯位','Developer ceiling light point','右侧 Type A 原始点；须现场复量。','图纸转译'),
  P('B2-L2','B2','light',4.85,6.73,2.72,'B2 门侧灯位','Developer ceiling light point','右侧 Type A 图还有这颗原始灯点；旧网页遗漏。','图纸转译'),
  P('B2-F','B2','fan',4.85,7.68,2.75,'B2 原风扇钩位','Developer fan point / hook','方案改为中央薄吸顶灯；原风扇钩处理及接线须电工现场确认。','图纸转译'),
@@ -126,7 +126,7 @@ const englishPointDetails={
  'Y-L1':['Yard original light point','Developer Type A drawing translation; verify on site.'],
  'H-L1':['Hall original light point','Developer Type A drawing translation; verify on site.'],
  'M-L1':['Master window-side original light point','Developer Type A drawing translation; verify on site.'],
- 'M-L2':['Master door-side original light point','Developer Type A drawing translation; verify on site.'],
+ 'M-L2':['Master door-side original light point','Hybrid scheme: slim diffuse ceiling light at this original outlet; verify location over bed and circuit on site.'],
  'M-L3':['Master entrance original light point','Developer Type A drawing translation; verify on site.'],
  'M-FAN':['Master original fan hook','No master fan is planned; keep this point safely capped.'],
  'B2-L1':['Bedroom 2 window-side original light point','Developer Type A drawing translation; verify on site.'],
@@ -585,8 +585,8 @@ for(const [x,planY,w,d] of [[4.83,5.825,9.48,6.45],[2.065,1.34,3.95,2.52],[4.705
 }
 const lightCircuits=[];
 let lightingScheme='local';
-const fixtureNames={'L-L2':'Living room globe pendant','D-L1':'Dining slim ceiling light','F-L1':'Entry slim ceiling light','K-L2':'Kitchen slim ceiling light','Y-L1':'Yard light','H-L1':'Hall light','M-FAN':'Master bedroom slim ceiling light','B2-F':'Bedroom 2 slim ceiling light','B3-F':'Bedroom 3 slim ceiling light','B1-L':'Bath 1 light','B2B-L':'Bath 2 light'};
-const defaultLights=new Set(['L-L1','L-L2','D-L1','F-L1','K-L2','SOFA-COVE','M-L1','B2-F','B3-F']);
+const fixtureNames={'L-L2':'Living room globe pendant','D-L1':'Dining slim ceiling light','F-L1':'Entry slim ceiling light','K-L2':'Kitchen slim ceiling light','Y-L1':'Yard light','H-L1':'Hall light','M-L2':'Master bedroom slim ceiling light','B2-F':'Bedroom 2 slim ceiling light','B3-F':'Bedroom 3 slim ceiling light','B1-L':'Bath 1 light','B2B-L':'Bath 2 light'};
+const defaultLights=new Set(['L-L1','L-L2','D-L1','F-L1','K-L2','SOFA-COVE','M-L1','M-L2','B2-F','B3-F']);
 // Broad, continuous luminous washes are visual placeholders for the concealed
 // linear strips. Do not fake them with separate point lights: those create
 // scallops and make the strip look like a row of spotlights.
@@ -628,8 +628,8 @@ for(const [id,room,x,planY] of [['B2-NICHE','B2',4.97,6.78],['B3-NICHE','B3',6.1
  const lamp=new THREE.PointLight(LIGHT_3500K,.62,1.05,2);lamp.position.set(x,1.47,-planY);lamp.visible=false;scene.add(lamp);
  lightCircuits.push({id,room,name:'Wood niche display light · concept',scheme:'both',on:true,light:lamp,lens});
 }
-const unusedRoomLightPoints=new Set(['L-L1','M-L1','M-L2','M-L3','B2-L1','B2-L2','B3-L1','B3-L2']);
-for(const p of points.filter(p=>(p.type==='light'&&!unusedRoomLightPoints.has(p.id))||['M-FAN','B2-F','B3-F'].includes(p.id))){
+const unusedRoomLightPoints=new Set(['L-L1','M-L1','M-L3','B2-L1','B2-L2','B3-L1','B3-L2']);
+for(const p of points.filter(p=>(p.type==='light'&&!unusedRoomLightPoints.has(p.id))||['B2-F','B3-F'].includes(p.id))){
  const [x,,z]=p.pos,planY=-z,shape=p.id==='K-L2'?'linear':p.id.startsWith('B2-')?'square':'round';
  if(p.id==='L-L2'){
   // Keep the developer's outlet fixed. A visible swag cable runs from its
@@ -656,7 +656,7 @@ for(const p of points.filter(p=>(p.type==='light'&&!unusedRoomLightPoints.has(p.
  light.position.set(x,2.705,-planY);light.target.position.set(x,.15,-planY);light.visible=false;scene.add(light,light.target);
  const small=p.room==='玄关'||p.room.startsWith('Bath');
  const radius=small?.17:p.room==='客厅'?.285:.235;
- const ultraThin=['D-L1','F-L1','K-L2','M-FAN','B2-F','B3-F'].includes(p.id),housingHeight=ultraThin?.030:.075;
+ const ultraThin=['D-L1','F-L1','K-L2','M-L2','B2-F','B3-F'].includes(p.id),housingHeight=ultraThin?.030:.075;
  const shellGeom=shape==='linear'?new THREE.BoxGeometry(.88,housingHeight,.32):shape==='square'?new THREE.BoxGeometry(.48,housingHeight,.48):new THREE.CylinderGeometry(radius,radius,housingHeight,48);
  const shell=new THREE.Mesh(shellGeom,fixtureShellMat.clone());shell.material.emissive.set(0xffffff);shell.name=(fixtureNames[p.id]||p.title)+' surface-mount housing';shell.position.set(x,ultraThin?2.79:2.77,-planY);indoorCeiling.add(shell);
  const geom=shape==='linear'?new THREE.BoxGeometry(.82,.012,.27):shape==='square'?new THREE.BoxGeometry(.43,.012,.43):new THREE.CylinderGeometry(radius-.025,radius-.025,.012,48);
@@ -746,13 +746,15 @@ function flatStrip(id,room,name,x,planY,w,windowSide='north'){
 flatStrip('FL-L-W','客厅','Living concealed window strip',1.665,8.80,2.75);
 // No ceiling fixture is over the two-seat module or chaise. The front light
 // is beyond the sofa's leading edge; two others serve the TV-side circulation.
-for(const [id,x,y,name] of [['FL-L-F',.48,5.87,'Living wall-side circulation downlight'],['FL-L-T1',2.66,6.55,'Living TV-side downlight A'],['FL-L-T2',2.66,8.20,'Living TV-side downlight B']])
+for(const [id,x,y,name] of [['FL-L-F',.48,5.87,'Living wall-side circulation downlight'],['FL-L-T1',2.62,6.95,'Living TV-side downlight A'],['FL-L-T2',2.62,8.45,'Living TV-side downlight B']])
  flatLight(id,'客厅',name,x,y,{power:x<1?.68:1.00,aimX:x<1?.91:2.40,beamAngle:x<1?.64:.72});
 flatLight('FL-D-P','餐厅','Dining linear up/down pendant',2.20,4.35,{kind:'pendant'});
+// The table sits toward Bath 2; this separate, modest light covers the
+// left-hand chair/circulation side without placing another source over diners.
+flatLight('FL-D-A','餐厅','Dining left-side circulation deep-cup downlight',1.00,4.35,{power:.72,beamAngle:Math.PI/6});
 flatLight('FL-E','玄关','Entry anti-glare downlight',.88,1.71,{power:.85});
 flatLight('FL-K-1','厨房','Wet-counter anti-glare downlight A',2.40,.98,{power:.96,aimX:2.40,aimPlanY:.71,beamAngle:.62});
 flatLight('FL-K-2','厨房','Wet-counter anti-glare downlight B',3.20,.98,{power:.96,aimX:3.20,aimPlanY:.71,beamAngle:.62});
-flatLight('FL-K-FR','厨房','Fridge-front anti-glare downlight',3.65,1.55,{power:.74,aimX:3.59,aimPlanY:1.78,beamAngle:.60});
 flatLight('FL-K-ISLAND','厨房','Three prep-counter down-facing pendants',2.48,2.27,{kind:'islandPendant',scheme:'fullOnly',power:1.05});
 flatLight('HY-K-ISLAND','厨房','Three compact prep-counter pendants',2.48,2.27,{kind:'miniIslandPendant',scheme:'hybrid',power:.85});
 flatLight('FL-H-1','走道','Hall anti-glare deep-cup downlight A',3.98,5.77,{power:.72,beamAngle:.70});
@@ -844,7 +846,7 @@ function renderLightSwitches(){
  if(!more.children.length){const empty=document.createElement('p');empty.className='light-empty';empty.textContent='All room lights are in quick controls.';more.append(empty)}
 }
 const QUICK_LIGHTS_KEY='serina-quick-lights-v1';
-const DEFAULT_QUICK_LIGHTS=['L-L1','L-L2','FL-L-W','FL-L-F','D-L1','FL-D-P','F-L1','FL-E','K-L2','FL-K-TASK','FL-K-1','M-L1','M-FAN','FL-M-W','FL-M-A','B2-F','FL-B2-D','HY-B2-DESK','B3-F','Y-L1','B1-L','B2B-L'];
+const DEFAULT_QUICK_LIGHTS=['L-L1','L-L2','FL-L-W','FL-L-F','D-L1','FL-D-P','FL-D-A','F-L1','FL-E','K-L2','FL-K-TASK','FL-K-1','M-L1','M-L2','FL-M-W','FL-M-A','B2-F','FL-B2-D','HY-B2-DESK','B3-F','Y-L1','B1-L','B2B-L'];
 let savedQuickLights;try{savedQuickLights=JSON.parse(localStorage.getItem(QUICK_LIGHTS_KEY))}catch{}
 const quickLightIds=new Set(Array.isArray(savedQuickLights)?savedQuickLights:DEFAULT_QUICK_LIGHTS);
 const lightPanel=document.querySelector('#lightPanel'),lightPanelToggle=document.querySelector('#lightPanelToggle');
