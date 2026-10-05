@@ -11,8 +11,8 @@ export const ROOM_SURVEY = {
   '主人房': {label:'Master bedroom', corners:[[6.29,5.20],[9.57,5.20],[9.57,9.05],[6.29,9.05]], notes:'North wall curtain and window are full-width design targets; measure jambs and recess.'},
   'B2': {label:'Bedroom 2', corners:[[3.245,6.353],[6.29,6.353],[6.29,9.05],[3.245,9.05]], notes:'North three-bay window. Wardrobe remains on the south wall; no east-wall electrical point assumed.'},
   'B3': {label:'Bedroom 3', corners:[[4.775,2.60],[7.82,2.60],[7.82,5.20],[4.775,5.20]], notes:'South wall includes two-bay window; four-door wardrobe and small niche near the door.'},
-  'Bath 1': {label:'Bath 1', corners:[[7.82,2.60],[9.57,2.60],[9.57,5.20],[7.82,5.20]], notes:'Wall lengths are shell estimates; measure tiled finished faces and wet zones.'},
-  'Bath 2': {label:'Bath 2', corners:[[3.245,2.60],[4.775,2.60],[4.775,5.20],[3.245,5.20]], notes:'Wall lengths are shell estimates; measure tiled finished faces and service wall.'},
+  'Bath 1': {label:'Bath 1', corners:[[7.82,2.60],[9.57,2.60],[9.57,5.20],[7.82,5.20]], notes:'Existing plaster ceiling; wall lengths and both light centres are estimates. Measure tiled finished faces, wet zones and ceiling void.'},
+  'Bath 2': {label:'Bath 2', corners:[[3.245,2.60],[4.775,2.60],[4.775,5.20],[3.245,5.20]], notes:'Existing plaster ceiling; wall lengths and both light centres are estimates. Measure tiled finished faces, wet zones and ceiling void.'},
   'AC Ledge': {label:'AC ledge', corners:[[5.37,.08],[7.82,.08],[7.82,2.60],[5.37,2.60]], notes:'External/service area; model envelope only, access and equipment clearances require site survey.'}
 };
 
@@ -67,8 +67,10 @@ export const FIXTURE_META = {
   'M-FAN':{x:8.10,y:7.62,size:'Existing fan hook; no fitting',mount:'Retain hook and safely cap outlet',feed:'Existing M-FAN, unused in hybrid scheme'},
   'B2-F':{x:4.85,y:7.68,size:'Slim ceiling light ≈ 480 × 480 mm',mount:'Existing fan-hook centre; hook treatment to confirm',feed:'Existing B2-F'},
   'B3-F':{x:6.38,y:3.98,size:'Slim ceiling light ≈ Ø 470 mm',mount:'Existing fan-hook centre; hook treatment to confirm',feed:'Existing B3-F'},
-  'B1-L':{x:8.72,y:4.18,size:'Damp-rated ceiling light ≈ Ø 340 mm',mount:'Surface to original slab',feed:'Existing B1-L'},
-  'B2B-L':{x:4.05,y:4.18,size:'Damp-rated ceiling light ≈ Ø 340 mm',mount:'Surface to original slab',feed:'Existing B2B-L'},
+  'B1-L':{x:8.72,y:4.18,size:'Diffuse recessed front light; ≈ Ø 185 mm trim, cut-out to fixture spec; target 700–900 lm',mount:'Existing Bath 1 plaster ceiling, front/vanity-WC zone',feed:'Original B1-L point; actual outlet and switch to trace'},
+  'B1-SH':{x:8.72,y:3.08,size:'Proposed IP65 diffuse recessed shower light; ≈ Ø 185 mm trim, cut-out to fixture spec; target 700–900 lm',mount:'Existing Bath 1 plaster ceiling; final centre after shower/pipe survey',feed:'Proposed branch from bathroom light circuit via accessible ceiling void; qualified electrician to verify'},
+  'B2B-L':{x:4.05,y:4.18,size:'Diffuse recessed front light; ≈ Ø 185 mm trim, cut-out to fixture spec; target 700–900 lm',mount:'Existing Bath 2 plaster ceiling, front/vanity-WC zone',feed:'Original B2B-L point; actual outlet and switch to trace'},
+  'B2B-SH':{x:4.05,y:3.08,size:'Proposed IP65 diffuse recessed shower light; ≈ Ø 185 mm trim, cut-out to fixture spec; target 700–900 lm',mount:'Existing Bath 2 plaster ceiling; final centre after shower/pipe survey',feed:'Proposed branch from bathroom light circuit via accessible ceiling void; qualified electrician to verify'},
   'M-BEDSIDE-ENTRY':{x:6.72,y:6.50,size:'Shielded table lamp ≈ Ø 250 mm',mount:'Bedside table, diffuser ≈ 725 mm AFFL',feed:'Plug-in; nearby socket to confirm'},
   'M-BEDSIDE-WINDOW':{x:6.72,y:8.72,size:'Shielded table lamp ≈ Ø 250 mm',mount:'Bedside table, diffuser ≈ 725 mm AFFL',feed:'Plug-in; nearby socket to confirm'},
   'HY-B2-DESK':{x:3.78,y:7.82,size:'Adjustable desk lamp ≈ 300 mm reach',mount:'Desk top ≈ 770 mm AFFL',feed:'Plug-in; desk outlet to confirm'},

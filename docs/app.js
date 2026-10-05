@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS,fixtureMeta} from './planning-data.js?v=127';
+import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS,fixtureMeta} from './planning-data.js?v=128';
 
 RectAreaLightUniformsLib.init();
 
@@ -83,8 +83,10 @@ points.push(
  P('B3-L1','B3','light',5.20,3.98,2.72,'B3 靠 Bath 2 原灯位','Developer ceiling light point','方案安装小型可调角度壁扇并吊装在天花；核对吊装额定固定、供电、摆头范围。','图纸核实'),
  P('B3-L2','B3','light',7.55,3.98,2.72,'B3 右侧灯位','Developer ceiling light point','右侧 Type A 原始点。','图纸核实'),
  P('B3-F','B3','fan',6.38,3.98,2.75,'B3 中央原风扇钩位','Developer fan point / hook','方案改为中央薄吸顶灯；原风扇钩处理及接线须电工现场确认。','图纸核实'),
- P('B1-L','Bath 1','light',8.72,4.18,2.72,'Bath 1 天花灯位','Developer ceiling light point','防潮灯具，现场再量出线口。','图纸核实'),
- P('B2B-L','Bath 2','light',4.05,4.18,2.72,'Bath 2 天花灯位','Developer ceiling light point','防潮灯具，现场再量出线口。','图纸核实')
+ P('B1-L','Bath 1','light',8.72,4.18,2.72,'Bath 1 original ceiling point','Developer ceiling light point','Existing plaster ceiling: use a diffuse recessed front-zone light. Survey outlet and cut-out before work.','Drawing translation'),
+ P('B1-SH','Bath 1','proposed',8.72,3.08,2.72,'Bath 1 proposed shower light','Proposed recessed shower light','IP65 target above shower; branch through accessible existing ceiling void, subject to electrician and wet-zone check.','Proposed'),
+ P('B2B-L','Bath 2','light',4.05,4.18,2.72,'Bath 2 original ceiling point','Developer ceiling light point','Existing plaster ceiling: use a diffuse recessed front-zone light. Survey outlet and cut-out before work.','Drawing translation'),
+ P('B2B-SH','Bath 2','proposed',4.05,3.08,2.72,'Bath 2 proposed shower light','Proposed recessed shower light','IP65 target above shower; branch through accessible existing ceiling void, subject to electrician and wet-zone check.','Proposed')
 );
 // The source drawing uses Chinese annotations, but the user-facing viewer is
 // English throughout. Keep the original IDs and coordinates for audit.
@@ -135,8 +137,8 @@ const englishPointDetails={
  'B3-L1':['Bedroom 3 Bath-2-side original light point','Proposed compact ceiling-mounted wall fan needs rated fixing and wiring checks.'],
  'B3-L2':['Bedroom 3 second original light point','Developer Type A drawing translation; verify on site.'],
  'B3-F':['Bedroom 3 original fan hook','The retained first scheme uses a central slim ceiling light here.'],
- 'B1-L':['Bath 1 original light point','Use a suitably rated wet-area fitting.'],
- 'B2B-L':['Bath 2 original light point','Use a suitably rated wet-area fitting.']
+ 'B1-L':['Bath 1 original light point','Existing plaster ceiling; proposed diffuse recessed front-zone fitting. Confirm actual point and cut-out.'],
+ 'B2B-L':['Bath 2 original light point','Existing plaster ceiling; proposed diffuse recessed front-zone fitting. Confirm actual point and cut-out.']
 };
 for(const p of points){
  const details=englishPointDetails[p.id];
@@ -585,8 +587,8 @@ for(const [x,planY,w,d] of [[4.83,5.825,9.48,6.45],[2.065,1.34,3.95,2.52],[4.705
 }
 const lightCircuits=[];
 let lightingScheme='local';
-const fixtureNames={'L-L2':'Living room globe pendant','D-L1':'Dining slim ceiling light','F-L1':'Entry slim ceiling light','K-L2':'Kitchen slim ceiling light','Y-L1':'Yard light','H-L1':'Hall light','M-L2':'Master bedroom slim ceiling light','B2-F':'Bedroom 2 slim ceiling light','B3-F':'Bedroom 3 slim ceiling light','B1-L':'Bath 1 light','B2B-L':'Bath 2 light'};
-const defaultLights=new Set(['L-L1','L-L2','D-L1','F-L1','K-L2','SOFA-COVE','M-L1','M-L2','B2-F','B3-F']);
+const fixtureNames={'L-L2':'Living room globe pendant','D-L1':'Dining slim ceiling light','F-L1':'Entry slim ceiling light','K-L2':'Kitchen slim ceiling light','Y-L1':'Yard light','H-L1':'Hall light','M-L2':'Master bedroom slim ceiling light','B2-F':'Bedroom 2 slim ceiling light','B3-F':'Bedroom 3 slim ceiling light','B1-L':'Bath 1 front diffuse recessed light','B2B-L':'Bath 2 front diffuse recessed light'};
+const defaultLights=new Set(['L-L1','L-L2','D-L1','F-L1','K-L2','SOFA-COVE','M-L1','M-L2','B2-F','B3-F','B1-L','B1-SH','B2B-L','B2B-SH']);
 // Broad, continuous luminous washes are visual placeholders for the concealed
 // linear strips. Do not fake them with separate point lights: those create
 // scallops and make the strip look like a row of spotlights.
@@ -631,6 +633,18 @@ for(const [id,room,x,planY] of [['B2-NICHE','B2',4.97,6.78],['B3-NICHE','B3',6.1
 const unusedRoomLightPoints=new Set(['L-L1','M-L1','M-L3','B2-L1','B2-L2','B3-L1','B3-L2']);
 for(const p of points.filter(p=>(p.type==='light'&&!unusedRoomLightPoints.has(p.id))||['B2-F','B3-F'].includes(p.id))){
  const [x,,z]=p.pos,planY=-z,shape=p.id==='K-L2'?'linear':p.id.startsWith('B2-')?'square':'round';
+ if(p.room.startsWith('Bath')){
+  // Bathrooms already have plaster ceilings. Represent a flush diffuser at
+  // the existing feed; the visible ring is a cut-out target, not a new soffit.
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.092,.009,8,40),new THREE.MeshStandardMaterial({color:0xf4f3ef,roughness:.8}));
+  ring.rotation.x=Math.PI/2;ring.position.set(x,2.844,-planY);ring.name=p.room+' front recessed bezel';indoorCeiling.add(ring);
+  const lens=new THREE.Mesh(new THREE.CylinderGeometry(.083,.083,.004,40),diffuserOffMat);
+  lens.position.set(x,2.838,-planY);lens.name=p.room+' front opal diffuser';indoorCeiling.add(lens);
+  const light=new THREE.SpotLight(LIGHT_3500K,4.2,5.0,.87,1,1.3);
+  light.position.set(x,2.827,-planY);light.target.position.set(x,.7,-planY-.16);light.visible=false;scene.add(light,light.target);
+  lightCircuits.push({id:p.id,room:p.room,name:fixtureNames[p.id],scheme:'both',on:true,light,lens,objects:[ring],keepObjects:true});
+  continue;
+ }
  if(p.id==='L-L2'){
   // Keep the developer's outlet fixed. A visible swag cable runs from its
   // canopy to a surface-mounted hook 450 mm toward the dining room.
@@ -662,6 +676,17 @@ for(const p of points.filter(p=>(p.type==='light'&&!unusedRoomLightPoints.has(p.
  const geom=shape==='linear'?new THREE.BoxGeometry(.82,.012,.27):shape==='square'?new THREE.BoxGeometry(.43,.012,.43):new THREE.CylinderGeometry(radius-.025,radius-.025,.012,48);
  const lens=new THREE.Mesh(geom,diffuserOffMat);lens.name=(fixtureNames[p.id]||p.title)+' broad diffuser';lens.position.set(x,ultraThin?2.766:2.726,-planY);indoorCeiling.add(lens);
  lightCircuits.push({id:p.id,room:p.room,name:fixtureNames[p.id]||p.title,scheme:['Y-L1','B1-L','B2B-L','B3-F'].includes(p.id)?'both':'local',on:defaultLights.has(p.id),light,lens,shell});
+}
+// Proposed second bathroom fittings: these centres are visual set-out
+// estimates, not points shown on the developer's electrical drawing.
+for(const [id,room,x,planY] of [['B1-SH','Bath 1',8.72,3.08],['B2B-SH','Bath 2',4.05,3.08]]){
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(.092,.009,8,40),new THREE.MeshStandardMaterial({color:0xf4f3ef,roughness:.8}));
+ ring.rotation.x=Math.PI/2;ring.position.set(x,2.844,-planY);ring.name=room+' shower recessed bezel · proposed';indoorCeiling.add(ring);
+ const lens=new THREE.Mesh(new THREE.CylinderGeometry(.083,.083,.004,40),diffuserOffMat);
+ lens.position.set(x,2.838,-planY);lens.name=room+' shower IP65 diffuser · proposed';indoorCeiling.add(lens);
+ const light=new THREE.SpotLight(LIGHT_3500K,4.2,5.0,.87,1,1.3);
+ light.position.set(x,2.827,-planY);light.target.position.set(x,.9,-planY);light.visible=false;scene.add(light,light.target);
+ lightCircuits.push({id,room,name:'Shower IP65 diffuse recessed light · proposed',scheme:'both',on:true,light,lens,objects:[ring],keepObjects:true});
 }
 const flatFixtures=new THREE.Group();flatFixtures.name='Flat scheme fixtures';scene.add(flatFixtures);
 const flatShell=new THREE.MeshStandardMaterial({color:0xf3f3f0,roughness:.85});
@@ -846,7 +871,7 @@ function renderLightSwitches(){
  if(!more.children.length){const empty=document.createElement('p');empty.className='light-empty';empty.textContent='All room lights are in quick controls.';more.append(empty)}
 }
 const QUICK_LIGHTS_KEY='serina-quick-lights-v1';
-const DEFAULT_QUICK_LIGHTS=['L-L1','L-L2','FL-L-W','FL-L-F','D-L1','FL-D-P','FL-D-A','F-L1','FL-E','K-L2','FL-K-TASK','FL-K-1','M-L1','M-L2','FL-M-W','FL-M-A','B2-F','FL-B2-D','HY-B2-DESK','B3-F','Y-L1','B1-L','B2B-L'];
+const DEFAULT_QUICK_LIGHTS=['L-L1','L-L2','FL-L-W','FL-L-F','D-L1','FL-D-P','FL-D-A','F-L1','FL-E','K-L2','FL-K-TASK','FL-K-1','M-L1','M-L2','FL-M-W','FL-M-A','B2-F','FL-B2-D','HY-B2-DESK','B3-F','Y-L1','B1-L','B1-SH','B2B-L','B2B-SH'];
 let savedQuickLights;try{savedQuickLights=JSON.parse(localStorage.getItem(QUICK_LIGHTS_KEY))}catch{}
 const quickLightIds=new Set(Array.isArray(savedQuickLights)?savedQuickLights:DEFAULT_QUICK_LIGHTS);
 const lightPanel=document.querySelector('#lightPanel'),lightPanelToggle=document.querySelector('#lightPanelToggle');
@@ -900,7 +925,7 @@ function focusRoom(r){if(r==='全屋'){fitWholeHome();return}const survey=ROOM_S
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();canvas.addEventListener('pointerup',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(mouse,camera);const hit=ray.intersectObjects(markerMeshes.filter(x=>x.visible))[0];if(hit){showDetail(hit.object.userData);openDrawer('points')}});
 function modelOffsets(x,y,room){const survey=ROOM_SURVEY[room];if(!survey)return 'Horizontal wall offsets unmeasured';const xs=survey.corners.map(c=>c[0]),ys=survey.corners.map(c=>c[1]);return `Model offset from west/south room bounds: ≈ ${Math.max(0,Math.round((x-Math.min(...xs))*1000))} / ${Math.max(0,Math.round((y-Math.min(...ys))*1000))} mm`}
 function pointSource(p){if(p.type==='proposed')return 'Proposed addition · approval and route pending';if(p.id==='AC-1')return 'Equipment planning indication; confirm isolators';if(p.id.startsWith('Y-S'))return 'Developer drawing: three Yard groups; horizontal offsets unmeasured';if(p.type==='light'||p.type==='fan')return 'Developer right-hand Type A electrical drawing, translated to model';return 'Developer outlet schedule/elevation; marker approximate'}
-function pointHeight(p){if(p.type==='light'||p.type==='fan')return '≈ 2850 mm ceiling/slab target; marker rendered lower for visibility';if(p.id.endsWith('-AC'))return '2525 mm AFFL (developer legend; site-check)';return `≈ ${Math.round(p.pos[1]*1000)} mm AFFL (drawing legend/model; site-check)`}
+function pointHeight(p){if(['B1-L','B2B-L','B1-SH','B2B-SH'].includes(p.id))return 'Existing bathroom plaster ceiling height to measure; marker rendered lower for visibility';if(p.type==='light'||p.type==='fan')return '≈ 2850 mm ceiling/slab target; marker rendered lower for visibility';if(p.id.endsWith('-AC'))return '2525 mm AFFL (developer legend; site-check)';return `≈ ${Math.round(p.pos[1]*1000)} mm AFFL (drawing legend/model; site-check)`}
 function showDetail(p){
  const detail=document.querySelector('#detail'),x=p.pos[0],y=-p.pos[2];
  detail.innerHTML=`<small>${p.id} · ${ROOM_LABELS[p.room]||p.room}</small><h2>${p.title}</h2><div class="meta"><span class="badge">${TYPES[p.type].label}</span><span class="badge">Model position · verify</span></div><p><b>${p.spec}</b> · ${p.note}</p><p><b>Source:</b> ${pointSource(p)}</p><p><b>Model plan centre:</b> X ≈ ${Math.round(x*1000)} / Y ≈ ${Math.round(y*1000)} mm from the south-west model origin.<br><b>Mounting height:</b> ${pointHeight(p)}.<br>${modelOffsets(x,y,p.room)}</p>`;
@@ -972,8 +997,8 @@ const roomPresets={
  master:{eye:[9.04,6.83],look:[7.75,8.73],bounds:[6.47,9.40,6.50,8.77]},
  b2:{eye:[4.77,8.65],look:[4.78,6.54],lookHeight:2.55,bounds:[3.40,6.13,6.50,8.78]},
  b3:{eye:[7.24,3.22],look:[5.66,4.04],lookHeight:2.10,bounds:[4.92,7.65,2.76,5.02]},
- bath1:{eye:[8.47,3.22],look:[8.80,4.67],bounds:[7.95,9.41,2.76,5.02]},
- bath2:{eye:[3.72,3.22],look:[4.23,4.67],bounds:[3.40,4.62,2.76,5.02]}
+ bath1:{eye:[8.42,4.72],look:[8.80,3.08],lookHeight:2.54,bounds:[7.95,9.41,2.76,5.02]},
+ bath2:{eye:[4.28,4.72],look:[4.00,3.08],lookHeight:2.54,bounds:[3.40,4.62,2.76,5.02]}
 };
 const measurementContent=document.querySelector('#measurementContent');
 let measureOn=false;
@@ -1053,7 +1078,7 @@ function drawMeasurements(){
 }
 function setInside(on){inside=on;document.querySelector('#app').classList.toggle('inside-mode',on);indoorCeiling.visible=on;syncLights();document.querySelector('#insideView').classList.toggle('active',on);document.querySelector('#planView').classList.toggle('active',!on);document.querySelector('#walktools').hidden=!on;camera.fov=on?(isMobile?85:65):32;camera.updateProjectionMatrix();syncEnvironment();if(on){currentInsideRoom='common';insideRoomSelect.value='common';controls.target.set(1.60,1.47,-7.45);camera.position.set(1.62,1.57,-2.30)}else focusRoom(activeRoom);controls.enableDamping=!(on&&isMobile);controls.enabled=!(on&&isMobile);controls.update()}
 document.querySelector('#daylightToggle').onclick=()=>{daylight=!daylight;syncEnvironment()};
-function indoorPlace(place){if(!inside)setInside(true);const p=roomPresets[place];if(!p)return;currentInsideRoom=place;insideRoomSelect.value=place;camera.position.set(p.eye[0],1.57,-p.eye[1]);controls.target.set(p.look[0],p.lookHeight??1.44,-p.look[1]);controls.update()}
+function indoorPlace(place){if(!inside)setInside(true);const p=roomPresets[place];if(!p)return;currentInsideRoom=place;insideRoomSelect.value=place;const matchingRoom={'entry':'玄关','living':'客厅','dining':'餐厅','kitchen':'厨房','prep':'厨房','yard':'Yard','ledge':'AC Ledge','hall':'走道','master':'主人房','b2':'B2','b3':'B3','bath1':'Bath 1','bath2':'Bath 2'}[place];if(matchingRoom){activeRoom=matchingRoom;roomSelect.value=drawerRoomSelect.value=lightRoomSelect.value=matchingRoom;applyFilters();renderPointRegister();renderMeasurements();renderLightSwitches()}camera.position.set(p.eye[0],1.57,-p.eye[1]);controls.target.set(p.look[0],p.lookHeight??1.44,-p.look[1]);controls.update()}
 insideRoomSelect.onchange=()=>indoorPlace(insideRoomSelect.value);
 function walkInside(dir,step=.38){if(!inside)return;let dx=controls.target.x-camera.position.x,dz=controls.target.z-camera.position.z;const len=Math.hypot(dx,dz)||1;dx/=len;dz/=len;let mx=0,mz=0;if(dir==='forward'){mx=dx;mz=dz}else if(dir==='back'){mx=-dx;mz=-dz}else if(dir==='left'){mx=dz;mz=-dx}else if(dir==='right'){mx=-dz;mz=dx}const [minX,maxX,minY,maxY]=roomPresets[currentInsideRoom].bounds,nx=THREE.MathUtils.clamp(camera.position.x+mx*step,minX,maxX),nz=THREE.MathUtils.clamp(camera.position.z+mz*step,-maxY,-minY);controls.target.x+=nx-camera.position.x;controls.target.z+=nz-camera.position.z;camera.position.x=nx;camera.position.z=nz;controls.update()}
 function lookInside(dx,dy=0){if(!inside)return;const direction=controls.target.clone().sub(camera.position).normalize();let yaw=Math.atan2(direction.x,-direction.z),pitch=Math.asin(THREE.MathUtils.clamp(direction.y,-1,1));yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-.92,.92);const cos=Math.cos(pitch);controls.target.copy(camera.position).add(new THREE.Vector3(Math.sin(yaw)*cos,Math.sin(pitch),-Math.cos(yaw)*cos).multiplyScalar(2));controls.update()}
