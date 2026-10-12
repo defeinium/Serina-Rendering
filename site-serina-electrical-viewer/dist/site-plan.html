@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f2">
+  <title>Serina · Lights &amp; fans</title>
+  <link rel="stylesheet" href="site-plan.css?v=6">
+</head>
+<body>
+  <header class="header">
+    <div class="identity"><strong>SERINA</strong><span>Lights &amp; fans</span></div>
+    <span class="revision">REVISION 06 · 12 OCT 2026</span>
+    <button id="print" class="quiet" type="button">Print</button>
+  </header>
+  <nav class="tools" aria-label="Drawing controls">
+    <span class="plan-label">Lighting plan</span>
+    <label class="dimension-toggle"><input type="checkbox" id="furniture" checked> Furniture</label>
+    <label class="dimension-toggle"><input type="checkbox" id="dimensions" checked> Dimensions</label>
+    <button id="source" class="quiet" type="button">Electrical source ↗</button>
+  </nav>
+  <main class="workspace">
+    <section class="drawing" aria-label="Interactive floor plan">
+      <div class="canvas" id="canvas" aria-label="Lights and fans drawing">
+        <svg id="plan" viewBox="85 140 920 880" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Whole-home lighting and fan drawing. Existing feeds, installed fittings and unused points are distinguished."></svg>
+      </div>
+      <div class="drawing-footer">
+        <div id="legend" class="legend"></div>
+        <div class="zoom" aria-label="Zoom controls">
+          <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+          <button id="fit" type="button">Fit</button>
+          <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+        </div>
+      </div>
+      <p class="drawing-note">Dimensions in millimetres · Drawing reference · Verify on site <span>Drag to pan · Pinch to zoom · Tap a marker</span></p>
+    </section>
+    <aside class="brief" aria-label="Selected item information" aria-live="polite">
+      <div class="brief-heading"><span id="detail-tag">SITE BRIEF</span><button id="close-detail" type="button" aria-label="Clear selection" hidden>×</button></div>
+      <div id="detail"></div>
+    </aside>
+  </main>
+  <div class="print-footer">SERINA · REVISION 06 · 12 OCT 2026 · mm · COORDINATION ONLY — NOT FOR DRILLING</div>
+  <script src="site-plan.js?v=6" defer></script>
+</body>
+</html>

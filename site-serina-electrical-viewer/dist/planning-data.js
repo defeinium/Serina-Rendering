@@ -8,9 +8,9 @@ export const ROOM_SURVEY = {
   '厨房': {label:'Kitchen', corners:[[1.795,.08],[4.04,.08],[4.04,2.60],[1.795,2.60]], notes:'East side has a louvre window and a Yard door. Measure finished cabinet-to-wall widths.'},
   'Yard': {label:'Yard', corners:[[4.04,.08],[5.37,.08],[5.37,2.60],[4.04,2.60]], notes:'East side includes the AC-ledge window/door; Bath 2 service end holds tap and trap.'},
   '走道': {label:'Hall', corners:[[3.245,5.20],[6.29,5.20],[6.29,6.353],[3.245,6.353]], notes:'Open connections and bedroom/bath doors interrupt these planning edges.'},
-  '主人房': {label:'Master bedroom', corners:[[6.29,5.20],[9.57,5.20],[9.57,9.05],[6.29,9.05]], notes:'North wall curtain and window are full-width design targets; measure jambs and recess.'},
+  '主人房': {label:'Master bedroom', corners:[[6.29,5.20],[9.57,5.20],[9.57,9.05],[6.29,9.05]], notes:'Full-wall double curtain on exposed ceiling rail; no curtain box. Measure jambs and recess.'},
   'B2': {label:'Bedroom 2', corners:[[3.245,6.353],[6.29,6.353],[6.29,9.05],[3.245,9.05]], notes:'North three-bay window. Wardrobe remains on the south wall; no east-wall electrical point assumed.'},
-  'B3': {label:'Bedroom 3', corners:[[4.775,2.60],[7.82,2.60],[7.82,5.20],[4.775,5.20]], notes:'South wall includes two-bay window; four-door wardrobe and small niche near the door.'},
+  'B3': {label:'Bedroom 3', corners:[[4.775,2.60],[7.82,2.60],[7.82,5.20],[4.775,5.20]], notes:'South wall includes two-bay window; Full four-door wardrobe, no niche; rounded exposed corner.'},
   'Bath 1': {label:'Bath 1', corners:[[7.82,2.60],[9.57,2.60],[9.57,5.20],[7.82,5.20]], notes:'Existing plaster ceiling; wall lengths and both light centres are estimates. Measure tiled finished faces, wet zones and ceiling void.'},
   'Bath 2': {label:'Bath 2', corners:[[3.245,2.60],[4.775,2.60],[4.775,5.20],[3.245,5.20]], notes:'Existing plaster ceiling; wall lengths and both light centres are estimates. Measure tiled finished faces, wet zones and ceiling void.'},
   'AC Ledge': {label:'AC ledge', corners:[[5.37,.08],[7.82,.08],[7.82,2.60],[5.37,2.60]], notes:'External/service area; model envelope only, access and equipment clearances require site survey.'}
@@ -47,50 +47,9 @@ export const UNLOCATED_POINTS = [
   {room:'客厅',id:'L-AC-SW',name:'Living AC pilot switch',kind:'Switch',source:'Developer legend',height:'1200 mm AFFL (legend)',note:'Match it to the fan-coil feed.'},
   {room:'主人房',id:'M-SW',name:'Bedroom and ensuite switch groups',kind:'Switch',source:'Developer plan',height:'1200 mm AFFL (legend)',note:'Two 2-gang groups; trace each lighting circuit and water-heater pilot.'},
   {room:'B2',id:'B2-SW',name:'Bedroom 2 two-gang light switch',kind:'Switch',source:'Developer plan',height:'1200 mm AFFL (legend)',note:'Wardrobe door-side niche must leave switch accessible.'},
-  {room:'B3',id:'B3-SW',name:'Bedroom 3 two-gang light switch',kind:'Switch',source:'Developer plan',height:'1200 mm AFFL (legend)',note:'Wardrobe niche must leave switch accessible.'},
+  {room:'B3',id:'B3-SW',name:'Bedroom 3 two-gang light switch',kind:'Switch',source:'Developer plan',height:'1200 mm AFFL (legend)',note:'Full wardrobe must leave relocated switch accessible; no cabinet lighting.'},
   {room:'Bath 1',id:'B1-WH-SW',name:'Water-heater pilot switch',kind:'Switch',source:'Developer plan',height:'1200 mm AFFL (legend)',note:'Outside/at bathroom entrance; verify zone and isolator.'},
   {room:'Bath 2',id:'B2B-WH-SW',name:'Water-heater pilot switch',kind:'Switch',source:'Developer plan',height:'1200 mm AFFL (legend)',note:'Outside/at bathroom entrance; verify zone and isolator.'},
   {room:'AC Ledge',id:'AC-1',name:'Condenser feeds and isolators',kind:'Fixed service',source:'AC service coordination; no general 13A shown',height:'Site measure',note:'Mark each condenser, isolator, breaker and service clearance with the AC contractor.'}
 ];
 
-export const FIXTURE_META = {
-  'L-L1':{x:1.665,y:9.05,size:'≈ 2750 mm continuous strip',mount:'Concealed in window pelmet',feed:'L-L1 proposed feed; electrician to trace'},
-  'SOFA-COVE':{x:.17,y:7.1,size:'≈ 3800 mm strip (model)',mount:'Sofa-wall uplight cove',feed:'Proposed circuit; confirm driver/access'},
-  'M-L1':{x:7.93,y:8.80,size:'≈ 3250 mm continuous strip',mount:'Full-wall curtain pelmet',feed:'M-L1 proposed feed; electrician to trace'},
-  'L-L2':{x:1.62,y:6.27,size:'Ø 360 mm globe; 450 mm surface swag',mount:'Pendant, globe centre ≈ 2310 mm AFFL',feed:'Existing L-L2 ceiling outlet'},
-  'D-L1':{x:1.62,y:4.35,size:'Slim ceiling light ≈ Ø 470 mm',mount:'Surface to original slab',feed:'Existing D-L1'},
-  'F-L1':{x:1.05,y:1.35,size:'Slim ceiling light ≈ Ø 340 mm',mount:'Surface to original slab',feed:'Existing F-L1'},
-  'K-L2':{x:3.02,y:1.35,size:'Linear ceiling light ≈ 880 × 320 mm',mount:'Surface to original slab',feed:'Existing K-L2'},
-  'Y-L1':{x:4.78,y:1.30,size:'Ceiling light ≈ Ø 470 mm',mount:'Surface to original slab',feed:'Existing Y-L1'},
-  'H-L1':{x:4.85,y:5.78,size:'Ceiling light ≈ Ø 470 mm',mount:'Surface to original slab',feed:'Existing H-L1'},
-  'M-L2':{x:8.10,y:6.72,size:'Slim diffuse ceiling light ≈ Ø 470 mm',mount:'Existing door-side light outlet; exact position to survey',feed:'Existing M-L2'},
-  'M-FAN':{x:8.10,y:7.62,size:'Existing fan hook; no fitting',mount:'Retain hook and safely cap outlet',feed:'Existing M-FAN, unused in hybrid scheme'},
-  'B2-F':{x:4.85,y:7.68,size:'Slim ceiling light ≈ 480 × 480 mm',mount:'Existing fan-hook centre; hook treatment to confirm',feed:'Existing B2-F'},
-  'B3-F':{x:6.38,y:3.98,size:'Slim ceiling light ≈ Ø 470 mm',mount:'Existing fan-hook centre; hook treatment to confirm',feed:'Existing B3-F'},
-  'B1-L':{x:8.72,y:4.18,size:'Diffuse recessed front light; ≈ Ø 185 mm trim, cut-out to fixture spec; target 700–900 lm',mount:'Existing Bath 1 plaster ceiling, front/vanity-WC zone',feed:'Original B1-L point; actual outlet and switch to trace'},
-  'B1-SH':{x:8.72,y:3.08,size:'Proposed IP65 diffuse recessed shower light; ≈ Ø 185 mm trim, cut-out to fixture spec; target 700–900 lm',mount:'Existing Bath 1 plaster ceiling; final centre after shower/pipe survey',feed:'Proposed branch from bathroom light circuit via accessible ceiling void; qualified electrician to verify'},
-  'B2B-L':{x:4.05,y:4.18,size:'Diffuse recessed front light; ≈ Ø 185 mm trim, cut-out to fixture spec; target 700–900 lm',mount:'Existing Bath 2 plaster ceiling, front/vanity-WC zone',feed:'Original B2B-L point; actual outlet and switch to trace'},
-  'B2B-SH':{x:4.05,y:3.08,size:'Proposed IP65 diffuse recessed shower light; ≈ Ø 185 mm trim, cut-out to fixture spec; target 700–900 lm',mount:'Existing Bath 2 plaster ceiling; final centre after shower/pipe survey',feed:'Proposed branch from bathroom light circuit via accessible ceiling void; qualified electrician to verify'},
-  'M-BEDSIDE-ENTRY':{x:6.72,y:6.50,size:'Shielded table lamp ≈ Ø 250 mm',mount:'Bedside table, diffuser ≈ 725 mm AFFL',feed:'Plug-in; nearby socket to confirm'},
-  'M-BEDSIDE-WINDOW':{x:6.72,y:8.72,size:'Shielded table lamp ≈ Ø 250 mm',mount:'Bedside table, diffuser ≈ 725 mm AFFL',feed:'Plug-in; nearby socket to confirm'},
-  'HY-B2-DESK':{x:3.78,y:7.82,size:'Adjustable desk lamp ≈ 300 mm reach',mount:'Desk top ≈ 770 mm AFFL',feed:'Plug-in; desk outlet to confirm'},
-  'B2-NICHE':{x:4.97,y:6.78,size:'Recessed puck ≈ Ø 58 mm',mount:'Wardrobe niche ≈ 1515 mm AFFL',feed:'Cabinet circuit to coordinate'},
-  'B3-NICHE':{x:6.145,y:4.82,size:'Recessed puck ≈ Ø 58 mm',mount:'Wardrobe niche ≈ 1515 mm AFFL',feed:'Cabinet circuit to coordinate'},
-  'FL-L-W':{x:1.665,y:8.80,size:'≈ 2750 mm continuous strip',mount:'Recessed slot in 100 mm flat ceiling',feed:'Re-route from existing window-side circuit'},
-  'FL-D-P':{x:2.20,y:4.35,size:'1200 mm linear up/down pendant',mount:'Bar underside ≈ 1725 mm AFFL',feed:'New position through ceiling void; centre on final table'},
-  'FL-D-A':{x:1.00,y:4.35,size:'Ø 120 mm cut-out; 60° deep-cup; target 400–600 lm',mount:'Recessed in 100 mm flat ceiling over left dining circulation, outside chair seats',feed:'New position through ceiling void; separate control from dining pendant; site measure'},
-  'FL-K-ISLAND':{x:2.48,y:2.27,size:'3 shades ≈ Ø 210 mm; 420 mm centres',mount:'Pendant group above prep counter',feed:'New ceiling position; trace circuit'},
-  'HY-K-ISLAND':{x:2.48,y:2.27,size:'3 shades ≈ Ø 120 mm; 380 mm centres',mount:'Pendant group above prep counter',feed:'New ceiling position; trace circuit'},
-  'FL-K-TASK':{x:3.02,y:.54,size:'≈ 1700 mm continuous strip',mount:'Under upper cabinet ≈ 1435 mm AFFL',feed:'Cabinet driver/access to coordinate'},
-  'FL-M-W':{x:7.93,y:8.80,size:'≈ 2980 mm continuous strip',mount:'Recessed in master flat ceiling',feed:'New ceiling position; trace circuit'},
-  'FL-B2-W':{x:4.77,y:8.80,size:'≈ 2730 mm continuous strip',mount:'Recessed in B2 flat ceiling',feed:'New ceiling position; trace circuit'}
-};
-
-export function fixtureMeta(circuit){
-  const exact=FIXTURE_META[circuit.id];
-  if(exact)return exact;
-  if(circuit.id.startsWith('FL-')&&circuit.kind==='downlight'){
-    return {x:circuit.light.position.x,y:-circuit.light.position.z,size:'Ø 120 mm cut-out; 56 mm deep cup',mount:'Recessed in 100 mm flat ceiling',feed:'Proposed position; circuit to trace'};
-  }
-  return null;
-}
