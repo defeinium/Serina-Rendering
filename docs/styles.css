@@ -80,3 +80,11 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .design-fact{display:grid;gap:4px;border-top:1px solid var(--line);padding:12px 0;font-size:12px;line-height:1.45}.design-fact strong{color:#d8ece5}.design-fact span{color:#bccdc9}
 
 .light-compare{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:4px;margin-bottom:9px}.light-compare button{background:#293b3e;color:#e9f0ee;border:1px solid var(--line);border-radius:8px;min-height:36px;padding:4px;font-size:10px;text-align:center}.light-compare .daylight-toggle[aria-pressed="true"]{background:#4a5446;border-color:#98a788}
+
+/* All open-plan fixtures stay in one direct list, independent of saved pins. */
+.common-lights .quick-light-switches{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#607171 transparent}
+.common-lights .light-row{grid-template-columns:minmax(0,1fr)}
+.common-lights .light-panel-head,.common-lights .light-room-picker,.common-lights .light-compare{flex:none}
+.common-lights .more-lights{flex:none;max-height:180px}
+.common-lights #lightSwitches{display:none}
+.common-lights .fixture-name{-webkit-line-clamp:1}

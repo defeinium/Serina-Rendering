@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-12-r2';
+export const DESIGN_REVISION = '2026-10-12-r3';
 export const SOURCE_REGISTER = [
  ['F-L1','玄关',396,1144,'light','Entry original light point'],
  ['L-L1','客厅',491,365,'light','Living track supply'],
@@ -67,7 +67,7 @@ export const FIXTURES = [
  pointFixture('L-L1','客厅','Living L-track','track',{route:[[203,lf[1]],[374,lf[1]],[374,371]].map(p=>planToModel(...p,'客厅')),heads:[[215,lf[1]],[337,lf[1]],[374,291],[374,350]].map(p=>planToModel(...p,'客厅')),status:'Rail through original supply · lengths and heads to confirm',size:'Rail targets approximately 2200 + 1450 mm'}),
  pointFixture('L-L2','客厅','Living ceiling light','ceiling',{diameter:.47}),
  pointFixture('D-L1','餐厅','Dining pendant','pendant',{centre:DINING.centre,diameter:.46,status:'Horizontal offset to table centre · adaptor/model pending',size:'Illustrative Ø 460 mm; final fixture not selected'}),
- pointFixture('K-L2','厨房','Kitchen track','track',{route:[[kl[0]-62,kl[1]],[kl[0]+62,kl[1]]].map(p=>planToModel(...p,'厨房')),heads:[[kl[0]-47,kl[1]],[kl[0]+6,kl[1]],[kl[0]+47,kl[1]]].map(p=>planToModel(...p,'厨房')),size:'Approximately 1600 mm target',status:'Rail directly through original supply · heads to select'}),
+ pointFixture('K-L2','厨房','Kitchen track','track',{route:[[kl[0]-62,kl[1]],[kl[0]+62,kl[1]]].map(p=>planToModel(...p,'厨房')),heads:[[kl[0]-47,kl[1]],[kl[0]+6,kl[1]],[kl[0]+47,kl[1]]].map(p=>planToModel(...p,'厨房')),aims:[[2.425,.63,.90],[2.481,2.23,.925],[3.60,.63,.90]],size:'Approximately 1600 mm target · 3 heads',status:'Rail at original supply; 2 heads toward cabinets, 1 toward prep/island top'}),
  ...[['H1',465],['H2',586]].map(([id,x])=>({id,room:'走道',name:'Hall light '+id.slice(1),kind:'recessed',centre:planToModel(x,hy,'走道'),diameter:.12,installed:true,status:'Two aligned centres in existing plaster · set-out pending',feed:'H-L1'})),
  pointFixture('M-L2','主人房','Master dimmable ceiling light','ceiling',{diameter:.47}),
  {id:'B2-TRACK',room:'B2',name:'Bedroom 2 diffuse track',kind:'track',centre:b2Window,route:[[b2Window[0]-.80,b2Window[1]],[b2Window[0]+.80,b2Window[1]]],heads:[[b2Window[0]-.65,b2Window[1]],[b2Window[0]+.65,b2Window[1]]],installed:true,white:true,feed:'B2-L1',status:'Proposed 1600 mm transverse rail through original window-side point; on-site circuit and clearance verification required',size:'1600 mm track target; 2 broad-diffuse modules, size pending'},
@@ -86,6 +86,7 @@ export const AGREED_SCOPE = {
  ceiling:'Retain original ceilings. Existing bathroom and hall plaster only.',
  wallPaint:'Jotun 1928 Summer Snow · physical sample pending',
  ceilingPaint:'Matt white · repaint scope to confirm',
+ windowTreatments:'Living: full-height double fabric curtain, white sheer + grey-greige drape, exposed rail. Bedroom 2: Roman blind retained. Master: full-wall double curtain; no curtain boxes.',
  kitchen:'Grey woodgrain fridge; light non-yellow warm-grey prep and uppers; deep-grey lowers.',
  excluded:['New flat ceilings','Curtain boxes','Window / sofa cove strips','Wardrobe lighting','Yard exhaust fan','Hood coring / external ducting'],
  cabinetry:[

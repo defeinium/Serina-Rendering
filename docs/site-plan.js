@@ -194,7 +194,7 @@ path(groups.lighting,[dl,[diningX,diningY]],{stroke:colours.proposed,'stroke-wid
 marker(groups.lighting,'D-P',diningX,diningY,'light',colours.proposed,false,15,-11,['Dining','pendant']);
 add('D-P','Dining pendant','Offset TBC',{'Centre':'Table centre','Move':'Horizontal only'},'Bench back against Bath 2 wall. Measure the canopy-to-centre offset before ordering the adaptor.',diningX,diningY);
 const kl=source(625,1144);
-track('K-TK',[[kl[0]-62,kl[1]],[kl[0]+62,kl[1]]],[[kl[0]-47,kl[1]],[kl[0]+6,kl[1]],[kl[0]+47,kl[1]]],'Kitchen track',{'Length target':'~1600 mm','Feed':'Direct at K-L2'},'Use the rated feed adaptor at the existing point.',[kl[0]+61,kl[1]-15]);
+track('K-TK',[[kl[0]-62,kl[1]],[kl[0]+62,kl[1]]],[[kl[0]-47,kl[1]],[kl[0]+6,kl[1]],[kl[0]+47,kl[1]]],'Kitchen track',{'Length target':'~1600 mm','Feed':'Direct at K-L2'},'Use the rated feed adaptor at the existing point. Aim two heads at the kitchen cabinets and the middle head at the prep/island top.',[kl[0]+61,kl[1]-15]);
 studyLine([[394,887],[446,887]]);
 marker(groups.lighting,'K-LED',423,887,'light',colours.proposed,false,-9,25,['Sink light strip']);
 add('K-LED','Sink task LED','Detail TBC',{'Position':'Under upper cabinet','Length / driver':'Confirm'},'Keep the driver accessible.',423,887);
@@ -247,7 +247,7 @@ function select(id){
 }
 function resetDetail(){
  selected=null;document.querySelectorAll('.marker').forEach(n=>n.classList.remove('selected'));$('#close-detail').hidden=true;
- $('#detail-tag').textContent='LIGHTING PLAN · REVISION 06';
+ $('#detail-tag').textContent='LIGHTING PLAN · REVISION 07';
  $('#detail').innerHTML='<h1>Lights &amp; fans</h1><p>Tap a fitting for its brief.</p><div class="room-jump"><button data-room="Living">Living</button><button data-room="Kitchen">Kitchen</button><button data-room="B2">Bedroom 2</button><button data-room="B3">Bedroom 3</button><button data-room="Master">Master bedroom</button></div><p class="note-small">3500 K target · Dashed = set-out pending</p>';
  $('.brief').scrollTop=0;
 }
