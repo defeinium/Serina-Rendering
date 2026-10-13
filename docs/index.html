@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#f4f1e9" />
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="stylesheet" href="styles.css?v=20261013-r6" />
+  <link rel="stylesheet" href="styles.css?v=20261013-r7" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -69,11 +69,12 @@
       <div class="light-panel-head"><div><small>QUICK CONTROLS</small><strong>Lighting</strong></div><button id="lightPanelClose" type="button" aria-label="Close lighting controls">×</button></div>
       <label class="light-room-picker">Area <select id="lightRoomSelect" aria-label="Select lighting area"></select></label>
       <div class="light-compare"><button id="daylightToggle" class="daylight-toggle" type="button" aria-pressed="false">Daylight</button><button id="lightsAllOn" type="button">Room on</button><button id="lightsAllOff" type="button">Room off</button></div>
+      <div id="temperatureCompare" class="temperature-compare" role="group" aria-label="Common-area colour temperature"><span>Common lights</span><button type="button" data-cct="3000" aria-pressed="false">3000K</button><button type="button" data-cct="3500" class="active" aria-pressed="true">3500K</button></div>
       <div id="quickLightSwitches" class="quick-light-switches"></div>
       <details id="moreLights" class="more-lights"><summary>More lights &amp; settings</summary>
         <div id="lightSwitches"></div>
         <div class="light-actions"><button id="houseLightsOn" type="button">All rooms on</button><button id="houseLightsOff" type="button">All rooms off</button></div>
-        <p class="light-note">3500 K calculated source · warm reflected fill. Night preview uses 4500 K viewing white balance; daylight uses D65. Screen appearance and brightness remain illustrative. Lighting includes directed beams, occlusion and approximate reflected fill. Confirm actual output with the selected fittings.</p>
+        <p class="light-note">Compare common lights at 3000K or 3500K. Bedrooms stay at 3500K. Brightness and colours are a preview; confirm with your chosen fittings and finish samples.</p>
       </details>
     </aside>
 
@@ -103,6 +104,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=20261013-r6"></script>
+  <script type="module" src="app.js?v=20261013-r7"></script>
 </body>
 </html>

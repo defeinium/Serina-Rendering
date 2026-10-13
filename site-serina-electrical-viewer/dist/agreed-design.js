@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-13-r6';
+export const DESIGN_REVISION = '2026-10-13-r7';
 // Four developer fan-coil feeds around the hall. Indoor units face INTO their
 // own rooms. Bodies are illustrative envelopes, not selected product sizes.
 // Feed pixels identify the electrical symbols; bodies sit above the openings.

@@ -3,7 +3,8 @@
 // Source RGB is LINEAR-sRGB with Y=1, not an sRGB colour swatch.
 // A separate Bradford viewing transform adapts a fixed 3700 K night camera
 // white to display D65. It transforms the full linear image before tone mapping;
-// it never changes the actual 3500 K source. Daylight uses D65 without adaptation.
+// it never changes the physical source. Daylight uses D65 without adaptation.
+// 3000/3500 K previews share the same viewing white, exposure and lamp power.
 // Illustrative human/camera adaptation, not a measured LED spectrum or lux result.
 export const LIGHT_COLOUR = {
   "kelvin": 3500,
@@ -16,6 +17,32 @@ export const LIGHT_COLOUR = {
     0.8922511624747954,
     0.40564021652033255
   ],
+  "variants": {
+    "3000": {
+      "kelvin": 3000,
+      "xy": [
+        0.43693104549050454,
+        0.404073968579428
+      ],
+      "linearRGB": [
+        1.7706495597959595,
+        0.8442808606308886,
+        0.27213898488972865
+      ]
+    },
+    "3500": {
+      "kelvin": 3500,
+      "xy": [
+        0.4053035316422588,
+        0.39071567100784355
+      ],
+      "linearRGB": [
+        1.5640340119280034,
+        0.8922511624747954,
+        0.40564021652033255
+      ]
+    }
+  },
   "whiteReference": "D65 / sRGB output",
   "basis": "Planck spectrum + CIE 1931 2-degree observer",
   "nightViewingWhiteBalanceKelvin": 3700,
