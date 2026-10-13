@@ -33,6 +33,9 @@ export function createWindowDaylight(scene){
  const bounceBounds={value:BOUNCE_ZONES.map(z=>new THREE.Vector4(...z.bounds))};
  const bounceColours={value:BOUNCE_ZONES.map(()=>new THREE.Vector3())};
  const bounceEnabled={value:0};
+ const bounceSources={value:Array.from({length:18},()=>new THREE.Vector4())};
+ const bounceSourceColours={value:Array.from({length:18},()=>new THREE.Vector4())};
+ const bounceSourceCount={value:0};
  const group=new THREE.Group();group.name='Exterior window sky';scene.add(group);
  const skyMaterial=new THREE.ShaderMaterial({uniforms:{skyDay},side:THREE.DoubleSide,depthWrite:false,toneMapped:false,
   vertexShader:'varying vec2 skyUV; void main(){skyUV=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
@@ -49,6 +52,9 @@ export function createWindowDaylight(scene){
  uniform vec4 bounceBounds[${BOUNCE_ZONES.length}];
  uniform vec3 bounceColours[${BOUNCE_ZONES.length}];
  uniform float fixtureBounceEnabled;
+ uniform vec4 bounceSources[18];
+ uniform vec4 bounceSourceColours[18];
+ uniform int bounceSourceCount;
  varying vec3 daylightWorldPosition;
  varying vec3 daylightWorldNormal;
  float boundsWeight(vec3 p,vec4 b){
@@ -63,7 +69,7 @@ export function createWindowDaylight(scene){
  }
  vec3 diffuseWindowIrradiance(){
   if(windowDaylightStrength<=0.0)return vec3(0.0);
-  vec3 p=daylightWorldPosition,n=normalize(daylightWorldNormal);float energy=0.0;
+  vec3 p=daylightWorldPosition,n=normalize(daylightWorldNormal)*(gl_FrontFacing?1.0:-1.0);float energy=0.0;
   for(int i=0;i<${WINDOWS.length};i++){
    vec4 b=windowExtents[i],w=windowCentres[i],s=windowSpecs[i];
    if(i>0&&(p.x<b.x||p.x>b.y||p.z<b.z||p.z>b.w))continue;
@@ -77,7 +83,7 @@ export function createWindowDaylight(scene){
    float direct=max(dot(n,direction),0.0)*projected*solidAngle;
    // Multiple diffuse bounces fill the connected public area; rooms behind
    // solid partitions keep their own portals. Kitchen still has a local source.
-   float bounce=i==0?.12+.085*exp(-depth/9.0):.105*exp(-depth/4.5);
+   float bounce=i==0?.035+.11*exp(-depth/4.5):.08*exp(-depth/4.5);
    energy+=region*s.w*(direct+bounce);
   }
   return vec3(energy*windowDaylightStrength);
@@ -85,25 +91,33 @@ export function createWindowDaylight(scene){
  vec3 diffuseFixtureBounce(){
   if(fixtureBounceEnabled<=0.0)return vec3(0.0);
   vec3 p=daylightWorldPosition,result=vec3(0.0);
-  for(int i=0;i<${BOUNCE_ZONES.length};i++){
-   if(dot(bounceColours[i],vec3(1.0))<=0.0001)continue;
-   vec4 b=bounceBounds[i];if(p.x<b.x||p.x>b.y||p.z<b.z||p.z>b.w)continue;
-   float weight=i==0?commonAreaWeight(p):boundsWeight(p,bounceBounds[i]);
-   // Give reflected light a broad, soft distribution across opposing walls,
-   // ceiling and furniture; retain a gentle gradient instead of a flat overlay.
-   float distribution=i==0?.80+.20*exp(-abs(p.z+5.0)/5.0):1.0;
-   // Preserve surface orientation so indirect illumination does not flatten
-   // the underside of furniture or paint every plane at equal brightness.
-   float orientation=.70+.30*clamp(normalize(daylightWorldNormal).y*.5+.5,0.0,1.0);
-   result+=bounceColours[i]*weight*distribution*orientation;
+  vec3 normal=normalize(daylightWorldNormal)*(gl_FrontFacing?1.0:-1.0);
+  for(int i=0;i<18;i++){
+   if(i>=bounceSourceCount)break;
+   vec4 source=bounceSources[i],colour=bounceSourceColours[i];
+   int zone=int(source.w);vec4 b=bounceBounds[zone];
+   if(p.x<b.x||p.x>b.y||p.z<b.z||p.z>b.w)continue;
+   float region=zone==0?commonAreaWeight(p):boundsWeight(p,b);
+   vec3 delta=p-source.xyz;
+   float radius2=colour.w*colour.w;
+   float falloff=radius2/(radius2+dot(delta.xz,delta.xz)+.3*delta.y*delta.y);
+   float orientation=.65+.35*clamp(normal.y*.5+.5,0.0,1.0);
+   result+=colour.rgb*region*falloff*orientation;
   }
   return result;
  }
  `;
- return {windows:WINDOWS,group,strength,bounceColours,bounceEnabled,
-  set(on){strength.value=on?12:0;skyDay.value=on?1:0;},
+ return {windows:WINDOWS,group,strength,bounceColours,bounceEnabled,bounceSourceCount,
+  setBounceSources(sources){
+   bounceSourceCount.value=Math.min(sources.length,18);
+   for(let i=0;i<bounceSourceCount.value;i++){
+    const s=sources[i];bounceSources.value[i].set(...s.position,s.zone);
+    bounceSourceColours.value[i].set(...s.colour,s.radius);
+   }
+  },
+  set(on){strength.value=on?26:0;skyDay.value=on?1:0;},
   attach(shader){
-   Object.assign(shader.uniforms,{windowDaylightStrength:strength,windowCentres:centres,windowExtents:extents,windowSpecs:specs,bounceBounds,bounceColours,fixtureBounceEnabled:bounceEnabled});
+   Object.assign(shader.uniforms,{windowDaylightStrength:strength,windowCentres:centres,windowExtents:extents,windowSpecs:specs,bounceBounds,bounceColours,bounceSources,bounceSourceColours,bounceSourceCount,fixtureBounceEnabled:bounceEnabled});
    shader.vertexShader='varying vec3 daylightWorldPosition;\nvarying vec3 daylightWorldNormal;\n'+shader.vertexShader;
    shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`#include <project_vertex>
     daylightWorldPosition=(modelMatrix*vec4(transformed,1.0)).xyz;

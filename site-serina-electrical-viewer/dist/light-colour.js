@@ -3,8 +3,8 @@
 // Source RGB is LINEAR-sRGB with Y=1, not an sRGB colour swatch.
 // A separate Bradford viewing transform adapts a fixed 3700 K night camera
 // white to display D65. It transforms the full linear image before tone mapping;
-// it never changes the source. Mixed daylight interpolates with D65 using
-// the estimated active-source contribution; daylight alone uses D65.
+// it never changes the source. Daytime stays at D65 regardless of light switches;
+// night uses the fixed viewing transform. No per-circuit automatic white balance.
 // 3000/3500/4000 K previews share the same viewing white, exposure and lamp power.
 // Illustrative human/camera adaptation, not a measured LED spectrum or lux result.
 export const LIGHT_COLOUR = {
