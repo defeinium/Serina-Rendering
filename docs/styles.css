@@ -88,3 +88,17 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .common-lights .more-lights{flex:none;max-height:180px}
 .common-lights #lightSwitches{display:none}
 .common-lights .fixture-name{-webkit-line-clamp:1}
+
+/* Inside is a protected first-person camera; overview is a separate tool. */
+.inside-mode #scene{cursor:grab;touch-action:none}.inside-mode #scene:active{cursor:grabbing}
+.view-actions{display:flex;gap:4px}.view-actions button{font-size:11px;padding:0 9px;white-space:nowrap}
+.view-actions button[aria-pressed="true"]{background:#d6ede5;color:#183c34}
+.walktools button:active{background:#5b8174}.walktools button:disabled{opacity:.4;cursor:default}
+.walk-hint{display:none}.overview-mode .walk-arrows,.overview-mode .look-arrows{display:none}
+@media(max-width:720px){
+ .walktools{grid-template-columns:1fr auto;gap:5px}.view-actions{grid-column:1/-1;display:grid;grid-template-columns:1.2fr .8fr 1.2fr;gap:5px;grid-row:2}
+ .view-actions button{min-height:35px;font-size:11px;padding:0 8px}.walk-arrows{grid-row:3}.look-arrows{grid-row:3}.walk-hint{display:none}
+ .inside-mode .light-panel{max-height:calc(100dvh - 330px)}.fps-badge{bottom:235px}
+}
+@media(prefers-reduced-transparency:reduce){.walktools,.dock,.light-panel{background:#1d2c30;backdrop-filter:none}}
+@media(prefers-contrast:more){.walktools,.dock{border-color:#a9c9be}}

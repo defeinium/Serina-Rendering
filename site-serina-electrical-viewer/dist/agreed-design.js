@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-12-r3';
+export const DESIGN_REVISION = '2026-10-13-r4';
 export const SOURCE_REGISTER = [
  ['F-L1','玄关',396,1144,'light','Entry original light point'],
  ['L-L1','客厅',491,365,'light','Living track supply'],
@@ -85,6 +85,7 @@ export const AGREED_SCOPE = {
  revision:DESIGN_REVISION,lightingAssemblies:15,fans:3,
  ceiling:'Retain original ceilings. Existing bathroom and hall plaster only.',
  wallPaint:'Jotun 1928 Summer Snow · physical sample pending',
+ bedroomFloor:'Retain actual warm pale oak bedroom floors; inspection-photo colour approximation.',
  ceilingPaint:'Matt white · repaint scope to confirm',
  windowTreatments:'Living: full-height double fabric curtain, white sheer + grey-greige drape, exposed rail. Bedroom 2: Roman blind retained. Master: full-wall double curtain; no curtain boxes.',
  kitchen:'Grey woodgrain fridge; light non-yellow warm-grey prep and uppers; deep-grey lowers.',

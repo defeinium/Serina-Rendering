@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f4f1e9" />
   <title>Serina · Current renovation plan</title>
-  <link rel="stylesheet" href="styles.css?v=20261012-r3" />
+  <link rel="stylesheet" href="styles.css?v=20261013-r4" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -14,7 +14,7 @@
     <canvas id="measureOverlay" aria-hidden="true"></canvas>
     <header class="topbar">
       <div class="brand"><strong>SERINA</strong><span>Current renovation plan</span></div>
-      <div class="plan-caveat">Agreed scope · 12 Oct 2026 · dimensions provisional</div>
+      <div class="plan-caveat">Current scope · 13 Oct 2026 · dimensions provisional</div>
     </header>
 
     <div id="drawerScrim" class="drawer-scrim" hidden></div>
@@ -77,13 +77,13 @@
     </aside>
 
     <div id="walktools" class="walktools" hidden>
-      <label class="inside-room-picker">Stand in <select id="insideRoom" aria-label="Choose standing space">
-        <option value="common">Common area</option><option value="foyer">Outer foyer / shoe cabinet</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
+      <label class="inside-room-picker"><span id="cameraSpaceLabel">Space</span> <select id="insideRoom" aria-label="Choose standing space">
+        <option value="overview">Whole-home overview</option><option value="common">Common area</option><option value="foyer">Outer foyer / shoe cabinet</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
       </select></label>
       <div class="walk-arrows"><button data-walk="left" aria-label="Move left">←</button><button data-walk="forward" aria-label="Move forward">↑</button><button data-walk="back" aria-label="Move back">↓</button><button data-walk="right" aria-label="Move right">→</button></div>
       <div class="look-arrows"><button data-look="left" aria-label="Turn left">⟲</button><button data-look="right" aria-label="Turn right">⟳</button></div>
-      <div class="walk-shortcuts"><button data-place="entry">Entry</button><button data-place="dining">Dining</button><button data-place="living">Living</button><button data-place="kitchen">Kitchen</button></div>
-      <span class="walk-hint">Drag view to look · hold arrows to move</span>
+      <div class="view-actions"><button id="overviewView" type="button" aria-pressed="false">Overview</button><button id="wideView" type="button" aria-pressed="false">Wide</button><button id="resetView" type="button">Reset view</button></div>
+      <span class="walk-hint">Drag to look · arrows or WASD to move</span>
     </div>
 
     <nav class="dock" aria-label="Main viewer controls">
@@ -100,6 +100,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=20261012-r3"></script>
+  <script type="module" src="app.js?v=20261013-r4"></script>
 </body>
 </html>
