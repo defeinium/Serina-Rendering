@@ -172,3 +172,6 @@ button:disabled{opacity:.45;cursor:not-allowed}
  .panel{border-radius:20px 20px 0 0}
 }
 @media(prefers-reduced-transparency:reduce){.controlbar,.light-panel,.panel{background:#222725;backdrop-filter:none}}
+
+/* Keep the brand readable over the real night exterior. */
+.night-mode .brand{color:#f0eee8}.night-mode .brand span{color:#c8c8c2}
