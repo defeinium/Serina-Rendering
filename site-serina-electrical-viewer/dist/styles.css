@@ -180,3 +180,5 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
 /* Three CCT choices stay inside the compact lighting panel on phones. */
 .temperature-compare{flex-wrap:wrap}.temperature-compare span{flex:0 0 100%}.temperature-compare button{flex:1;min-width:0;padding-inline:5px}
+
+.paint-reference{display:flex;align-items:center;gap:7px;margin:12px 0 6px;color:#cbd0cb;font-size:10px}.paint-reference-swatch{width:20px;height:20px;flex:none;background:#e5e2d8;border:1px solid #727a75;border-radius:4px}
