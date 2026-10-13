@@ -1,7 +1,17 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-13-r4';
+export const DESIGN_REVISION = '2026-10-13-r5';
+// Four developer fan-coil feeds around the hall. Indoor units face INTO their
+// own rooms. Bodies are illustrative envelopes, not selected product sizes.
+// Feed pixels identify the electrical symbols; bodies sit above the openings.
+export const AIR_CONDITIONERS = [
+ {id:'L-AC',room:'客厅',name:'Living air conditioner',sourcePixel:[663,700],wallCentre:[3.245,5.7765],rotation:-Math.PI/2,width:1.04,height:.30,depth:.24},
+ {id:'B2-AC',room:'B2',name:'Bedroom 2 air conditioner',sourcePixel:[890,603],wallCentre:[5.625,6.353],rotation:Math.PI,width:.82,height:.29,depth:.22},
+ {id:'B3-AC',room:'B3',name:'Bedroom 3 air conditioner',sourcePixel:[920,730],wallCentre:[5.405,5.20],rotation:0,width:.82,height:.29,depth:.22},
+ {id:'M-AC',room:'主人房',name:'Master air conditioner',sourcePixel:[988,637],wallCentre:[6.29,5.80],rotation:Math.PI/2,width:.90,height:.30,depth:.24}
+].map(a=>({...a,centreHeight:2.525,status:'Original doorway-side provision; body size and site offsets to confirm'}));
+export const HALL_CEILING = {bottom:2.72,slab:2.85,outline:[[3.245,5.20],[6.29,5.20],[6.29,6.353],[3.245,6.353]],status:'Existing lowered hallway plaster confirmed in inspection photos; 2720 mm is an unmeasured model height'};
 export const SOURCE_REGISTER = [
  ['F-L1','玄关',396,1144,'light','Entry original light point'],
  ['L-L1','客厅',491,365,'light','Living track supply'],
@@ -83,7 +93,7 @@ export const FIXTURES = [
 ];
 export const AGREED_SCOPE = {
  revision:DESIGN_REVISION,lightingAssemblies:15,fans:3,
- ceiling:'Retain original ceilings. Existing bathroom and hall plaster only.',
+ ceiling:'Original room slabs retained. Existing lowered hall plaster with closed entrance fascia; bathroom plaster retained. Heights require site measurement.',
  wallPaint:'Jotun 1928 Summer Snow · physical sample pending',
  bedroomFloor:'Retain actual warm pale oak bedroom floors; inspection-photo colour approximation.',
  ceilingPaint:'Matt white · repaint scope to confirm',

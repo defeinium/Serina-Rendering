@@ -2,8 +2,10 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261013-r4';
-import {AGREED_SCOPE,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta} from './agreed-design.js?v=20261013-r4';
+import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261013-r5';
+import {AGREED_SCOPE,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261013-r5';
+
+import {LIGHT_COLOUR} from './light-colour.js?v=20261013-r5';
 
 RectAreaLightUniformsLib.init();
 
@@ -21,14 +23,15 @@ const points=SOURCE_REGISTER.map(([id,room,ex,ey,type,title])=>{
 const outletRows=[
  ['L-S1','客厅','socket',.24,6.65,.30,'Sofa-wall socket 1'],['L-S2','客厅','socket',.24,8.25,.30,'Sofa-wall socket 2'],
  ['L-S3','客厅','socket',3.11,6.65,.30,'TV-wall single socket'],['L-S4','客厅','socket',3.11,7.68,.30,'TV-wall double socket'],
- ['L-D1','客厅','data',3.10,7.42,.35,'TV / fibre point'],['L-AC','客厅','fixed',3.08,6.05,2.525,'Living air-con feed'],
+ ['L-D1','客厅','data',3.10,7.42,.35,'TV / fibre point'],
  ['K-S1','厨房','socket',2.42,.22,1.00,'Kitchen counter power A'],['K-S2','厨房','socket',3.43,.22,1.00,'Kitchen counter power B'],['K-FR','厨房','socket',3.91,2.18,1.00,'Fridge power'],
  ['Y-S1','Yard','socket',4.32,.25,1.00,'Yard socket 1'],['Y-S2','Yard','socket',4.86,.25,1.00,'Yard socket 2'],['Y-S3','Yard','socket',5.22,2.36,1.00,'Yard socket 3'],
- ['M-S1','主人房','socket',6.53,8.35,.30,'Master socket A'],['M-S2','主人房','socket',9.42,7.15,.30,'Master socket B'],['M-S3','主人房','socket',6.53,6.35,.30,'Master socket C'],['M-AC','主人房','fixed',7.55,5.55,2.525,'Master air-con feed'],
- ['B2-AC','B2','fixed',5.78,6.56,2.525,'Bedroom 2 air-con feed'],['B3-S1','B3','socket',5,4.62,.30,'Bedroom 3 socket 1'],['B3-S2','B3','socket',7.72,3.52,.30,'Bedroom 3 socket 2'],['B3-AC','B3','fixed',5.38,5.18,2.525,'Bedroom 3 air-con feed'],
+ ['M-S1','主人房','socket',6.53,8.35,.30,'Master socket A'],['M-S2','主人房','socket',9.42,7.15,.30,'Master socket B'],['M-S3','主人房','socket',6.53,6.35,.30,'Master socket C'],
+ ['B3-S1','B3','socket',5,4.62,.30,'Bedroom 3 socket 1'],['B3-S2','B3','socket',7.72,3.52,.30,'Bedroom 3 socket 2'],
  ['B1-WH','Bath 1','fixed',9.45,4.72,1.85,'Bathroom 1 water-heater feed'],['B2B-WH','Bath 2','fixed',3.62,4.72,1.85,'Bathroom 2 water-heater feed']
 ];
 for(const [id,room,type,x,y,z,title] of outletRows)points.push({id,room,type,pos:[x,z,-y],title,spec:'Existing service indication',note:'Horizontal offset is unmeasured. Trace the actual outlet and circuit on site.',status:'Approximate model marker'});
+for(const a of AIR_CONDITIONERS)points.push({id:a.id,room:a.room,type:'fixed',pos:[a.wallCentre[0],a.centreHeight,-a.wallCentre[1]],title:a.name+' feed',spec:'2525 mm AFFL · developer legend',note:a.status+'. Electrical symbol registration retained separately; marker is a doorway-side model indication.',status:'Drawing-derived · site-check',electricalPixel:a.sourcePixel});
 for(const f of FIXTURES.filter(f=>f.installed&&!SOURCE_REGISTER.some(p=>p[0]===f.id))){points.push({id:f.id,room:f.room,type:'proposed',pos:[f.centre[0],2.70,-f.centre[1]],title:f.name,spec:'Current fitting target',note:f.status,status:'Proposed · set-out pending'});}
 points.push({id:'B2-F-NEW',room:'B2',type:'proposed',pos:[FANS[1].centre[0],2.73,-FANS[1].centre[1]],title:'Bedroom 2 new fan hook',spec:'33-inch visual target',note:FANS[1].status,status:'Proposed · set-out pending'});
 
@@ -89,6 +92,8 @@ function buildShell(){
  for(const h of [.025,1.03,2.12])part('main-door grill horizontal rail',.61,.08,.92,.035,h,.025,frameMat);
  for(let x=.27;x<1.06;x+=.13)part('main-door grill vertical bar',x,.08,.014,.025,.05,2.06,frameMat);
 
+ // Living AC mounts over the open hall entrance, facing the living room.
+ part('existing corridor entrance header',3.245,5.7765,.16,1.153,2.19,.66);
  // B2 and corridor; the master entry is in its west partition.
  wy(3.245,6.353,9.05);wx(3.245,5.225,6.353);doorX(5.225,6.025,6.353);wx(6.025,6.29,6.353);
  wy(6.29,6.25,9.05);doorY(6.29,5.35,6.25);wy(6.29,5.20,5.35);
@@ -470,8 +475,29 @@ function batchStatic(root){
  }
 }
 buildShell();buildSurfaces();buildInterior();batchStatic(model);batchStatic(interior);fitWholeHome();
+// Keep equipment separate from furniture and roofs: visible in Overview,
+// and retained when the furniture toggle is off. No fabricated pipe routes.
+const airConGroup=new THREE.Group();airConGroup.name='Four doorway-side air conditioners';scene.add(airConGroup);
+const acWhite=new THREE.MeshStandardMaterial({color:0xf1f2ef,roughness:.6});
+const acVent=new THREE.MeshStandardMaterial({color:0x30383b,roughness:.85});
+const acSeam=new THREE.MeshStandardMaterial({color:0xb5bcb9,roughness:.85});
+for(const a of AIR_CONDITIONERS){
+ const unit=new THREE.Group();unit.name=a.name+' indoor unit';unit.position.set(a.wallCentre[0],a.centreHeight,-a.wallCentre[1]);unit.rotation.y=a.rotation;unit.userData=a;airConGroup.add(unit);
+ const part=(name,w,h,d,x,y,z,mat,r=.006)=>{const m=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,2,Math.min(r,h/2,d/2)),mat);m.name=a.name+' '+name;m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;unit.add(m);return m;};
+ const front=.08+a.depth;
+ part('rounded white casing',a.width,a.height,a.depth,0,0,.08+a.depth/2,acWhite,.018);
+ part('panel seam',a.width-.045,.006,.004,0,-.052,front+.002,acSeam,.001);
+ part('outlet opening',a.width-.10,.042,.018,0,-a.height/2+.047,front-.007,acVent,.004);
+ part('angled outlet louvre',a.width-.11,.015,.046,0,-a.height/2+.032,front+.006,acWhite,.002).rotation.x=-.30;
+ part('unlit status window',.035,.012,.004,a.width/2-.073,-.035,front+.004,acVent,.002);
+}
+batchStatic(airConGroup);
 // A single accepted design. No alternative ceilings or hidden legacy circuits.
-const LIGHT_3500K=0xffead6;
+// Explicit linear input avoids treating linear light energy as an sRGB swatch.
+const LIGHT_3500K=new THREE.Color().setRGB(...LIGHT_COLOUR.linearRGB,THREE.LinearSRGBColorSpace);
+const reflectedLight=new THREE.HemisphereLight(LIGHT_3500K,LIGHT_3500K,0);scene.add(reflectedLight);
+const viewingWhiteBalance={value:new THREE.Matrix3()};
+const nightWhiteBalance=new THREE.Matrix3().fromArray(LIGHT_COLOUR.nightViewingTransform);
 const indoorCeiling=new THREE.Group();indoorCeiling.name='Original ceilings and retained existing plaster';indoorCeiling.visible=false;scene.add(indoorCeiling);
 const ceilingMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,side:THREE.DoubleSide});
 function ceilingPlane(name,outline,bottom,holes=[]){
@@ -485,13 +511,30 @@ ceilingPlane('Original foyer slab',[[.09,.08],[1.795,.08],[1.795,1],[.09,1]],2.8
 ceilingPlane('Original master slab',[[6.29,5.20],[9.57,5.20],[9.57,9.05],[6.29,9.05]],2.85);
 ceilingPlane('Original bedroom 2 slab',[[3.245,6.353],[6.29,6.353],[6.29,9.05],[3.245,9.05]],2.85);
 ceilingPlane('Original bedroom 3 slab',[[4.775,2.60],[7.82,2.60],[7.82,5.20],[4.775,5.20]],2.85);
-ceilingPlane('Retained hallway plaster',[[3.245,5.20],[6.29,5.20],[6.29,6.353],[3.245,6.353]],2.72,FIXTURES.filter(f=>f.room==='走道'));
-for(const [room,x1,x2] of [['Bath 2',3.245,4.775],['Bath 1',7.82,9.57]])ceilingPlane(room+' retained plaster with two openings',[[x1,2.60],[x2,2.60],[x2,5.20],[x1,5.20]],2.72,FIXTURES.filter(f=>f.room===room));
+ceilingPlane('Retained lowered hallway plaster',HALL_CEILING.outline,HALL_CEILING.bottom,FIXTURES.filter(f=>f.room==='走道'));
+// Close the exposed drop at the living entrance; there is no floating sheet.
+const hallFascia=new THREE.Mesh(new THREE.BoxGeometry(.035,HALL_CEILING.slab-HALL_CEILING.bottom,1.153),ceilingMat);
+hallFascia.name='Existing hallway plaster drop fascia';hallFascia.position.set(3.245,(HALL_CEILING.slab+HALL_CEILING.bottom)/2,-5.7765);hallFascia.castShadow=true;hallFascia.receiveShadow=true;indoorCeiling.add(hallFascia);
+for(const [room,x1,x2] of [['Bath 2',3.245,4.775],['Bath 1',7.82,9.57]])ceilingPlane(room+' retained plaster with two openings',[[x1,2.60],[x2,2.60],[x2,5.20],[x1,5.20]],HALL_CEILING.bottom,FIXTURES.filter(f=>f.room===room));
 ceilingPlane('Original yard slab',[[4.04,.08],[5.37,.08],[5.37,2.60],[4.04,2.60]],2.85);
+// Solid finish samples on actual wall runs, cut down to keep the interior clear.
+// Original full-height shell stays translucent behind these in Overview.
+const overviewFinishWalls=new THREE.Group();overviewFinishWalls.name='Summer Snow cutaway walls';overviewFinishWalls.visible=false;scene.add(overviewFinishWalls);
+const overviewWallMat=new THREE.MeshStandardMaterial({color:0xe5e2d8,roughness:.94});
+for(const [name,x,y,w,d,h] of [
+ ['Living sofa wall',.09,5.025,.16,8.05,1.10],
+ ['Living TV wall',3.245,7.7015,.16,2.697,1.10],
+ ['Bedroom 2 / master partition',6.29,7.7015,.16,2.697,1.10],
+ ['Bedroom 3 west wall',4.775,3.90,.16,2.60,1.10],
+ ['Master outer side wall',9.57,7.125,.16,3.85,1.10],
+ ['Living window sill wall',1.6675,9.05,3.155,.16,.70],
+ ['Bedroom 2 window sill wall',4.7675,9.05,3.045,.16,.70],
+ ['Master window sill wall',7.93,9.05,3.28,.16,.70]
+]){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),overviewWallMat);m.name=name+' · Summer Snow 1928';m.position.set(x,h/2,-y);m.castShadow=true;m.receiveShadow=true;overviewFinishWalls.add(m);}
 const fixturesGroup=new THREE.Group();fixturesGroup.name='Current agreed fixtures';scene.add(fixturesGroup);
 const lightCircuits=[];
 const fixtureShellMat=new THREE.MeshStandardMaterial({color:0xf3f3ef,roughness:.9});
-const diffuserOnMat=new THREE.MeshBasicMaterial({color:0xfff2e1});
+const diffuserOnMat=new THREE.MeshBasicMaterial({color:LIGHT_3500K});
 const diffuserOffMat=new THREE.MeshStandardMaterial({color:0xd7d7d2,roughness:.96});
 const trackBlack=new THREE.MeshStandardMaterial({color:0x202526,roughness:.72});
 const trackWhite=new THREE.MeshStandardMaterial({color:0xf3f2ed,roughness:.9});
@@ -509,7 +552,7 @@ function spotLamp(c,x,y,h,aimX,aimY,aimH,power,angle){
 function addLens(c,mesh){c.lenses.push(mesh);c.group.add(mesh);return mesh}
 for(const f of FIXTURES){
  const c={...f,on:true,lights:[],lenses:[],group:new THREE.Group()};c.group.name=f.name;c.group.userData={id:f.id,status:f.status};fixturesGroup.add(c.group);lightCircuits.push(c);
- const [x,y]=f.centre,roof=['走道','Bath 1','Bath 2'].includes(f.room)?2.72:2.85;
+ const [x,y]=f.centre,roof=['走道','Bath 1','Bath 2'].includes(f.room)?HALL_CEILING.bottom:2.85;
  const disc=(r,h,mat)=>new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,32),mat);
  if(f.kind==='ceiling'){
   const shell=disc(f.diameter/2,.040,fixtureShellMat);shell.position.set(x,roof-.024,-y);c.group.add(shell);
@@ -655,8 +698,8 @@ function focusRoom(r){if(r==='全屋'){fitWholeHome();return}const survey=ROOM_S
 let pointPress=null;canvas.addEventListener('pointerdown',e=>{pointPress={x:e.clientX,y:e.clientY}});
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();canvas.addEventListener('pointerup',e=>{if(!pointPress||Math.hypot(e.clientX-pointPress.x,e.clientY-pointPress.y)>7)return;mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(mouse,camera);const hit=ray.intersectObjects(markerMeshes.filter(x=>x.visible))[0];if(hit){showDetail(hit.object.userData);openDrawer('points')}});
 function modelOffsets(x,y,room){const survey=ROOM_SURVEY[room];if(!survey)return 'Horizontal wall offsets unmeasured';const xs=survey.corners.map(c=>c[0]),ys=survey.corners.map(c=>c[1]);return `Model offset from west/south room bounds: ≈ ${Math.max(0,Math.round((x-Math.min(...xs))*1000))} / ${Math.max(0,Math.round((y-Math.min(...ys))*1000))} mm`}
-function pointSource(p){if(p.type==='proposed')return 'Proposed addition · approval and route pending';if(p.id==='AC-1')return 'Equipment planning indication; confirm isolators';if(p.id.startsWith('Y-S'))return 'Developer drawing: three Yard groups; horizontal offsets unmeasured';if(p.type==='light'||p.type==='fan')return 'Developer right-hand Type A electrical drawing, translated to model';return 'Developer outlet schedule/elevation; marker approximate'}
-function pointHeight(p){if(['B1-L','B2B-L','B1-SH','B2B-SH'].includes(p.id))return 'Existing bathroom plaster ceiling height to measure; marker rendered lower for visibility';if(p.type==='light'||p.type==='fan')return '≈ 2850 mm ceiling/slab target; marker rendered lower for visibility';if(p.id.endsWith('-AC'))return '2525 mm AFFL (developer legend; site-check)';return `≈ ${Math.round(p.pos[1]*1000)} mm AFFL (drawing legend/model; site-check)`}
+function pointSource(p){if(p.electricalPixel)return 'Developer fan-coil feed symbol at drawing pixel '+p.electricalPixel.join(' / ')+'; unit centre is approximate';if(p.type==='proposed')return 'Proposed addition · approval and route pending';if(p.id==='AC-1')return 'Equipment planning indication; confirm isolators';if(p.id.startsWith('Y-S'))return 'Developer drawing: three Yard groups; horizontal offsets unmeasured';if(p.type==='light'||p.type==='fan')return 'Developer right-hand Type A electrical drawing, translated to model';return 'Developer outlet schedule/elevation; marker approximate'}
+function pointHeight(p){if(['走道','Bath 1','Bath 2'].includes(p.room)&&['light','proposed'].includes(p.type))return 'Existing lowered plaster · model 2720 mm AFFL; actual height to measure';if(['B1-L','B2B-L','B1-SH','B2B-SH'].includes(p.id))return 'Existing bathroom plaster ceiling height to measure; marker rendered lower for visibility';if(p.type==='light'||p.type==='fan')return '≈ 2850 mm ceiling/slab target; marker rendered lower for visibility';if(p.id.endsWith('-AC'))return '2525 mm AFFL (developer legend; site-check)';return `≈ ${Math.round(p.pos[1]*1000)} mm AFFL (drawing legend/model; site-check)`}
 function showDetail(p){
  const detail=document.querySelector('#detail'),x=p.pos[0],y=-p.pos[2];
  detail.innerHTML=`<small>${p.id} · ${ROOM_LABELS[p.room]||p.room}</small><h2>${p.title}</h2><div class="meta"><span class="badge">${TYPES[p.type].label}</span><span class="badge">Model position · verify</span></div><p><b>${p.spec}</b> · ${p.note}</p><p><b>Source:</b> ${pointSource(p)}</p><p><b>Model plan centre:</b> X ≈ ${Math.round(x*1000)} / Y ≈ ${Math.round(y*1000)} mm from the south-west model origin.<br><b>Mounting height:</b> ${pointHeight(p)}.<br>${modelOffsets(x,y,p.room)}</p>`;
@@ -692,13 +735,15 @@ let inside=false,daylight=false,interiorMode='walk',wideView=false;
 let lookPointer=null;
 const heldNavigation=new Set();
 function syncEnvironment(){
- if(!inside){sun.intensity=1.8;sun.castShadow=true;hemi.color.set(0xeaf5ff);hemi.groundColor.set(0xa79d8e);hemi.intensity=1.65;renderer.toneMappingExposure=.96;return}
- sun.intensity=0;sun.castShadow=false;
+ viewingWhiteBalance.value.copy(inside&&!daylight?nightWhiteBalance:new THREE.Matrix3());
+ if(!inside){reflectedLight.intensity=0;renderer.toneMapping=THREE.ACESFilmicToneMapping;sun.intensity=1.8;sun.castShadow=true;hemi.color.set(0xeaf5ff);hemi.groundColor.set(0xa79d8e);hemi.intensity=1.65;renderer.toneMappingExposure=.96;return}
+ sun.intensity=0;sun.castShadow=false;renderer.toneMapping=THREE.NeutralToneMapping;
  const lit=lightCircuits.filter(c=>c.on&&c.lights.some(l=>l.visible)),fill=Math.min(.42,.24+lit.reduce((n,c)=>n+(c.kind==='track'?.045:c.kind==='ceiling'?.050:c.kind==='strip'?.012:.025),0));
- hemi.color.set(daylight?0xeaf5ff:0xfaf8f4);hemi.groundColor.set(daylight?0xe0dfd8:0xd7d5cc);
- hemi.intensity=(daylight?.65:0)+(lit.length?fill:.006);
+ // Neutral D65 daylight and warm lamp bounce have separate energies.
+ hemi.color.set(0xffffff);hemi.groundColor.set(0xe0dfd8);
+ hemi.intensity=daylight?.65:.006;reflectedLight.intensity=lit.length?fill:0;
  renderer.shadowMap.needsUpdate=true;
- renderer.toneMappingExposure=daylight?1:1.04;
+ renderer.toneMappingExposure=.90;
  document.querySelector('#daylightToggle').textContent=daylight?'Daylight on':'Night mode';
  document.querySelector('#daylightToggle').setAttribute('aria-pressed',String(daylight));
 }
@@ -819,15 +864,15 @@ function safeMove(dx,dy){
  const mx=x-camera.position.x,mz=-y-camera.position.z;camera.position.x=x;camera.position.z=-y;controls.target.x+=mx;controls.target.z+=mz;camera.lookAt(controls.target);
 }
 const overviewMaterialStates=new Map();model.traverse(m=>{if(m.isMesh){for(const mat of Array.isArray(m.material)?m.material:[m.material])if(!overviewMaterialStates.has(mat))overviewMaterialStates.set(mat,{transparent:mat.transparent,opacity:mat.opacity,depthWrite:mat.depthWrite})}});
-function overviewWalls(on){for(const [mat,state] of overviewMaterialStates){mat.transparent=on||state.transparent;mat.opacity=on?Math.min(.16,state.opacity):state.opacity;mat.depthWrite=on?false:state.depthWrite;mat.needsUpdate=true}renderer.shadowMap.needsUpdate=true;}
+function overviewWalls(on){overviewFinishWalls.visible=on;for(const [mat,state] of overviewMaterialStates){mat.transparent=on||state.transparent;mat.opacity=on?Math.min(.16,state.opacity):state.opacity;mat.depthWrite=on?false:state.depthWrite;mat.needsUpdate=true}renderer.shadowMap.needsUpdate=true;}
 function updateCameraUI(){
  document.querySelector('#overviewView').setAttribute('aria-pressed',String(inside&&interiorMode==='overview'));
  document.querySelector('#wideView').setAttribute('aria-pressed',String(wideView));document.querySelector('#wideView').disabled=interiorMode==='overview';
  document.querySelector('#walktools').classList.toggle('overview-mode',interiorMode==='overview');
  document.querySelectorAll('[data-walk],[data-look]').forEach(b=>b.disabled=interiorMode==='overview');
- document.querySelector('.walk-hint').textContent=interiorMode==='overview'?'Drag to orbit · scroll to zoom · Reset to fit':'Drag to look · arrows or WASD to move';
+ document.querySelector('.walk-hint').textContent=interiorMode==='overview'?isMobile?'Drag to orbit · two fingers to move / zoom':'Drag to orbit · right-drag to move · scroll to zoom':'Drag to look · arrows or WASD to move';
  document.querySelector('#cameraSpaceLabel').textContent=interiorMode==='overview'?'View':'Space';
- document.querySelector('.hint').textContent=inside?(interiorMode==='overview'?'Whole-home interior overview':'Drag to look · scroll stays in the room · Reset restores view'):'Drag to orbit · pinch or scroll to zoom · tap points for details';
+ document.querySelector('.hint').textContent=inside?(interiorMode==='overview'?'Overview · right-drag / two fingers to move · Reset to fit':'Drag to look · scroll stays in the room · Reset restores view'):'Drag to orbit · pinch or scroll to zoom · tap points for details';
 }
 function walkingFov(){return ['bath1','bath2'].includes(currentInsideRoom)?104:wideView?(isMobile?102:96):(isMobile?90:84)}
 function pointWalkingCamera(eye,look){
@@ -841,16 +886,26 @@ function resetView(){
  const p=roomPresets[currentInsideRoom];pointWalkingCamera(p.eye,[...p.look,p.lookHeight??1.44]);
 }
 function overviewCamera(){
- controls.enabled=true;controls.enableDamping=true;controls.enableRotate=true;controls.enablePan=false;controls.enableZoom=true;controls.minPolarAngle=.12;controls.maxPolarAngle=.50;
- camera.fov=isMobile?55:45;camera.setViewOffset(innerWidth,innerHeight,0,innerHeight*.06,innerWidth,innerHeight);camera.updateProjectionMatrix();const tan=Math.tan(THREE.MathUtils.degToRad(camera.fov/2)),margin=isMobile?1.15:1.33,distance=Math.max(12,9.5/(2*tan*camera.aspect)*margin,9/(2*tan)*margin);
- controls.minDistance=distance*.74;controls.maxDistance=distance*1.75;controls.target.set(4.83,.55,-4.57);camera.position.set(4.83,.55+distance*.98,-4.57+distance*.20);controls.update();
+ // Drain any pending pan/rotation momentum before restoring the fit pose.
+ controls.enableDamping=false;controls.update();
+ controls.enabled=true;controls.enableRotate=true;controls.enablePan=true;controls.screenSpacePanning=false;controls.enableZoom=true;controls.minPolarAngle=.12;controls.maxPolarAngle=.85;
+ camera.fov=isMobile?55:45;camera.setViewOffset(innerWidth,innerHeight,0,innerHeight*.06,innerWidth,innerHeight);camera.updateProjectionMatrix();const tan=Math.tan(THREE.MathUtils.degToRad(camera.fov/2)),margin=isMobile?1.15:1.33;
+ let distance=Math.max(12,9.5/(2*tan*camera.aspect)*margin,9/(2*tan)*margin);controls.target.set(4.83,.55,-4.57);
+ // Fit all shell corners into the real space above the integrated toolbar.
+ const toolbarTop=document.querySelector('.controlbar').getBoundingClientRect().top,probe=new THREE.Vector3();
+ for(let attempt=0;attempt<18;attempt++){
+  camera.position.set(4.83,.55+distance*.98,-4.57+distance*.20);camera.lookAt(controls.target);camera.updateMatrixWorld();let fits=true;
+  for(const x of [.01,9.65])for(const y of [0,2.85])for(const z of [-9.13,0]){probe.set(x,y,z).project(camera);const px=(probe.x+1)*innerWidth/2,py=(1-probe.y)*innerHeight/2;if(px<12||px>innerWidth-12||py<70||py>toolbarTop-14)fits=false;}
+  if(fits)break;distance*=1.045;
+ }
+ controls.minDistance=distance*.65;controls.maxDistance=distance*1.85;controls.update();controls.enableDamping=true;
 }
 function setOverview(on){
- if(!inside)setInside(true);interiorMode=on?'overview':'walk';heldNavigation.clear();lookPointer=null;indoorCeiling.visible=!on;overviewWalls(on);
+ if(!inside)setInside(true);interiorMode=on?'overview':'walk';heldNavigation.clear();lookPointer=null;indoorCeiling.visible=!on;ground.visible=!on;overviewWalls(on);
  if(on){activeRoom='全屋';roomSelect.value=drawerRoomSelect.value='全屋';insideRoomSelect.value='overview';lightRoomSelect.value='common';applyFilters();renderLightSwitches();overviewCamera();}else indoorPlace(currentInsideRoom);updateCameraUI();syncLights();
 }
 function setInside(on){
- const wasInside=inside;inside=on;heldNavigation.clear();lookPointer=null;interiorMode='walk';overviewWalls(false);
+ const wasInside=inside;inside=on;heldNavigation.clear();lookPointer=null;interiorMode='walk';ground.visible=true;overviewWalls(false);
  document.querySelector('#app').classList.toggle('inside-mode',on);indoorCeiling.visible=on;document.querySelector('#insideView').classList.toggle('active',on);document.querySelector('#planView').classList.toggle('active',!on);document.querySelector('#walktools').hidden=!on;
  if(on){if(!wasInside){currentInsideRoom='common';insideRoomSelect.value='common'}indoorPlace(currentInsideRoom);}
  else{controls.enabled=true;controls.enableDamping=true;controls.enableRotate=true;controls.enablePan=true;controls.enableZoom=true;controls.minDistance=.4;controls.maxDistance=32;controls.minPolarAngle=0;controls.maxPolarAngle=Math.PI*.68;camera.clearViewOffset();camera.fov=32;camera.updateProjectionMatrix();focusRoom(activeRoom);}
@@ -859,7 +914,7 @@ function setInside(on){
 document.querySelector('#daylightToggle').onclick=()=>{daylight=!daylight;syncEnvironment()};
 function indoorPlace(place){
  if(!inside)setInside(true);const p=roomPresets[place];if(!p)return;
- interiorMode='walk';currentInsideRoom=place;insideRoomSelect.value=place;indoorCeiling.visible=true;overviewWalls(false);heldNavigation.clear();lookPointer=null;
+ interiorMode='walk';currentInsideRoom=place;insideRoomSelect.value=place;indoorCeiling.visible=true;ground.visible=true;overviewWalls(false);heldNavigation.clear();lookPointer=null;
  const matchingRoom={'common':'客厅','entry':'玄关','foyer':'玄关','living':'客厅','dining':'餐厅','kitchen':'厨房','prep':'厨房','yard':'Yard','ledge':'AC Ledge','hall':'走道','master':'主人房','b2':'B2','b3':'B3','bath1':'Bath 1','bath2':'Bath 2'}[place];
  if(matchingRoom){activeRoom=matchingRoom;roomSelect.value=drawerRoomSelect.value=matchingRoom;lightRoomSelect.value=lightScopeFor(matchingRoom);applyFilters();renderPointRegister();renderMeasurements();renderLightSwitches()}
  pointWalkingCamera(p.eye,[...p.look,p.lookHeight??1.44]);updateCameraUI();syncLights();
@@ -907,12 +962,18 @@ document.querySelector('#planView').onclick=()=>setInside(false);
 document.querySelector('#homeView').onclick=()=>{setInside(false);selectRoom('全屋')};document.querySelector('#furnitureToggle').addEventListener('click',e=>{interior.visible=!interior.visible;e.currentTarget.classList.toggle('active',interior.visible)});document.querySelector('#livingView').onclick=()=>{setInside(false);selectRoom('客厅')};document.querySelector('#kitchenView').addEventListener('click',()=>{setInside(false);selectRoom('厨房')});document.querySelector('#topView').onclick=()=>{setInside(false);focusRoom(activeRoom)};
 let faded=false;document.querySelector('#cutaway').onclick=e=>{faded=!faded;e.currentTarget.classList.toggle('active',faded);if(model)model.traverse(o=>{if(o.isMesh&&/wall|shell/i.test(o.name)){o.material.transparent=faded;o.material.opacity=faded?.48:1;o.material.depthWrite=!faded}})};
 document.querySelector('#schemeQuick').onclick=()=>openDrawer('layout');
+const controlbar=document.querySelector('.controlbar');
+new ResizeObserver(()=>document.documentElement.style.setProperty('--controls-height',Math.ceil(controlbar.getBoundingClientRect().height)+'px')).observe(controlbar);
 const initialParams=new URLSearchParams(location.search);
+// Apply the viewing white balance to the complete linear image, including
+// material colours and emitters, before the renderer's highlight roll-off.
+const viewingMaterials=new Set();scene.traverse(m=>{if(m.isMesh)for(const mat of Array.isArray(m.material)?m.material:[m.material])viewingMaterials.add(mat)});
+for(const mat of viewingMaterials){mat.onBeforeCompile=shader=>{shader.uniforms.viewingWhiteBalance=viewingWhiteBalance;shader.fragmentShader='uniform mat3 viewingWhiteBalance;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <tonemapping_fragment>','gl_FragColor.rgb = max(viewingWhiteBalance * gl_FragColor.rgb, vec3(0.0));\n#include <tonemapping_fragment>');};mat.customProgramCacheKey=()=> 'serina-viewing-white-balance-v1';mat.needsUpdate=true;}
 daylight=initialParams.get('daylight')!=='0';
 const canonicalUrl=new URL(location.href);canonicalUrl.searchParams.delete('scheme');history.replaceState(null,'',canonicalUrl);
 document.querySelector('#ceilingNote').textContent=AGREED_SCOPE.ceiling;
 const facts=document.querySelector('#designFacts');
-const factRows=[['Lighting','15 installation groups + sink strip'],['Fans','Living + Bedroom 2 + Bedroom 3'],['Master','One dimmable ceiling light; no fan or curtain box'],['Wardrobes','Bedroom 2: unlit niche + mirror. Bedroom 3: full cabinet, no niche.'],['Finishes',AGREED_SCOPE.wallPaint+'. Matt-white ceilings; existing glossy tile and warm pale oak bedroom floor retained.'],['Curtains',AGREED_SCOPE.windowTreatments],['Kitchen',AGREED_SCOPE.kitchen],['Yard',AGREED_SCOPE.yard],['Appliances',AGREED_SCOPE.appliances]];
+const factRows=[['Lighting','15 installation groups + sink strip'],['Fans','Living + Bedroom 2 + Bedroom 3'],['Air conditioning','Four existing doorway-side provisions; illustrative indoor units'],['Master','One dimmable ceiling light; no fan or curtain box'],['Wardrobes','Bedroom 2: unlit niche + mirror. Bedroom 3: full cabinet, no niche.'],['Overview','Selected walls retain Summer Snow 1928 as low solid cutaways; other walls stay translucent.'],['Finishes',AGREED_SCOPE.wallPaint+'. Matt-white ceilings; existing glossy tile and warm pale oak bedroom floor retained.'],['Curtains',AGREED_SCOPE.windowTreatments],['Kitchen',AGREED_SCOPE.kitchen],['Yard',AGREED_SCOPE.yard],['Appliances',AGREED_SCOPE.appliances]];
 for(const [label,value] of factRows){const row=document.createElement('div');row.className='design-fact';const title=document.createElement('strong');title.textContent=label;const detail=document.createElement('span');detail.textContent=value;row.append(title,detail);facts.append(row);}
 const pending=document.createElement('p');pending.className='note';pending.textContent='Pending: '+AGREED_SCOPE.pending.slice(0,4).join(' · ');facts.append(pending);
 syncLights();syncEnvironment();
@@ -926,11 +987,11 @@ function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);c
 // cannot sustain the display's cadence; the badge reports observed FPS.
 let frameCount=0,frameWindowStart=performance.now(),renderDpr=maxDpr,qualityCooldown=0;
 let lastNavigationFrame=performance.now();
-function animate(now){requestAnimationFrame(animate);const dt=Math.min(.05,Math.max(0,(now-lastNavigationFrame)/1000));lastNavigationFrame=now;updateNavigation(dt);if(!inside||interiorMode==='overview')controls.update();renderer.render(scene,camera);if(measureOn)drawMeasurements();
+function animate(now){requestAnimationFrame(animate);const dt=Math.min(.05,Math.max(0,(now-lastNavigationFrame)/1000));lastNavigationFrame=now;updateNavigation(dt);if(!inside||interiorMode==='overview')controls.update();if(inside&&interiorMode==='overview'){const before=controls.target.clone();controls.target.x=THREE.MathUtils.clamp(controls.target.x,-.8,10.4);controls.target.z=THREE.MathUtils.clamp(controls.target.z,-10.1,.8);controls.target.y=.55;camera.position.add(controls.target.clone().sub(before));camera.lookAt(controls.target);}renderer.render(scene,camera);if(measureOn)drawMeasurements();
  frameCount++;if(now-frameWindowStart>2500){const fps=Math.round(frameCount*1000/(now-frameWindowStart));document.querySelector('#fpsBadge').textContent=`FPS ${fps}`;
   if(now>qualityCooldown){const next=fps<59?Math.max(.90,renderDpr-.10):fps>=60?Math.min(maxDpr,renderDpr+.03):renderDpr;
    if(Math.abs(next-renderDpr)>.03){renderDpr=next;renderer.setPixelRatio(renderDpr);renderer.setSize(innerWidth,innerHeight,false);qualityCooldown=now+6000}}
   frameCount=0;frameWindowStart=now}}
 requestAnimationFrame(animate);
 
-window.serinaViewer={snapshot:()=>({revision:AGREED_SCOPE.revision,inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083'},lighting:{areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:hemi.intensity},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setAllLights:on=>{for(const c of lightCircuits)c.on=on;syncLights();renderLightSwitches();},stand:indoorPlace};
+window.serinaViewer={snapshot:()=>({revision:AGREED_SCOPE.revision,inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083'},lighting:{areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_3500K.toArray(),bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setAllLights:on=>{for(const c of lightCircuits)c.on=on;syncLights();renderLightSwitches();},stand:indoorPlace};
