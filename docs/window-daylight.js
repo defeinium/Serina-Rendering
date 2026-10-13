@@ -91,17 +91,18 @@ export function createWindowDaylight(scene){
  vec3 diffuseFixtureBounce(){
   if(fixtureBounceEnabled<=0.0)return vec3(0.0);
   vec3 p=daylightWorldPosition,result=vec3(0.0);
+  float commonRegion=commonAreaWeight(p);
   vec3 normal=normalize(daylightWorldNormal)*(gl_FrontFacing?1.0:-1.0);
+  float orientation=.65+.35*clamp(normal.y*.5+.5,0.0,1.0);
   for(int i=0;i<18;i++){
    if(i>=bounceSourceCount)break;
    vec4 source=bounceSources[i],colour=bounceSourceColours[i];
    int zone=int(source.w);vec4 b=bounceBounds[zone];
    if(p.x<b.x||p.x>b.y||p.z<b.z||p.z>b.w)continue;
-   float region=zone==0?commonAreaWeight(p):boundsWeight(p,b);
+   float region=zone==0?commonRegion:boundsWeight(p,b);
    vec3 delta=p-source.xyz;
    float radius2=colour.w*colour.w;
    float falloff=radius2/(radius2+dot(delta.xz,delta.xz)+.3*delta.y*delta.y);
-   float orientation=.65+.35*clamp(normal.y*.5+.5,0.0,1.0);
    result+=colour.rgb*region*falloff*orientation;
   }
   return result;
