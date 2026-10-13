@@ -1,7 +1,7 @@
 // Planck spectrum integrated with CIE 1931 2° observer, 360–830 nm / 1 nm.
 // CIE 2019 DOI 10.25039/CIE.DS.xvudnb9b, MD5 17cca777db64b17170f06f67ce9d3ab7.
 // Source RGB is LINEAR-sRGB with Y=1, not an sRGB colour swatch.
-// A separate Bradford viewing transform adapts a fixed 3700 K night camera
+// A separate Bradford viewing transform adapts a fixed 4500 K night camera
 // white to display D65. It transforms the full linear image before tone mapping;
 // it never changes the source. Daytime stays at D65 regardless of light switches;
 // night uses the fixed viewing transform. No per-circuit automatic white balance.
@@ -58,16 +58,16 @@ export const LIGHT_COLOUR = {
   },
   "whiteReference": "D65 / sRGB output",
   "basis": "Planck spectrum + CIE 1931 2-degree observer",
-  "nightViewingWhiteBalanceKelvin": 3700,
+  "nightViewingWhiteBalanceKelvin": 4500,
   "nightViewingTransform": [
-    0.8462151960105778,
-    0.012840541631926577,
-    0.022807080032531103,
-    -0.2708682888924054,
-    1.0910785955208133,
-    0.08220468927036656,
-    -0.04912842025173886,
-    -0.018130966949788305,
-    1.947364483706806
+    0.9019914339649685,
+    0.007939654421903626,
+    0.011265245408215063,
+    -0.16578583506282119,
+    1.052396014418505,
+    0.03925374216352123,
+    -0.02522227648939962,
+    -0.00839257875292787,
+    1.4524069160530784
   ]
 };
