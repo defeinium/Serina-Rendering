@@ -92,13 +92,16 @@ export function createWindowDaylight(scene){
    // Give reflected light a broad, soft distribution across opposing walls,
    // ceiling and furniture; retain a gentle gradient instead of a flat overlay.
    float distribution=i==0?.80+.20*exp(-abs(p.z+5.0)/5.0):1.0;
-   result+=bounceColours[i]*weight*distribution;
+   // Preserve surface orientation so indirect illumination does not flatten
+   // the underside of furniture or paint every plane at equal brightness.
+   float orientation=.70+.30*clamp(normalize(daylightWorldNormal).y*.5+.5,0.0,1.0);
+   result+=bounceColours[i]*weight*distribution*orientation;
   }
   return result;
  }
  `;
  return {windows:WINDOWS,group,strength,bounceColours,bounceEnabled,
-  set(on){strength.value=on?22.5:0;skyDay.value=on?1:0;},
+  set(on){strength.value=on?12:0;skyDay.value=on?1:0;},
   attach(shader){
    Object.assign(shader.uniforms,{windowDaylightStrength:strength,windowCentres:centres,windowExtents:extents,windowSpecs:specs,bounceBounds,bounceColours,fixtureBounceEnabled:bounceEnabled});
    shader.vertexShader='varying vec3 daylightWorldPosition;\nvarying vec3 daylightWorldNormal;\n'+shader.vertexShader;

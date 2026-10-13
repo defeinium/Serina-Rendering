@@ -177,3 +177,6 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .night-mode .brand{color:#f0eee8}.night-mode .brand span{color:#c8c8c2}
 
 .temperature-compare{display:flex;align-items:center;gap:5px;margin:6px 0 8px;font-size:10px;color:#b8beb9}.temperature-compare[hidden]{display:none}.temperature-compare span{flex:1}.temperature-compare button{min-height:30px;padding:4px 9px;background:#303735;color:#cbd0cb;border:1px solid #4a524d;border-radius:8px;font-size:10px;cursor:pointer}.temperature-compare button.active{background:#dedacf;border-color:#dedacf;color:#252c28}
+
+/* Three CCT choices stay inside the compact lighting panel on phones. */
+.temperature-compare{flex-wrap:wrap}.temperature-compare span{flex:0 0 100%}.temperature-compare button{flex:1;min-width:0;padding-inline:5px}
