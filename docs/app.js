@@ -2,12 +2,12 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261013-r11';
-import {AGREED_SCOPE,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261013-r11';
+import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261013-r12';
+import {AGREED_SCOPE,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261013-r12';
 
-import {createTileReflection} from './floor-reflection.js?v=20261013-r11';
-import {LIGHT_COLOUR} from './light-colour.js?v=20261013-r11';
-import {createWindowDaylight} from './window-daylight.js?v=20261013-r11';
+import {createTileReflection} from './floor-reflection.js?v=20261013-r12';
+import {LIGHT_COLOUR, roomViewingMatrix} from './light-colour.js?v=20261013-r12';
+import {createWindowDaylight} from './window-daylight.js?v=20261013-r12';
 
 RectAreaLightUniformsLib.init();
 
@@ -534,14 +534,15 @@ for(const a of AIR_CONDITIONERS){
 batchStatic(airConGroup);
 // A single accepted design. No alternative ceilings or hidden legacy circuits.
 // Explicit linear input avoids treating linear light energy as an sRGB swatch.
-const LIGHT_3500K=new THREE.Color().setRGB(...LIGHT_COLOUR.variants['3500'].previewLinearRGB,THREE.LinearSRGBColorSpace);
-const LIGHT_3000K=new THREE.Color().setRGB(...LIGHT_COLOUR.variants['3000'].previewLinearRGB,THREE.LinearSRGBColorSpace);
-const LIGHT_4000K=new THREE.Color().setRGB(...LIGHT_COLOUR.variants['4000'].previewLinearRGB,THREE.LinearSRGBColorSpace);
+const LIGHT_3500K=new THREE.Color().setRGB(...LIGHT_COLOUR.variants['3500'].linearRGB,THREE.LinearSRGBColorSpace);
+const LIGHT_3000K=new THREE.Color().setRGB(...LIGHT_COLOUR.variants['3000'].linearRGB,THREE.LinearSRGBColorSpace);
+const LIGHT_4000K=new THREE.Color().setRGB(...LIGHT_COLOUR.variants['4000'].linearRGB,THREE.LinearSRGBColorSpace);
 const temperatureColours={3000:LIGHT_3000K,3500:LIGHT_3500K,4000:LIGHT_4000K};
 let commonKelvin=3500;
 const colourForRoom=room=>COMMON_LIGHT_ROOMS.has(room)?temperatureColours[commonKelvin]:LIGHT_3500K;
 const reflectedLight=new THREE.HemisphereLight(LIGHT_3500K,LIGHT_3500K,0);scene.add(reflectedLight);
 const viewingWhiteBalance={value:new THREE.Matrix3()};
+let viewingIlluminantRGB=[1,1,1],adaptationDegree=0;
 
 const windowDaylight=createWindowDaylight(scene);
 const tileReflection=createTileReflection(scene,isMobile);
@@ -680,8 +681,8 @@ const areaPool=Array.from({length:7},()=>{const l=new THREE.RectAreaLight(LIGHT_
 const spotPool=Array.from({length:11},()=>{const l=new THREE.SpotLight(LIGHT_3500K,0,5,.66,.9,2);l.castShadow=true;l.shadow.mapSize.set(512,512);l.shadow.bias=-.00015;l.shadow.normalBias=.018;scene.add(l,l.target);return l});
 function updateLightPool(){
  const areas=lightCircuits.flatMap(c=>c.lights.filter(l=>l.visible&&l.isRectAreaLight)),spots=lightCircuits.flatMap(c=>c.lights.filter(l=>l.visible&&l.isSpotLight));
- areaPool.forEach((l,i)=>{const a=areas[i];l.intensity=inside&&a?a.intensity*.32:0;if(a){l.color.copy(colourForRoom(a.userData.room));l.position.copy(a.position);l.quaternion.copy(a.quaternion);l.width=a.width;l.height=a.height;}});
- spotPool.forEach((l,i)=>{const a=spots[i];l.intensity=inside&&a?a.intensity*.32:0;if(a){l.color.copy(colourForRoom(a.userData.room));l.position.copy(a.position);l.target.position.copy(a.target.position);l.angle=a.angle;l.penumbra=a.penumbra;l.distance=a.distance;l.decay=a.decay;}});
+ areaPool.forEach((l,i)=>{const a=areas[i];l.intensity=inside&&a?a.intensity*.12:0;if(a){l.color.copy(colourForRoom(a.userData.room));l.position.copy(a.position);l.quaternion.copy(a.quaternion);l.width=a.width;l.height=a.height;}});
+ spotPool.forEach((l,i)=>{const a=spots[i];l.intensity=inside&&a?a.intensity*.12:0;if(a){l.color.copy(colourForRoom(a.userData.room));l.position.copy(a.position);l.target.position.copy(a.target.position);l.angle=a.angle;l.penumbra=a.penumbra;l.distance=a.distance;l.decay=a.decay;}});
 }
 function circuitActive(){return true}
 function syncLights(){
@@ -800,14 +801,25 @@ function syncEnvironment(){
  scene.background.set(inside&&!daylight?0x0b1420:0xdfe5e8);scene.fog.color.copy(scene.background);
  if(!inside){windowDaylight.bounceEnabled.value=0;windowDaylight.strength.value=0;for(const v of windowDaylight.bounceColours.value)v.set(0,0,0);reflectedLight.intensity=0;renderer.toneMapping=THREE.NeutralToneMapping;sun.intensity=1.8;sun.castShadow=true;hemi.color.set(0xffffff);hemi.groundColor.set(0xe0dfd8);hemi.intensity=1.65;renderer.toneMappingExposure=.96;return}
  // Preserve material colour relationships with the same display pipeline in
- // all four daylight / lamp states; no mode-dependent whole-image colour filter.
- sun.intensity=0;sun.castShadow=false;renderer.toneMapping=THREE.AgXToneMapping;
+ // all four daylight / lamp states. The estimated adapting white is separate.
+ sun.intensity=0;sun.castShadow=false;renderer.toneMapping=THREE.NeutralToneMapping;
  const lit=lightCircuits.filter(c=>c.on&&c.lights.some(l=>l.visible));
  const zoneFor={'走道':1,'主人房':2,B2:3,B3:4,'Bath 1':5,'Bath 2':6,Yard:7};
  const energies=Array(8).fill(0);
  for(const c of lit){const zone=zoneFor[c.room]??0;energies[zone]+=c.kind==='ceiling'?.72:c.kind==='track'?(c.room==='B2'?.90:.52):c.kind==='pendant'?.42:c.kind==='floorLamp'?.26:c.kind==='strip'?.20:.30;}
  windowDaylight.bounceColours.value.forEach((v,i)=>{const colour=i<2?temperatureColours[commonKelvin]:LIGHT_3500K;v.set(...colour.toArray()).multiplyScalar(Math.min(i===0?1.15:1.0,energies[i]));});
  windowDaylight.bounceEnabled.value=lit.length?1:0;
+ // Estimate the adapting white from active room sources plus admitted D65 sky.
+ // This is an appearance estimate, not a measured illuminance value. The same
+ // calculation is used for every CCT: no fixed 4000 K white or per-CCT filter.
+ const roomWindowNames={common:['Living','Kitchen via yard window'],hall:['Living'],master:['Master'],b2:['Bedroom 2'],b3:['Bedroom 3'],bath1:['Bath 1'],bath2:['Bath 2'],yard:['Yard']};
+ const names=roomWindowNames[currentInsideRoom]||roomWindowNames.common;
+ const skyWeight=daylight?windowDaylight.windows.filter(w=>names.includes(w.name)).reduce((v,w)=>v+w.width*w.height*w.transmission*.55,0):0;
+ const mixed=new THREE.Vector3(skyWeight,skyWeight,skyWeight);let weight=skyWeight;
+ for(const c of lit){const energy=c.kind==='ceiling'?.72:c.kind==='track'?.52:c.kind==='pendant'?.42:c.kind==='floorLamp'?.26:.30;mixed.addScaledVector(new THREE.Vector3(...colourForRoom(c.room).toArray()),energy);weight+=energy;}
+ viewingIlluminantRGB=weight>0?mixed.divideScalar(weight).toArray():[1,1,1];
+ adaptationDegree=daylight?.55:.8;
+ viewingWhiteBalance.value.set(...roomViewingMatrix(viewingIlluminantRGB,adaptationDegree));
  const bounceSources=[];
  for(const c of lit){
   const lamps=c.lights.filter(l=>l.visible),zone=zoneFor[c.room]??0;
@@ -815,7 +827,7 @@ function syncEnvironment(){
   for(const lamp of lamps){
    const position=lamp.position.clone();
    if(lamp.isSpotLight)position.lerp(lamp.target.position,.45);else position.y=Math.min(position.y,1.65);
-   bounceSources.push({position:position.toArray(),zone,radius:c.kind==='ceiling'?2.0:1.6,colour:colourForRoom(c.room).toArray().map(v=>v*energy*2)});
+   bounceSources.push({position:position.toArray(),zone,radius:c.kind==='ceiling'?2.0:1.6,colour:colourForRoom(c.room).toArray().map(v=>v*energy*4)});
   }
  }
  windowDaylight.setBounceSources(bounceSources);
@@ -824,7 +836,7 @@ function syncEnvironment(){
  hemi.color.set(0xffffff);hemi.groundColor.set(0xe0dfd8);
  hemi.intensity=daylight?.075:0;reflectedLight.intensity=0;
  renderer.shadowMap.needsUpdate=true;
- renderer.toneMappingExposure=.90;
+ renderer.toneMappingExposure=1.1;
 }
 const insideRoomSelect=document.querySelector('#insideRoom');
 let currentInsideRoom='common';
@@ -1051,13 +1063,20 @@ const controlbar=document.querySelector('.controlbar');
 new ResizeObserver(()=>document.documentElement.style.setProperty('--controls-height',Math.ceil(controlbar.getBoundingClientRect().height)+'px')).observe(controlbar);
 const initialParams=new URLSearchParams(location.search);
 // Register all PBR surfaces, including materials attached only after toggling.
-// The shader adds illumination only; material colour is not camera-white-balanced.
+// Source light stays spectral RGB; a partial eye-adaptation transform is applied
+// to completed scene radiance, never to a material swatch or light source.
 const viewingMaterials=new Set();scene.traverse(m=>{if(m.isMesh)for(const mat of Array.isArray(m.material)?m.material:[m.material])viewingMaterials.add(mat)});
 for(const c of lightCircuits)for(const mat of [c.shadeOn,c.shadeOff])if(mat)viewingMaterials.add(mat);
 for(const mat of viewingMaterials){
- if(!mat.isMeshStandardMaterial&&!mat.isMeshPhysicalMaterial)continue;
- mat.onBeforeCompile=shader=>windowDaylight.attach(shader);
- mat.customProgramCacheKey=()=> 'serina-stable-material-colour-v8';mat.needsUpdate=true;
+ const pbr=mat.isMeshStandardMaterial||mat.isMeshPhysicalMaterial;
+ if(!pbr&&!Object.values(diffuserMaterials).includes(mat))continue;
+ mat.onBeforeCompile=shader=>{
+  if(pbr)windowDaylight.attach(shader);
+  shader.uniforms.eyeWhiteBalance=viewingWhiteBalance;
+  shader.fragmentShader='uniform mat3 eyeWhiteBalance;\n'+shader.fragmentShader;
+  shader.fragmentShader=shader.fragmentShader.replace('#include <opaque_fragment>','outgoingLight=max(vec3(0.0),eyeWhiteBalance*outgoingLight);\n#include <opaque_fragment>');
+ };
+ mat.customProgramCacheKey=()=> 'serina-perceptual-room-colour-v9';mat.needsUpdate=true;
 }
 daylight=initialParams.get('daylight')!=='0';
 commonKelvin=[3000,3500,4000].includes(Number(initialParams.get('cct')))?Number(initialParams.get('cct')):3500;
@@ -1086,4 +1105,4 @@ function animate(now){requestAnimationFrame(animate);const dt=Math.min(.05,Math.
   frameCount=0;frameWindowStart=now}}
 requestAnimationFrame(animate);
 
-window.serinaViewer={snapshot:()=>({revision:AGREED_SCOPE.revision,inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{commonKelvin,localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setAllLights:on=>{for(const c of lightCircuits)c.on=on;syncLights();renderLightSwitches();},stand:indoorPlace};
+window.serinaViewer={snapshot:()=>({revision:AGREED_SCOPE.revision,inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{commonKelvin,localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),viewingIlluminantRGB,adaptationDegree,exposure:renderer.toneMappingExposure,bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setAllLights:on=>{for(const c of lightCircuits)c.on=on;syncLights();renderLightSwitches();},stand:indoorPlace};
