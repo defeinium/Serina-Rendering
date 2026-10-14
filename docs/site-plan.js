@@ -11,7 +11,7 @@ const root=el('g',{id:'drawing-root'});
 const groups=Object.fromEntries(['architecture','rooms','furniture','walls','dimensions','lighting','labels'].map(k=>[k,el('g',{'data-layer':k},root)]));
 const colours={proposed:'#b26b39',source:'#4f7b9e',unused:'#abb5af',socket:'#7b58a2',switch:'#527f64'};
 const items=new Map();let selected=null;
-const source=(ex,ey)=>[143+(ex-317)*(757/1008),218+(ey-311)*(724/974)];
+const source=(ex,ey)=>ex===827&&[362,468,560].includes(ey)?[416+(ex-674)/305*221,233+(ey-327)/270*202]:[143+(ex-317)*(757/1008),218+(ey-311)*(724/974)];
 // Keep the actual architectural wall/window linework instead of approximating
 // it with disconnected generic wall strokes. White floor masks remove the
 // developer's illustrative furniture; door leaves are traced at its jambs.
@@ -22,7 +22,7 @@ el('image',{href:'plan-assets/original-plan-type-a.jpeg',x:0,y:0,width:1080,heig
 const rooms=[
  ['Living',160,233,397,521],['Dining',160,521,397,737],['Kitchen',160,740,457,875],
  ['Foyer',160,895,281,931],['Yard',473,741,559,931],['AC ledge',577,741,627,931],
- ['B2',415,233,637,430],['Master',653,233,888,517],['Hall',397,445,650,520],
+ ['B2',416,233,637,435],['Master',653,233,888,517],['Hall',397,445,650,520],
  ['Bath 2',413,535,517,725],['B3',534,535,755,725],['Bath 1',771,535,888,725]
 ];
 for(const [name,x,y,x2,y2] of rooms)el('rect',{x,y,width:x2-x,height:y2-y,fill:name.startsWith('Bath')?'#f2f6f7':'#fafbf8'},groups.rooms);
@@ -36,7 +36,11 @@ const door=(id,x,y,r,start,end,sweep=0)=>{
 };
 // Hinge, open leaf and swing direction copied from the architectural source.
 door('Entry',166,875,84,-90,0,1);
-door('B2',627,437,66,-90,-180,0);
+// Dimensioned entry run: 1800 solid + 800 opening + 265 return.
+el('rect',{x:416,y:435,width:221,height:12,fill:'#242724'},groups.walls);
+const b2EntryStart=416+1800/2865*221,b2EntryEnd=416+2600/2865*221;
+el('rect',{x:b2EntryStart,y:435,width:b2EntryEnd-b2EntryStart,height:13,fill:'#fafbf8'},groups.walls);
+door('B2',b2EntryEnd,437,800/2865*221,-90,-180,0);
 door('Master',650,515,65,0,-90,0);
 door('Bath 2',511,534,61,90,180,1);
 door('B3',541,535,65,90,0,0);
@@ -80,7 +84,6 @@ const tableEast=benchFront-75/commonMmPerPx;
 const diningX=tableEast-tableWidth/2;
 const b2CabDepth=600/2517*(435-233);
 const b2CabFront=435-b2CabDepth;
-const b2NewFanY=233+(8.96-8.03)*(435-233)/(8.96-6.433);
 furniture('SOFA',170,253,75,194,'Sofa','Site / model check','Keep the existing sofa proportions. Final product dimensions to confirm.');
 el('rect',{x:245,y:253,width:55,height:65,rx:4,fill:'#e9ede6',stroke:'#b9c4b7'},groups.furniture);
 furniture('TV',365,277,29,170,'TV cabinet','2134 W quoted','Floor-standing low cabinet. Samsung Frame Pro; cabinet height and TV cable route to confirm.','TV');
@@ -93,9 +96,11 @@ furniture('FRIDGE',398,741,59,60,'Fridge cabinet','762 W quoted','Grey woodgrain
 // Window cabinet detail is not drawn as an invented standalone box.
 furniture('SHOE',259,886,27,48,'Shoe cabinet','610 W quoted','OUTSIDE the main door, in the foyer recess. Height, depth and suspended fixing to confirm.','');
 
-furniture('B2-CAB',418,b2CabFront,145,b2CabDepth,'B2 wardrobe','1829 W quoted','6 ft; ~600 mm depth target; height to site ceiling. 389 mm-wide door-side niche module, clear opening 1200–2000 mm above finished floor; unlit mirror and curved detailing. Existing switch position/access to set out on site.','Wardrobe / niche');
-el('rect',{x:563-145*389/1829,y:b2CabFront,width:145*389/1829,height:b2CabDepth,fill:'#e3e9e0',stroke:'#c8d1c4','data-context':'B2-NICHE'},groups.furniture);
-furniture('DESK',419,250,55*600/700,112,'Desk','1400 × 600 mm target','B2 office; dual 24-inch monitors on arms. Check chair aisle, actual desk and sockets.','Desk');
+const b2CabX=416,b2MainW=1440/2865*221;
+furniture('B2-CAB',b2CabX,b2CabFront,b2MainW,b2CabDepth,'Wardrobe','1440 × 600 mm','Three main doors, separate top storage, ceiling sealed. Internal drawers and inside-door mirror to shop drawing. Door-side 360 mm wall strip remains clear for original socket and switches. Proposed sizes, site-check.','Full-height wardrobe');
+const b2DeskX=416+100/2865*221,b2DeskW=1400/2865*221,b2DeskY=233+100/2517*202;
+furniture('DESK',b2DeskX,b2DeskY,b2DeskW,600/2517*202,'Window-facing desk','1400 × 600 mm','Window-facing, biased left toward existing left-wall socket. Open underside; tuck chair to use wardrobe. Check window operation and chair clearance on site.','Desk');
+el('rect',{x:b2DeskX+b2DeskW/2-480/2865*221/2,y:233+(100+600-20)/2517*202,width:480/2865*221,height:480/2517*202,rx:4,fill:'#eef1eb',stroke:'#c2cbbe','data-context':'B2-CHAIR'},groups.furniture);
 furniture('B3-CAB',615,538,140,600/2450*(725-538),'B3 wardrobe','1829 W quoted','6 ft; ~600 mm depth target; full-height, NO niche. Rounded exposed corner. Internal hanging and three useful drawers to be signed off.','Full wardrobe');
 furniture('B3-BED',598,643,155,74,'B3 bed','Model only','Confirm product size before circulation and fan setting-out.','Bed');
 furniture('M-BED',666,259,158,146,'Master bed','Product TBC','Sleeping room. No fan or curtain box; optional plug-in bedside lamps.','Bed');
@@ -118,8 +123,8 @@ function dimension(x1,y1,x2,y2,label){
  const t=text(groups.dimensions,(x1+x2)/2+(horizontal?0:12),(y1+y2)/2+(horizontal?-6:0),label,'dimension');
  if(!horizontal)t.setAttribute('transform',`rotate(-90 ${(x1+x2)/2+12} ${(y1+y2)/2})`);
 }
-dimension(159,189,397,189,'3060');dimension(416,189,627,189,'2865');dimension(658,189,888,189,'3010');
-dimension(608,233,608,435,'2517');dimension(938,233,938,520,'3700');dimension(938,538,938,724,'2450');
+dimension(159,189,397,189,'3060');dimension(416,189,637,189,'2865');dimension(658,189,888,189,'3010');
+dimension(645,233,645,435,'2517');dimension(938,233,938,520,'3700');dimension(938,538,938,724,'2450');
 dimension(536,611,764,611,'2865');dimension(296,961,457,961,'2065');
 
 const ceiling=[['F-L1',396,1144],['L-L1',491,365],['L-FAN',491,468,'fan'],['L-L2',491,570],['D-L1',491,865],['K-L2',625,1144],['Y-L1',812,1144],['H-L1',817,666],['M-L1',1156,365],['M-FAN',1156,468,'fan'],['M-L2',1156,570],['M-L3',1155,666],['B2-L1',827,362],['B2-F',827,468,'fan'],['B2-L2',827,560],['B3-L1',878,895],['B3-F',985,895,'fan'],['B3-L2',1091,895],['B1-L',1237,866],['B2B-L',742,866]];
@@ -138,7 +143,7 @@ const pointLabels={
  'M-L2':{label:['Dimmable','ceiling light'],dx:14,dy:4},
  'M-L3':{label:['Unused light point'],dx:0,dy:24},
  'B2-L1':{label:['Track supply'],dx:0,dy:23},
- 'B2-F':{label:['Old fan hook'],dx:0,dy:22},
+ 'B2-F':{label:['Unused fan hook'],dx:-15,dy:-12},
  'B2-L2':{label:['Unused','light point'],dx:14,dy:2},
  'B3-F':{label:['Ceiling fan'],dx:0,dy:29},
  'B3-L1':{label:['Ceiling','light 1'],dx:0,dy:23},
@@ -155,9 +160,9 @@ const decisions={
  'K-L2':['Kitchen track','Confirmed / length TBC',{'Type':'Straight surface track','Feed':'Directly at K-L2'},'Track crosses the existing point. Length, heads and aiming to confirm; sink cabinet LED is separate.'],
  'H-L1':['Hall lighting feed','Confirmed / set-out TBC',{'Install':'2 matching diffuse lights','Ceiling':'Existing plaster retained'},'Reuse the existing feed and loop the second light. Centres and cut-outs to confirm; no new plaster ceiling.'],
  'M-L2':['Master ceiling light','Confirmed',{'Type':'Dimmable diffuse ceiling light','Position':'Existing M-L2','Fan':'None'},'Other master ceiling points remain unused and safely covered. No curtain box.'],
- 'B2-L1':['Bedroom 2 track supply','Proposed / site check',{'Type':'1600 mm transverse diffuse track','Feed':'Original window-side light point'},'Rail crosses the existing window-side point. Two outboard heads avoid the proposed fan blade envelope; verify circuit and model-specific clearances on site.'],
+ 'B2-L1':['Bedroom 2 track supply','Proposed / site check',{'Type':'1600 mm transverse diffuse track','Feed':'Original window-side light point'},'Rail crosses the existing window-side point over the window-facing desk. Two broad diffuse modules; no ceiling fan. Confirm circuit and light output on site.'],
  'B2-L2':['Bedroom 2 wardrobe-side light point','Unused',{'Action':'Safely terminate and retain access'},'The proposed wardrobe occupies this point. No second ceiling light is planned here.'],
- 'B2-F':['B2 existing fan point','Relocation TBC',{'Diameter target':'33 in / ~838 mm','Move':'Away from wardrobe'},'New structural hook position to be marked on site. Check upper wardrobe doors, actual blade height and model-specific clearances.'],
+ 'B2-F':['Bedroom 2 original fan hook','Unused',{'Action':'Retain original hook and safely cover supply','Fan':'Plug-in standing circulator'},'No ceiling fan or hook relocation.'],
  'B3-L1':['B3 ceiling light 1','Confirmed',{'Type':'Diffuse ceiling light','Position':'Existing B3-L1'},'Match B3-L2. Exact diameter/output TBC.'],
  'B3-L2':['B3 ceiling light 2','Confirmed',{'Type':'Diffuse ceiling light','Position':'Existing B3-L2'},'Match B3-L1. Exact diameter/output TBC.'],
  'B3-F':['B3 fan','Proposed size',{'Diameter':'33 in / ~838 mm','Position':'Existing hook target'},'Source centre corrected. No forced relocation is shown; model, height and opened wardrobe doors still require checking.'],
@@ -207,14 +212,13 @@ for(const [id,x] of [['H1',465],['H2',586]]){
  marker(groups.lighting,id,x,hallY,'light',colours.proposed,false,id==='H1'?-14:14,-17,['Hallway','light '+id.slice(1)]);
  add(id,'Hall light '+id.slice(1),'Set-out TBC',{'Type':'Matching diffuse light','Supply':'H-L1 loop'},'Retain existing plaster. Confirm these two aligned centres on site.',x,hallY);
 }
-const b2=source(827,468);
-path(groups.lighting,[b2,[b2[0],b2NewFanY]],{stroke:colours.proposed,'stroke-width':1.5,'stroke-dasharray':'3 3'});
-el('ellipse',{cx:b2[0],cy:b2NewFanY,rx:419/(2865/(627-416)),ry:419/(2517/(435-233)),fill:'none',stroke:colours.proposed,'stroke-width':1.4,'stroke-dasharray':'5 4','data-fan':'B2'},groups.lighting);
-marker(groups.lighting,'B2-F-NEW',b2[0],b2NewFanY,'fan',colours.proposed,false,14,-4,['Ceiling fan','33 inches']);
-add('B2-F-NEW','B2 fan target','Relocation TBC',{'Diameter':'33 in / ~838 mm','Move':'Away from wardrobe'},'Centre in the clear span between window wall and wardrobe front; hook position and cable route need site setting-out.',b2[0],b2NewFanY);
+const b2StandingX=416+1620/2865*221,b2StandingY=233+1740/2517*202;
+el('ellipse',{cx:b2StandingX,cy:b2StandingY,rx:155/2865*221,ry:155/2517*202,fill:'#fff',stroke:colours.proposed,'stroke-width':1.5,'data-standing-fan':'B2'},groups.furniture);
+marker(groups.lighting,'B2-CIRCULATOR',b2StandingX,b2StandingY,'fan',colours.proposed,false,17,-13,['Standing','circulator']);
+add('B2-CIRCULATOR','Bedroom 2 standing circulator','Confirmed layout / placement adjustable',{'Type':'Xiaomi plug-in standing air circulator','Reference body':'326 × 310 × 886 mm','Power':'Original entry-wall socket'},'Place near the 360 mm clear wall strip, forward into the room as needed. Keep the socket, cupboard doors and room entry usable. No ceiling fan or hook relocation.',b2StandingX,b2StandingY);
 // Proposed track is anchored to the exact registered window-side supply.
-const b2Light=source(827,362),b2Half=800/(2865/(627-416)),b2Head=650/(2865/(627-416));
-track('B2-TRACK',[[b2Light[0]-b2Half,b2Light[1]],[b2Light[0]+b2Half,b2Light[1]]],[[b2Light[0]-b2Head,b2Light[1]],[b2Light[0]+b2Head,b2Light[1]]],'Bedroom 2 diffuse track',{'Length target':'1600 mm','Feed':'Original window-side light point'},'Proposed transverse rail; two diffuse heads outside the fan envelope. Verify original circuit, cabinet doors and fixture clearances on site.',[b2Light[0]+b2Half,b2Light[1]-16]);
+const b2Light=source(827,362),b2Half=800/(2865/(637-416)),b2Head=650/(2865/(637-416));
+track('B2-TRACK',[[b2Light[0]-b2Half,b2Light[1]],[b2Light[0]+b2Half,b2Light[1]]],[[b2Light[0]-b2Head,b2Light[1]],[b2Light[0]+b2Head,b2Light[1]]],'Bedroom 2 diffuse track',{'Length target':'1600 mm','Feed':'Original window-side light point'},'Transverse rail at original supply over the window-facing desk; two broad diffuse modules. Verify original circuit and light output on site.',[b2Light[0]+b2Half,b2Light[1]-16]);
 const b3=source(985,895);
 el('ellipse',{cx:b3[0],cy:b3[1],rx:419/(2865/(755-534)),ry:419/(2450/(725-535)),fill:'none',stroke:colours.proposed,'stroke-width':1.4,'stroke-dasharray':'5 4','data-fan':'B3'},groups.lighting);
 text(groups.lighting,b3[0],b3[1]-25,'33 inches','point-label');
@@ -227,7 +231,7 @@ for(const [prefix,sx,mx] of [['B2B',463,463],['B1',835,838]]){
  path(groups.lighting,[[mx,570],[prefix==='B1'?873:433,568]],{stroke:colours.proposed,'stroke-width':1.2,'stroke-dasharray':'3 3'});
 }
 // Minimal space labels are placed in clear areas, independent of source furniture.
-for(const [name,x,y] of [['LIVING',283,497],['DINING',219,551],['KITCHEN',211,855],['FOYER',206,902],['YARD',513,859],[['BEDROOM','2'],597,362],[['MASTER','BEDROOM'],840,481],['HALLWAY',455,518],['BATHROOM 2',465,650],['BEDROOM 3',590,606],['BATHROOM 1',830,650]]){
+for(const [name,x,y] of [['LIVING',283,497],['DINING',219,551],['KITCHEN',211,855],['FOYER',206,902],['YARD',513,859],[['BEDROOM','2'],590,306],[['MASTER','BEDROOM'],840,481],['HALLWAY',455,518],['BATHROOM 2',465,650],['BEDROOM 3',590,606],['BATHROOM 1',830,650]]){
  const t=text(groups.labels,x,y,name,'room-label');
  if(typeof name==='string' && name.startsWith('BATHROOM'))t.style.fontSize='10px';
 }
@@ -249,7 +253,7 @@ function select(id){
 }
 function resetDetail(){
  selected=null;document.querySelectorAll('.marker').forEach(n=>n.classList.remove('selected'));$('#close-detail').hidden=true;
- $('#detail-tag').textContent='LIGHTING PLAN · REVISION 07';
+ $('#detail-tag').textContent='LIGHTING PLAN · REVISION 11';
  $('#detail').innerHTML='<h1>Lights &amp; fans</h1><p>Tap a fitting for its brief.</p><div class="room-jump"><button data-room="Living">Living</button><button data-room="Kitchen">Kitchen</button><button data-room="B2">Bedroom 2</button><button data-room="B3">Bedroom 3</button><button data-room="Master">Master bedroom</button></div><p class="note-small">3500 K target · Dashed = set-out pending</p>';
  $('.brief').scrollTop=0;
 }

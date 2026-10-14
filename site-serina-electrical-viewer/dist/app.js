@@ -2,13 +2,12 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import {Reflector} from 'three/addons/objects/Reflector.js';
 import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261013-r13';
-import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261014-living-track-r6';
+import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261014-b2-final';
 
 import {createTileReflection} from './floor-reflection.js?v=20261013-r13';
 import {LIGHT_COLOUR, roomViewingMatrix} from './light-colour.js?v=20261013-r13';
-import {createWindowDaylight} from './window-daylight.js?v=20261013-r13';
+import {createWindowDaylight} from './window-daylight.js?v=20261014-b2-window-desk';
 
 RectAreaLightUniformsLib.init();
 
@@ -16,10 +15,10 @@ const TYPES={light:{label:'Light point',color:0xffd166},fan:{label:'Fan point',c
 const ROOMS=['全屋','玄关','客厅','餐厅','厨房','Yard','走道','主人房','B2','B3','Bath 1','Bath 2','AC Ledge'];
 const ROOM_LABELS={'全屋':'Whole home','玄关':'Entry','客厅':'Living room','餐厅':'Dining','厨房':'Kitchen','Yard':'Yard','走道':'Hall','主人房':'Master bedroom','B2':'Bedroom 2','B3':'Bedroom 3','Bath 1':'Bath 1','Bath 2':'Bath 2','AC Ledge':'AC ledge'};
 const points=SOURCE_REGISTER.map(([id,room,ex,ey,type,title])=>{
- const [x,y]=planToModel(...registeredSource(ex,ey),room);
- const unused=['M-L1','M-L3','M-FAN','B2-L2'].includes(id);
+ const [x,y]=sourceModel(id);
+ const unused=['M-L1','M-L3','M-FAN','B2-L2','B2-F'].includes(id);
  const fixture=FIXTURES.find(f=>f.id===id||f.feed===id),fan=FANS.find(f=>f.id===id);
- return {id,room,type,pos:[x,2.73,-y],title,spec:type==='fan'?'Original fan supply':'Original light supply',note:unused?'Unused: retain and safely cover. No fitting planned.':fixture?.status||fan?.status||(id==='B2-F'?'Retain feed; new structural hook position pending.':id==='B2-L1'?'Feed the proposed transverse track at this original point; verify circuit on site.':'Existing supply retained; new fitting centres are in the current 2D drawing.'),status:unused?'Unused':'Drawing-derived · verify on site',sourcePixel:[ex,ey]};
+ return {id,room,type,pos:[x,2.73,-y],title,spec:type==='fan'?'Original fan supply':'Original light supply',note:unused?'Unused: retain and safely cover. No fitting planned.':fixture?.status||fan?.status||(id==='B2-L1'?'Feed the proposed transverse track at this original point; verify circuit on site.':'Existing supply retained; new fitting centres are in the current 2D drawing.'),status:unused?'Unused':'Drawing-derived · verify on site',sourcePixel:[ex,ey]};
 });
 // Outlet locations are inherited approximations, hidden by default. Do not
 // introduce a new wardrobe-niche supply or a powered mirror cabinet.
@@ -36,7 +35,7 @@ const outletRows=[
 for(const [id,room,type,x,y,z,title] of outletRows)points.push({id,room,type,pos:[x,z,-y],title,spec:'Existing service indication',note:'Horizontal offset is unmeasured. Trace the actual outlet and circuit on site.',status:'Approximate model marker'});
 for(const a of AIR_CONDITIONERS)points.push({id:a.id,room:a.room,type:'fixed',pos:[a.wallCentre[0],a.centreHeight,-a.wallCentre[1]],title:a.name+' feed',spec:'2525 mm AFFL · developer legend',note:a.status+'. Electrical symbol registration retained separately; marker is a doorway-side model indication.',status:'Drawing-derived · site-check',electricalPixel:a.sourcePixel});
 for(const f of FIXTURES.filter(f=>f.installed&&!SOURCE_REGISTER.some(p=>p[0]===f.id))){points.push({id:f.id,room:f.room,type:'proposed',pos:[f.centre[0],2.70,-f.centre[1]],title:f.name,spec:'Current fitting target',note:f.status,status:'Proposed · set-out pending'});}
-points.push({id:'B2-F-NEW',room:'B2',type:'proposed',pos:[FANS[1].centre[0],2.73,-FANS[1].centre[1]],title:'Bedroom 2 new fan hook',spec:'33-inch visual target',note:FANS[1].status,status:'Proposed · set-out pending'});
+points.push({id:'B2-CIRCULATOR',room:'B2',type:'proposed',pos:[BEDROOM2.circulator.centre[0],.886,-BEDROOM2.circulator.centre[1]],title:'Bedroom 2 standing circulator',spec:'Plug-in · 326 × 310 × 886 mm reference',note:BEDROOM2.circulator.status,status:'Current layout · adjustable floor position'});
 
 const canvas=document.querySelector('#scene'); const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});
 const isMobile=matchMedia('(max-width: 720px)').matches;
@@ -101,7 +100,7 @@ function buildShell(){
  // Living AC mounts over the open hall entrance, facing the living room.
  part('existing corridor entrance header',3.245,5.7765,.16,1.153,2.19,.66);
  // B2 and corridor; the master entry is in its west partition.
- wy(3.245,6.353,9.05);wx(3.245,5.225,6.353);doorX(5.225,6.025,6.353);wx(6.025,6.29,6.353);
+ wy(3.245,6.353,9.05);wx(3.245,BEDROOM2.entry.doorStart,6.353);doorX(BEDROOM2.entry.doorStart,BEDROOM2.entry.doorEnd,6.353);wx(BEDROOM2.entry.doorEnd,6.29,6.353);
  wy(6.29,6.25,9.05);doorY(6.29,5.35,6.25);wy(6.29,5.20,5.35);
  // Bathrooms and B3 block, with plan-correct entries.
  wy(3.245,2.60,5.20);wy(4.775,2.60,5.20);wy(7.82,2.60,5.20);
@@ -166,7 +165,7 @@ function buildSurfaces(){
  floorPlane(3.6425,1.375,.795,2.45,'tile');
  floorPlane(.9725,.575,1.645,.85,'tile');
  floorPlane(4.8575,5.9415,3.225,1.183,'tile');
- floorPlane(4.8575,7.7915,2.865,2.517,'wood');
+ floorPlane(4.7675,7.7015,2.865,2.517,'wood');
  floorPlane(7.975,7.20,3.01,3.70,'wood');
  floorPlane(4.10,3.975,1.35,2.45,'bath');
  floorPlane(6.3875,3.975,2.865,2.45,'wood');
@@ -201,43 +200,39 @@ mats.wardrobeCab=new THREE.MeshStandardMaterial({color:0xc5c5c1,roughness:.88});
 mats.nicheWood=greyAshMat;
 mats.linen.bumpMap=mats.linen.map;mats.linen.bumpScale=.005;
 const interior=new THREE.Group();interior.visible=true;scene.add(interior);
-let b2MirrorDirty=true,b2MirrorCaptures=0;
 function linenTexture(){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.fillStyle='#e0ddd6';g.fillRect(0,0,256,256);let seed=1978;const rand=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);for(let i=0;i<13000;i++){const v=130+Math.floor(rand()*85);g.fillStyle=`rgba(${v},${v},${v},${.025+rand()*.045})`;g.fillRect(rand()*256,rand()*256,rand()*2+.4,rand()*5+.6)}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(3,5);return t}
 function box(name,x,y,z,w,d,h,mat,r=.04){const g=r>.012?new RoundedBoxGeometry(w,h,d,name.startsWith('1978')?4:2,Math.min(r,w/2,d/2,h/2)):new THREE.BoxGeometry(w,h,d);const m=new THREE.Mesh(g,mat);m.name=name;m.position.set(x,z+h/2,-y);m.castShadow=true;m.receiveShadow=true;interior.add(m);return m}
-function nicheBlock(name,z,h,material){
- // Round only the exposed door-side plan corners. Flat top/bottom faces
- // let separate 25 mm finish boards join the carcasses without overlap.
- const w=BEDROOM2.wardrobe.nicheWidth,d=BEDROOM2.wardrobe.depth,r=.045,l=-w/2,q=w/2,b=-d/2,t=d/2;
- const shape=new THREE.Shape();shape.moveTo(l,b);shape.lineTo(q-r,b);
- shape.quadraticCurveTo(q,b,q,b+r);shape.lineTo(q,t-r);
- shape.quadraticCurveTo(q,t,q-r,t);shape.lineTo(l,t);shape.closePath();
- const mesh=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false,curveSegments:8}),material);
- mesh.name=name;mesh.rotation.x=-Math.PI/2;mesh.position.set(BEDROOM2.wardrobe.right-w/2,z,-BEDROOM2.wardrobe.centreY);
- mesh.castShadow=true;mesh.receiveShadow=true;interior.add(mesh);return mesh;
+function standingCirculator(){
+ const f=BEDROOM2.circulator,[x,y]=f.centre,g=new THREE.Group();
+ g.name=f.name;g.userData={model:f.model,size:f.size,power:f.power,status:f.status};
+ g.position.set(x,0,-y);g.rotation.y=Math.atan2(f.aim[0]-x,y-f.aim[1]);interior.add(g);
+ const white=new THREE.MeshStandardMaterial({color:0xf0f0ed,roughness:.8});
+ const grey=new THREE.MeshStandardMaterial({color:0xabb4b4,roughness:.9});
+ function part(name,geometry,material,px,py,pz){const m=new THREE.Mesh(geometry,material);m.name=name;m.position.set(px,py,pz);m.castShadow=true;m.receiveShadow=true;g.add(m);return m}
+ part('B2 circulator round floor base',new THREE.CylinderGeometry(.155,.155,.026,40),white,0,.013,0);
+ part('B2 circulator connected upright',new THREE.CylinderGeometry(.020,.025,.625,20),white,0,.338,-.014);
+ const head=new THREE.Group();head.position.set(0,.723,0);head.rotation.x=-.10;g.add(head);
+ function headPart(name,geometry,material,z){const m=new THREE.Mesh(geometry,material);m.name=name;m.position.z=z;m.castShadow=true;m.receiveShadow=true;head.add(m);return m}
+ const shell=headPart('B2 circulator guarded round housing',new THREE.CylinderGeometry(.163,.163,.140,40),white,0);shell.rotation.x=Math.PI/2;
+ headPart('B2 circulator visible front recess',new THREE.CircleGeometry(.151,40),grey,.071);
+ for(let i=0;i<3;i++){const blade=headPart('B2 circulator enclosed static blade '+i,new THREE.CircleGeometry(.059,16),white,.073);blade.position.x=Math.cos(i*Math.PI*2/3)*.063;blade.position.y=Math.sin(i*Math.PI*2/3)*.063;blade.scale.set(1,.55,1);blade.rotation.z=i*Math.PI*2/3;}
+ const wire=[];for(const radius of [.044,.080,.116,.149])for(let i=0;i<48;i++){const a=i*Math.PI*2/48,b=(i+1)*Math.PI*2/48;wire.push(radius*Math.cos(a),radius*Math.sin(a),.079,radius*Math.cos(b),radius*Math.sin(b),.079)}
+ for(let i=0;i<16;i++){const a=i*Math.PI*2/16;wire.push(.018*Math.cos(a),.018*Math.sin(a),.080,.149*Math.cos(a),.149*Math.sin(a),.080)}
+ const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(wire,3));
+ const grille=new THREE.LineSegments(geometry,new THREE.LineBasicMaterial({color:0xe5e8e5}));grille.name='B2 circulator protective grille';head.add(grille);
+ headPart('B2 circulator front hub',new THREE.CircleGeometry(.020,20),white,.082);
+ // Cable follows the clear wall-side strip instead of crossing the doorway.
+ const p=BEDROOM2.services.socket;
+ const cord=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(p.centre[0],.30,-p.centre[1]-.02),new THREE.Vector3(p.centre[0],.03,-p.centre[1]-.04),new THREE.Vector3(x,.015,-y+.14)]),16,.003,6,false),grey);
+ cord.name='B2 circulator cable to existing socket';interior.add(cord);
 }
-function nicheMirror(){
- const n=BEDROOM2.wardrobe,x=n.right-n.nicheWidth/2,height=n.nicheTop-n.nicheBottom;
- box('B2 niche mirror slim backing',x,6.482,n.nicheBottom+.015,n.nicheWidth-.034,.008,height-.030,mats.metal,.002);
- const mirror=new Reflector(new THREE.PlaneGeometry(n.nicheWidth-.046,height-.042),{textureWidth:256,textureHeight:256,multisample:0,clipBias:.0005,color:0xbcbcbc});
- mirror.name='B2 niche unlit reflecting mirror';mirror.position.set(x,(n.nicheBottom+n.nicheTop)/2,-6.488);mirror.rotation.y=Math.PI;interior.add(mirror);
- const capture=mirror.onBeforeRender,pose=new THREE.Matrix4(),projection=new THREE.Matrix4();let ready=false;
- mirror.onBeforeRender=function(render,world,view,...args){
-  // Capture only the main camera, never another reflector's virtual camera.
-  // The tiny mirror reuses its image while the camera and lighting are still.
-  if(view!==camera)return;
-  if(ready&&!b2MirrorDirty&&pose.equals(view.matrixWorld)&&projection.equals(view.projectionMatrix))return;
-  const others=[];scene.traverse(o=>{if(o.isReflector&&o!==mirror){others.push([o,o.visible]);o.visible=false}});
-  try{capture.call(this,render,world,view,...args);pose.copy(view.matrixWorld);projection.copy(view.projectionMatrix);ready=true;b2MirrorDirty=false;b2MirrorCaptures++}
-  finally{for(const [o,visible] of others)o.visible=visible}
- };
-}
-function sunscreenRollerBlind(name,a,b,planY){
- // Linen-look sunscreen roller: a flat woven screen, without Roman folds.
+function dimoutRollerBlind(name,a,b,planY){
+ // Softly translucent linen-look dimout fabric; physical transmission is unmeasured.
  // Transparency is illustrative; actual openness and privacy need a sample.
  a-=.10;b+=.10;
  const width=b-a,geom=new THREE.PlaneGeometry(width,1.72);
- const fabric=new THREE.Mesh(geom,new THREE.MeshPhysicalMaterial({map:linenTexture(),color:0xf0efeb,roughness:.98,side:THREE.DoubleSide,transparent:true,opacity:.76,depthWrite:false}));
- fabric.name=name+' flat linen-look sunscreen fabric';fabric.position.set((a+b)/2,1.60,-planY);fabric.receiveShadow=true;interior.add(fabric);
+ const fabric=new THREE.Mesh(geom,new THREE.MeshPhysicalMaterial({map:linenTexture(),color:0xf0efeb,roughness:.98,side:THREE.DoubleSide,transparent:true,opacity:.94,depthWrite:false}));
+ fabric.name=name+' flat linen-look dimout fabric';fabric.position.set((a+b)/2,1.60,-planY);fabric.receiveShadow=true;interior.add(fabric);
  box(name+' slim roller housing',(a+b)/2,planY,2.46,width,.065,.065,mats.lightCab,.009);
  box(name+' straight weighted hem',(a+b)/2,planY-.008,.73,width,.018,.035,mats.lightCab,.005);
  for(const y of [planY-.035,planY-.025])box(name+' control chain',b+.028,y,1.64,.004,.004,.79,mats.lightCab,.001);
@@ -255,7 +250,7 @@ function windowTreatments(){
  fabricCurtain('living full-height white sheer',1.6675,2.91,8.86,livingSheer,.025);
  fabricCurtain('living left gathered grey greige fabric curtain',.40,.46,8.74,livingDrape,.060);
  fabricCurtain('living right gathered grey greige fabric curtain',2.94,.46,8.74,livingDrape,.060);
- sunscreenRollerBlind('B2 linen-look sunscreen roller blind',3.75,5.95,8.91);
+ dimoutRollerBlind('B2 linen-look dimout roller blind',3.75,5.95,8.91);
  const sheer=new THREE.MeshPhysicalMaterial({color:0xefeee9,roughness:1,transparent:true,opacity:.56,side:THREE.DoubleSide,depthWrite:false});
  const drape=new THREE.MeshPhysicalMaterial({color:0xbdbbb5,roughness:1,side:THREE.DoubleSide});
  box('master full-wall double curtain ceiling rail',7.93,8.82,2.79,3.22,.08,.035,mats.lightCab,.009);
@@ -391,44 +386,48 @@ function buildInterior(){
  bed(7.50,7.60,1.88,2.05,'master king');rotateNamed('master king',7.50,7.60,-Math.PI/2);
  box('master slim bedside near entry',6.72,6.50,.02,.40,.30,.45,mats.graphite,.045);
  box('master slim bedside near window',6.72,8.72,.02,.40,.30,.45,mats.graphite,.045);
- // B2: 1400 x 600 desktop by the west window side, two 24-inch monitors and an
- // ergonomic chair. Cabinet doors face north into the room, not the corridor.
- box('B2 1400 x 600 desk top',3.65,8.27,.71,.60,1.40,.045,mats.wood,.016);
- for(const y of [7.67,8.87])for(const x of [3.43,3.86])box('B2 desk slim leg',x,y,.02,.025,.025,.69,mats.metal,.004);
- for(const y of [7.93,8.61]){
-  box('B2 24 inch monitor display',3.49,y,.96,.032,.54,.33,mats.screen,.008);
-  box('B2 monitor arm post',3.39,y,.755,.018,.018,.36,mats.metal,.004);
-  box('B2 monitor support arm',3.44,y,1.10,.10,.018,.018,mats.metal,.004);
-  box('B2 monitor arm clamp',3.39,y,.725,.05,.05,.05,mats.metal,.004);
+ // Window-facing desk moves the work surface out of the wardrobe door sweep.
+ const desk=BEDROOM2.desk,[dx,dy]=desk.centre,[cx,cy]=desk.chairCentre;
+ box('B2 1400 x 600 window-facing desk top',dx,dy,.71,desk.length,desk.depth,.045,mats.wood,.016);
+ for(const x of [dx-.60,dx+.60])for(const y of [dy-.22,dy+.22])box('B2 desk slim leg',x,y,.02,.025,.025,.69,mats.metal,.004);
+ for(const x of [dx-.31,dx+.31]){
+  box('B2 window-facing 24 inch monitor display',x,dy+.17,.96,.54,.032,.33,mats.screen,.008);
+  box('B2 monitor arm post',x,dy+.265,.755,.018,.018,.36,mats.metal,.004);
+  box('B2 monitor support arm',x,dy+.215,1.10,.018,.10,.018,mats.metal,.004);
+  box('B2 monitor arm clamp',x,dy+.27,.725,.05,.05,.05,mats.metal,.004);
  }
- box('B2 office chair seat',4.30,8.24,.43,.48,.48,.08,mats.graphite,.06);
- box('B2 office chair back',4.53,8.24,.52,.07,.47,.56,mats.graphite,.04);
- box('B2 chair centre column',4.30,8.24,.10,.045,.045,.34,mats.metal,.012);
- for(const d of [-.18,.18])box('B2 chair star base',4.30+d,8.24,.025,.28,.025,.035,mats.metal,.006);
- // Use the complete solid run of B2's south wall (3.245..5.225 m) up to its
- // door. Door-side niche clear opening: 1200..2000 mm above finished floor.
- // Switch location is unmeasured: retain it in the point register instead
- // of inventing a block on the niche shelf or a cabinet door.
- box('B2 wardrobe ceiling scribe',4.2495,6.77,2.82,1.829,.60,.03,mats.wardrobeCab,.001);
- const mainWidth=BEDROOM2.wardrobe.width-BEDROOM2.wardrobe.nicheWidth;
- const nicheLeft=BEDROOM2.wardrobe.right-BEDROOM2.wardrobe.nicheWidth;
- box('B2 three-door wardrobe 1440W plus 389W niche',BEDROOM2.wardrobe.left+mainWidth/2,6.77,.02,mainWidth,.60,2.80,mats.wardrobeCab,.012);
- for(let i=0;i<3;i++){
-  const bay=mainWidth/3,x=BEDROOM2.wardrobe.left+bay*(i+.5);
-  box('B2 wardrobe door '+(i+1),x,7.079,.10,bay-.018,.018,2.70,mats.wardrobeCab,.005);
-  box('B2 wardrobe slim pull '+(i+1),x+bay/2-.055,7.091,1.10,.009,.008,.14,mats.metal,.003);
+ box('B2 window-facing office chair seat',cx,cy,.43,.48,.48,.08,mats.graphite,.06);
+ box('B2 window-facing office chair back',cx,cy-.23,.52,.47,.07,.56,mats.graphite,.04);
+ box('B2 chair centre column',cx,cy,.055,.045,.045,.385,mats.metal,.012);
+ for(let i=0;i<5;i++){
+  const angle=i*Math.PI*2/5,arm=box('B2 chair five-spoke base '+i,cx+.145*Math.cos(angle),cy+.145*Math.sin(angle),.045,.30,.025,.025,mats.metal,.006);
+  arm.rotation.y=angle;
+  box('B2 chair caster '+i,cx+.29*Math.cos(angle),cy+.29*Math.sin(angle),.020,.050,.035,.035,mats.graphite,.006);
  }
- const n=BEDROOM2.wardrobe,finish=.025,clearHeight=n.nicheTop-n.nicheBottom;
- nicheBlock('B2 niche lower carcass below finish board',.02,n.nicheBottom-finish-.02,mats.wardrobeCab);
- nicheBlock('B2 niche upper carcass above finish board',n.nicheTop+finish,2.82-n.nicheTop-finish,mats.wardrobeCab);
- // The adjacent wardrobe side supports the inner lining; the door-facing
- // end remains open. Finish boards and carcasses have matching profiles.
- nicheBlock('B2 niche lower shelf top 1200 mm',n.nicheBottom-finish,finish,mats.nicheWood);
- nicheBlock('B2 niche upper soffit underside 2000 mm',n.nicheTop,finish,mats.nicheWood);
- box('B2 niche wood inner reveal',nicheLeft+.0075,6.77,n.nicheBottom,.015,.60,clearHeight,mats.nicheWood,.002);
- box('B2 niche wood-lined back',n.right-n.nicheWidth/2,6.47,n.nicheBottom,n.nicheWidth,.016,clearHeight,mats.nicheWood,.002);
- nicheMirror();
- box('B2 wardrobe recessed plinth',4.2495,7.075,.02,1.829,.025,.075,mats.graphite,.002);
+ // The B2 dimension sheet labels 1800 mm solid wall beside an 800 mm door.
+ // Keep 360 mm of original wall clear of cabinets from floor to ceiling.
+ const n=BEDROOM2.wardrobe,tallX=n.left+n.width/2,tallFront=n.centreY+n.depth/2;
+ box('B2 1440W three-door full-height wardrobe',tallX,n.centreY,.10,n.width,n.depth,n.tallHeight-.13,mats.wardrobeCab,.010);
+ box('B2 wardrobe ceiling scribe',tallX,n.centreY,n.tallHeight-.03,n.width,n.depth,.03,mats.wardrobeCab,.001);
+ box('B2 wardrobe recessed plinth',tallX,n.centreY-.025,.02,n.width-.04,n.depth-.05,.08,mats.graphite,.002);
+ for(let i=0;i<n.doors;i++){
+  const bay=n.width/n.doors,x=n.left+bay*(i+.5);
+  box('B2 wardrobe door '+(i+1),x,tallFront+.009,.105,bay-.018,.018,n.loftBottom-.120,mats.wardrobeCab,.005);
+  box('B2 wardrobe slim pull '+(i+1),x+bay/2-.055,tallFront+.021,1.05,.009,.008,.18,mats.metal,.003);
+  box('B2 loft door '+(i+1),x,tallFront+.009,n.loftBottom+.008,bay-.018,.018,n.tallHeight-.045-n.loftBottom-.008,mats.wardrobeCab,.005);
+ }
+ // Source legend fixes height. Horizontal offsets remain drawing estimates.
+ for(const [key,title] of [['socket','entry-wall socket'],['lightSwitch','light switch'],['acSwitch','air-con switch']]){
+  const p=BEDROOM2.services[key],x=p.centre[0],y=p.centre[1];
+  box('B2 exposed original '+title+' faceplate',x,y,p.height-.043,.086,.014,.086,mats.ceramic,.007);
+  if(key==='socket'){
+   for(const [ox,oz] of [[0,.018],[-.018,-.012],[.018,-.012]])box('B2 original socket pin opening',x+ox,y+.008,p.height+oz-.005,.008,.003,.010,mats.graphite,.001);
+  }else{
+   box('B2 original switch rocker',x,y+.009,p.height-.025,.040,.006,.050,mats.lightCab,.002);
+  }
+ }
+ const ls=BEDROOM2.services.leftSocket;
+ box('B2 existing left-wall socket faceplate',ls.centre[0],ls.centre[1],ls.height-.043,.014,.086,.086,mats.ceramic,.007);
  // B3 is a complete four-door wardrobe with no open bay, mirror, power or light.
  box('B3 wardrobe ceiling scribe',6.8255,4.82,2.82,1.829,.60,.03,mats.wardrobeCab,.001);
  box('B3 full four-door wardrobe 1829W rounded exposed edge',6.8255,4.82,.02,1.829,.60,2.80,mats.wardrobeCab,.040);
@@ -440,6 +439,7 @@ function buildInterior(){
  box('B3 guest mattress',6.75,3.22,.30,1.84,.87,.20,mats.bed,.08);
  box('B3 guest headboard',7.64,3.22,.02,.12,.95,.88,mats.graphite,.05);
  box('B3 guest pillow',7.32,3.22,.51,.34,.52,.10,mats.bed,.06);
+ standingCirculator();
  // Yard: the developer plan places the laundry at the Bath 2/service end.
  // The actual-unit photo shows its tap and floor trap there. Keep the stack
  // clear of the AC-ledge opening; put the two litter boxes at the dry end.
@@ -530,7 +530,7 @@ function buildSkirting(){
  yRun(.176,1.086,8.964);xRun(.176,3.159,8.964);yRun(3.159,6.353,8.964);yRun(3.159,2.60,5.20);
  xRun(1.07,1.709,1.086);yRun(1.709,.166,1.00);xRun(1.881,3.954,.166);
  for(const [a,b] of [[.166,.32],[.92,1.10],[1.80,2.514]])yRun(3.954,a,b);
- for(const [a,b] of [[3.245,5.225],[6.025,6.29]]){xRun(a,b,6.267);xRun(a,b,6.439);}
+ for(const [a,b] of [[3.245,BEDROOM2.entry.doorStart],[BEDROOM2.entry.doorEnd,6.29]]){xRun(a,b,6.267);xRun(a,b,6.439);}
  for(const [a,b] of [[3.245,4.025],[4.775,4.955],[5.855,6.29]])xRun(a,b,5.286);
  yRun(3.331,6.439,8.964);xRun(3.331,6.204,8.964);yRun(6.204,6.439,8.964);
  yRun(6.376,6.25,8.964);yRun(6.376,5.286,5.35);xRun(6.376,9.484,5.286);yRun(9.484,5.286,8.964);xRun(6.376,9.484,8.964);
@@ -571,7 +571,7 @@ let bounceBudget={maxIrradiance:3.6,totals:Array(8).fill(0),scales:Array(8).fill
 const windowDaylight=createWindowDaylight(scene);
 const tileReflection=createTileReflection(scene,isMobile);
 const daylightFabrics=new Map();
-interior.traverse(m=>{if(m.isMesh&&/white sheer|linen-look sunscreen fabric/.test(m.name))daylightFabrics.set(m.material,/sunscreen/.test(m.name)?.25:.65)});
+interior.traverse(m=>{if(m.isMesh&&/white sheer|linen-look dimout fabric/.test(m.name))daylightFabrics.set(m.material,/dimout/.test(m.name)?.12:.65)});
 const indoorCeiling=new THREE.Group();indoorCeiling.name='Original ceilings and retained existing plaster';indoorCeiling.visible=false;scene.add(indoorCeiling);
 const ceilingMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,side:THREE.DoubleSide});
 function ceilingPlane(name,outline,bottom,holes=[]){
@@ -822,7 +822,6 @@ let inside=false,daylight=false,interiorMode='walk',wideView=false;
 let lookPointer=null;
 const heldNavigation=new Set();
 function syncEnvironment(){
- b2MirrorDirty=true;
  tileReflection.invalidate();tileReflection.surface.visible=inside&&interiorMode!=='overview'&&['common','foyer','entry','living','dining','kitchen','prep','hall'].includes(currentInsideRoom);
  viewingWhiteBalance.value.identity();
  document.querySelector('#daylightToggle').textContent=daylight?'Daylight on':'Night mode';
@@ -893,7 +892,7 @@ const roomPresets={
  ledge:{eye:[6.04,1.28],look:[6.69,.45],bounds:[5.49,7.67,.25,2.42]},
  hall:{eye:[5.98,5.77],look:[3.40,5.77],lookHeight:1.96,bounds:[3.42,6.12,5.35,6.17]},
  master:{eye:[9.06,5.85],look:[7.62,7.65],lookHeight:1.20,bounds:[6.47,9.40,5.40,8.77]},
- b2:{eye:[5.68,8.45],look:[4.20,7.12],lookHeight:1.30,bounds:[3.40,6.13,6.50,8.78]},
+ b2:{eye:[6.04,7.95],look:[4.45,7.55],lookHeight:1.05,bounds:[3.40,6.13,6.50,8.78]},
  b3:{eye:[5.16,3.28],look:[6.72,4.62],lookHeight:1.25,bounds:[4.92,7.65,2.76,5.02]},
  bath1:{eye:[8.60,3.35],look:[9.08,4.22],lookHeight:1.02,bounds:[7.95,9.41,2.76,5.40]},
  bath2:{eye:[4.35,3.35],look:[3.72,4.22],lookHeight:1.02,bounds:[3.40,4.62,2.76,5.40]}
@@ -1123,10 +1122,12 @@ document.querySelectorAll('[data-cct]').forEach(b=>{const on=Number(b.dataset.cc
 const canonicalUrl=new URL(location.href);canonicalUrl.searchParams.delete('scheme');history.replaceState(null,'',canonicalUrl);
 document.querySelector('#ceilingNote').textContent=AGREED_SCOPE.ceiling;
 const facts=document.querySelector('#designFacts');
-const factRows=[['Lighting','15 installation groups + sink strip'],['Fans','Living + Bedroom 2 + Bedroom 3'],['Air conditioning','Four existing doorway-side provisions; illustrative indoor units'],['Master','One dimmable ceiling light; no fan or curtain box'],['Wardrobes','Bedroom 2: unlit niche + mirror. Bedroom 3: full cabinet, no niche.'],['Overview','Selected walls retain Summer Snow 1928 as low solid cutaways; other walls stay translucent.'],['Finishes',AGREED_SCOPE.wallPaint+'. Matt-white ceilings; existing glossy tile and warm pale oak bedroom floor retained.'],['Curtains',AGREED_SCOPE.windowTreatments],['Kitchen',AGREED_SCOPE.kitchen],['Yard',AGREED_SCOPE.yard],['Appliances',AGREED_SCOPE.appliances]];
+const factRows=[['Lighting','15 installation groups + sink strip'],['Fans','Living + Bedroom 3 ceiling fans; Bedroom 2 plug-in standing circulator'],['Air conditioning','Four existing doorway-side provisions; illustrative indoor units'],['Master','One dimmable ceiling light; no fan or curtain box'],['Wardrobes','Bedroom 2: 1440 × 600 mm three-door wardrobe, separate loft, no niche; original door-side socket and switches remain accessible. Bedroom 3: full wardrobe.'],['Overview','Selected walls retain Summer Snow 1928 as low solid cutaways; other walls stay translucent.'],['Finishes',AGREED_SCOPE.wallPaint+'. Matt-white ceilings; existing glossy tile and warm pale oak bedroom floor retained.'],['Curtains',AGREED_SCOPE.windowTreatments],['Kitchen',AGREED_SCOPE.kitchen],['Yard',AGREED_SCOPE.yard],['Appliances',AGREED_SCOPE.appliances]];
 for(const [label,value] of factRows){const row=document.createElement('div');row.className='design-fact';const title=document.createElement('strong');title.textContent=label;const detail=document.createElement('span');detail.textContent=value;row.append(title,detail);facts.append(row);}
 const pending=document.createElement('p');pending.className='note';pending.textContent='Pending: '+AGREED_SCOPE.pending.slice(0,4).join(' · ');facts.append(pending);
 syncLights();syncEnvironment();
+wideView=initialParams.get('wide')==='1'||(isMobile&&!initialParams.has('wide')&&['b2inside','b2cabinet'].includes(initialParams.get('view')));
+if(initialParams.get('compare')==='1'){roomPresets.b2.eye=[5.86,8.45];roomPresets.b2.look=[4.30,6.80];roomPresets.b2.lookHeight=1.40;}
 const initialView=initialParams.get('view');
 if(initialView==='inside')setInside(true);
 const initialPlaces={tv:'living',sofa:'living',dining:'dining',b2inside:'b2',b2cabinet:'b2',b3inside:'b3',b3cabinet:'b3',masterinside:'master',shoe:'foyer',b2:'b2',yard:'yard',kitchen:'kitchen'};
@@ -1144,4 +1145,4 @@ function animate(now){requestAnimationFrame(animate);const dt=Math.min(.05,Math.
   frameCount=0;frameWindowStart=now}}
 requestAnimationFrame(animate);
 
-window.serinaViewer={snapshot:()=>({revision:AGREED_SCOPE.revision,inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{commonKelvin,localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),viewingIlluminantRGB,adaptationDegree,exposure:renderer.toneMappingExposure,bounceBudget,bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setAllLights:on=>{for(const c of lightCircuits)c.on=on;syncLights();renderLightSwitches();},stand:indoorPlace};
+window.serinaViewer={snapshot:()=>({revision:AGREED_SCOPE.revision,inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{commonKelvin,localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),viewingIlluminantRGB,adaptationDegree,exposure:renderer.toneMappingExposure,bounceBudget,bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,bedroom2:BEDROOM2,standingCirculators:[{...BEDROOM2.circulator,visible:interior.getObjectByName(BEDROOM2.circulator.name)?.visible}],scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setAllLights:on=>{for(const c of lightCircuits)c.on=on;syncLights();renderLightSwitches();},stand:indoorPlace};
