@@ -93,9 +93,9 @@ furniture('FRIDGE',398,741,59,60,'Fridge cabinet','762 W quoted','Grey woodgrain
 // Window cabinet detail is not drawn as an invented standalone box.
 furniture('SHOE',259,886,27,48,'Shoe cabinet','610 W quoted','OUTSIDE the main door, in the foyer recess. Height, depth and suspended fixing to confirm.','');
 
-furniture('B2-CAB',418,b2CabFront,145,b2CabDepth,'B2 wardrobe','1829 W quoted','6 ft; ~600 mm depth target; height to site ceiling. Door-side niche + mirror + curved detailing. No wardrobe lighting.','Wardrobe / niche');
-el('rect',{x:532,y:b2CabFront,width:31,height:b2CabDepth,fill:'#e3e9e0',stroke:'#c8d1c4'},groups.furniture);
-furniture('DESK',419,250,55,112,'Desk','1400 × 700 target','B2 office. Check chair aisle and sockets.','Desk');
+furniture('B2-CAB',418,b2CabFront,145,b2CabDepth,'B2 wardrobe','1829 W quoted','6 ft; ~600 mm depth target; height to site ceiling. 389 mm-wide door-side niche module, clear opening 1200–2000 mm above finished floor; unlit mirror and curved detailing. Existing switch position/access to set out on site.','Wardrobe / niche');
+el('rect',{x:563-145*389/1829,y:b2CabFront,width:145*389/1829,height:b2CabDepth,fill:'#e3e9e0',stroke:'#c8d1c4','data-context':'B2-NICHE'},groups.furniture);
+furniture('DESK',419,250,55*600/700,112,'Desk','1400 × 600 mm target','B2 office; dual 24-inch monitors on arms. Check chair aisle, actual desk and sockets.','Desk');
 furniture('B3-CAB',615,538,140,600/2450*(725-538),'B3 wardrobe','1829 W quoted','6 ft; ~600 mm depth target; full-height, NO niche. Rounded exposed corner. Internal hanging and three useful drawers to be signed off.','Full wardrobe');
 furniture('B3-BED',598,643,155,74,'B3 bed','Model only','Confirm product size before circulation and fan setting-out.','Bed');
 furniture('M-BED',666,259,158,146,'Master bed','Product TBC','Sleeping room. No fan or curtain box; optional plug-in bedside lamps.','Bed');
@@ -185,8 +185,10 @@ function track(id,points,heads,title,specs,note,labelAt){
 // Feed the surface L-track directly at the original L-L1 symbol. The feed
 // stays fixed; no separate window-side connection is implied.
 const livingFeed=source(491,365),lf=source(491,468);
-const livingTrack=[[203,livingFeed[1]],[374,livingFeed[1]],[374,371]];
-track('L-TK',livingTrack,[[215,livingFeed[1]],[337,livingFeed[1]],[374,291],[374,350]],'Living L-track',{'Leg targets':'~2200 + 1450 mm','Feed':'Direct at L-L1'},'Rail crosses the original feed, without a separate surface link. Keep heads outside the fan sweep and aim away from its blades. Rail is closer to the fan than the previous window-side study; model-specific fixture clearances and mounting heights remain TBC.',[367,livingFeed[1]-12]);
+const livingTurn=[livingFeed[0]+(397-160)/(3.165-.17),livingFeed[1]];
+const livingEnd=[livingTurn[0],livingTurn[1]+2*(521-233)/(8.96-5.20)];
+const livingTrack=[livingFeed,livingTurn,livingEnd];
+track('L-TK',livingTrack,[[livingFeed[0]+.62*(397-160)/(3.165-.17),livingFeed[1]],[livingTurn[0],livingTurn[1]+.38*(521-233)/(8.96-5.20)],[livingTurn[0],livingTurn[1]+(521-233)/(8.96-5.20)],[livingTurn[0],livingTurn[1]+1.62*(521-233)/(8.96-5.20)]],'Living L-track',{'Leg targets':'1000 + 2000 mm','Feed':'At L-L1'},'One-metre arm runs from the original light point toward the TV side; two-metre arm turns toward dining. The rail is approximately 560 mm from the model TV wall. Confirm real fan, fitting and wall clearances on site before fixing.',[livingTurn[0]+10,livingFeed[1]-12]);
 el('circle',{cx:lf[0],cy:lf[1],r:(1219.2/2)/commonMmPerPx,fill:'none',stroke:colours.proposed,'stroke-width':1.3,'stroke-dasharray':'5 4','data-fan':'Living'},groups.lighting);
 text(groups.lighting,lf[0]-3,lf[1]+58,'48 inches','point-label');
 const dl=source(491,865);

@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import {Reflector} from 'three/addons/objects/Reflector.js';
 import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261013-r13';
-import {AGREED_SCOPE,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261013-r13';
+import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261014-living-track-r6';
 
 import {createTileReflection} from './floor-reflection.js?v=20261013-r13';
 import {LIGHT_COLOUR, roomViewingMatrix} from './light-colour.js?v=20261013-r13';
@@ -200,24 +201,46 @@ mats.wardrobeCab=new THREE.MeshStandardMaterial({color:0xc5c5c1,roughness:.88});
 mats.nicheWood=greyAshMat;
 mats.linen.bumpMap=mats.linen.map;mats.linen.bumpScale=.005;
 const interior=new THREE.Group();interior.visible=true;scene.add(interior);
+let b2MirrorDirty=true,b2MirrorCaptures=0;
 function linenTexture(){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.fillStyle='#e0ddd6';g.fillRect(0,0,256,256);let seed=1978;const rand=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);for(let i=0;i<13000;i++){const v=130+Math.floor(rand()*85);g.fillStyle=`rgba(${v},${v},${v},${.025+rand()*.045})`;g.fillRect(rand()*256,rand()*256,rand()*2+.4,rand()*5+.6)}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(3,5);return t}
 function box(name,x,y,z,w,d,h,mat,r=.04){const g=r>.012?new RoundedBoxGeometry(w,h,d,name.startsWith('1978')?4:2,Math.min(r,w/2,d/2,h/2)):new THREE.BoxGeometry(w,h,d);const m=new THREE.Mesh(g,mat);m.name=name;m.position.set(x,z+h/2,-y);m.castShadow=true;m.receiveShadow=true;interior.add(m);return m}
-function romanBlind(name,a,b,planY){
- // One full-width dimout Roman shade, 100 mm past each jamb. Subtle sewn
- // horizontal folds replace the earlier featureless roller screen.
+function nicheBlock(name,z,h,material){
+ // Round only the exposed door-side plan corners. Flat top/bottom faces
+ // let separate 25 mm finish boards join the carcasses without overlap.
+ const w=BEDROOM2.wardrobe.nicheWidth,d=BEDROOM2.wardrobe.depth,r=.045,l=-w/2,q=w/2,b=-d/2,t=d/2;
+ const shape=new THREE.Shape();shape.moveTo(l,b);shape.lineTo(q-r,b);
+ shape.quadraticCurveTo(q,b,q,b+r);shape.lineTo(q,t-r);
+ shape.quadraticCurveTo(q,t,q-r,t);shape.lineTo(l,t);shape.closePath();
+ const mesh=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false,curveSegments:8}),material);
+ mesh.name=name;mesh.rotation.x=-Math.PI/2;mesh.position.set(BEDROOM2.wardrobe.right-w/2,z,-BEDROOM2.wardrobe.centreY);
+ mesh.castShadow=true;mesh.receiveShadow=true;interior.add(mesh);return mesh;
+}
+function nicheMirror(){
+ const n=BEDROOM2.wardrobe,x=n.right-n.nicheWidth/2,height=n.nicheTop-n.nicheBottom;
+ box('B2 niche mirror slim backing',x,6.482,n.nicheBottom+.015,n.nicheWidth-.034,.008,height-.030,mats.metal,.002);
+ const mirror=new Reflector(new THREE.PlaneGeometry(n.nicheWidth-.046,height-.042),{textureWidth:256,textureHeight:256,multisample:0,clipBias:.0005,color:0xbcbcbc});
+ mirror.name='B2 niche unlit reflecting mirror';mirror.position.set(x,(n.nicheBottom+n.nicheTop)/2,-6.488);mirror.rotation.y=Math.PI;interior.add(mirror);
+ const capture=mirror.onBeforeRender,pose=new THREE.Matrix4(),projection=new THREE.Matrix4();let ready=false;
+ mirror.onBeforeRender=function(render,world,view,...args){
+  // Capture only the main camera, never another reflector's virtual camera.
+  // The tiny mirror reuses its image while the camera and lighting are still.
+  if(view!==camera)return;
+  if(ready&&!b2MirrorDirty&&pose.equals(view.matrixWorld)&&projection.equals(view.projectionMatrix))return;
+  const others=[];scene.traverse(o=>{if(o.isReflector&&o!==mirror){others.push([o,o.visible]);o.visible=false}});
+  try{capture.call(this,render,world,view,...args);pose.copy(view.matrixWorld);projection.copy(view.projectionMatrix);ready=true;b2MirrorDirty=false;b2MirrorCaptures++}
+  finally{for(const [o,visible] of others)o.visible=visible}
+ };
+}
+function sunscreenRollerBlind(name,a,b,planY){
+ // Linen-look sunscreen roller: a flat woven screen, without Roman folds.
+ // Transparency is illustrative; actual openness and privacy need a sample.
  a-=.10;b+=.10;
- const width=b-a,geom=new THREE.PlaneGeometry(width,1.72,1,32),v=geom.attributes.position;
- for(let i=0;i<v.count;i++){
-  const y=v.getY(i),fold=(y+.86)/.215;
-  v.setZ(i,.022*Math.cos(fold*Math.PI*2));
- }
- geom.computeVertexNormals();
- const fabric=new THREE.Mesh(geom,new THREE.MeshPhysicalMaterial({color:0xc4c1ba,roughness:.98,side:THREE.DoubleSide,transparent:true,opacity:.94,depthWrite:false}));
- fabric.name=name+' full-width dimout Roman fabric';fabric.position.set((a+b)/2,1.60,-planY);fabric.receiveShadow=true;interior.add(fabric);
- box(name+' soft top valance',(a+b)/2,planY,2.45,width,.075,.095,mats.lightCab,.012);
- const seamMat=new THREE.MeshStandardMaterial({color:0xb2afa8,roughness:1});
- for(let i=1;i<8;i++)box(name+' sewn fold '+i,(a+b)/2,planY-.025,.74+i*.215,width-.025,.006,.008,seamMat,.002);
- box(name+' weighted fabric hem',(a+b)/2,planY-.012,.73,width,.018,.035,mats.lightCab,.005);
+ const width=b-a,geom=new THREE.PlaneGeometry(width,1.72);
+ const fabric=new THREE.Mesh(geom,new THREE.MeshPhysicalMaterial({map:linenTexture(),color:0xf0efeb,roughness:.98,side:THREE.DoubleSide,transparent:true,opacity:.76,depthWrite:false}));
+ fabric.name=name+' flat linen-look sunscreen fabric';fabric.position.set((a+b)/2,1.60,-planY);fabric.receiveShadow=true;interior.add(fabric);
+ box(name+' slim roller housing',(a+b)/2,planY,2.46,width,.065,.065,mats.lightCab,.009);
+ box(name+' straight weighted hem',(a+b)/2,planY-.008,.73,width,.018,.035,mats.lightCab,.005);
+ for(const y of [planY-.035,planY-.025])box(name+' control chain',b+.028,y,1.64,.004,.004,.79,mats.lightCab,.001);
 }
 function fabricCurtain(name,cx,width,planY,material,depth=.035){
  const geom=new THREE.PlaneGeometry(width,2.70,32,1),v=geom.attributes.position;
@@ -232,7 +255,7 @@ function windowTreatments(){
  fabricCurtain('living full-height white sheer',1.6675,2.91,8.86,livingSheer,.025);
  fabricCurtain('living left gathered grey greige fabric curtain',.40,.46,8.74,livingDrape,.060);
  fabricCurtain('living right gathered grey greige fabric curtain',2.94,.46,8.74,livingDrape,.060);
- romanBlind('B2 full-width blind',3.75,5.95,8.91);
+ sunscreenRollerBlind('B2 linen-look sunscreen roller blind',3.75,5.95,8.91);
  const sheer=new THREE.MeshPhysicalMaterial({color:0xefeee9,roughness:1,transparent:true,opacity:.56,side:THREE.DoubleSide,depthWrite:false});
  const drape=new THREE.MeshPhysicalMaterial({color:0xbdbbb5,roughness:1,side:THREE.DoubleSide});
  box('master full-wall double curtain ceiling rail',7.93,8.82,2.79,3.22,.08,.035,mats.lightCab,.009);
@@ -368,43 +391,43 @@ function buildInterior(){
  bed(7.50,7.60,1.88,2.05,'master king');rotateNamed('master king',7.50,7.60,-Math.PI/2);
  box('master slim bedside near entry',6.72,6.50,.02,.40,.30,.45,mats.graphite,.045);
  box('master slim bedside near window',6.72,8.72,.02,.40,.30,.45,mats.graphite,.045);
- // B2: 1400 desktop by the west window side, two 24-inch monitors and an
+ // B2: 1400 x 600 desktop by the west window side, two 24-inch monitors and an
  // ergonomic chair. Cabinet doors face north into the room, not the corridor.
- box('B2 1400 desk top',3.70,8.27,.71,.70,1.40,.045,mats.wood,.016);
- for(const y of [7.67,8.87])for(const x of [3.43,3.95])box('B2 desk slim leg',x,y,.02,.025,.025,.69,mats.metal,.004);
+ box('B2 1400 x 600 desk top',3.65,8.27,.71,.60,1.40,.045,mats.wood,.016);
+ for(const y of [7.67,8.87])for(const x of [3.43,3.86])box('B2 desk slim leg',x,y,.02,.025,.025,.69,mats.metal,.004);
  for(const y of [7.93,8.61]){
   box('B2 24 inch monitor display',3.49,y,.96,.032,.54,.33,mats.screen,.008);
-  box('B2 monitor neck',3.55,y,.76,.018,.018,.20,mats.metal,.004);
-  box('B2 monitor foot',3.55,y,.745,.20,.20,.012,mats.metal,.006);
+  box('B2 monitor arm post',3.39,y,.755,.018,.018,.36,mats.metal,.004);
+  box('B2 monitor support arm',3.44,y,1.10,.10,.018,.018,mats.metal,.004);
+  box('B2 monitor arm clamp',3.39,y,.725,.05,.05,.05,mats.metal,.004);
  }
- box('B2 office chair seat',4.40,8.24,.43,.48,.48,.08,mats.graphite,.06);
- box('B2 office chair back',4.63,8.24,.52,.07,.47,.56,mats.graphite,.04);
- box('B2 chair centre column',4.40,8.24,.10,.045,.045,.34,mats.metal,.012);
- for(const d of [-.18,.18])box('B2 chair star base',4.40+d,8.24,.025,.28,.025,.035,mats.metal,.006);
+ box('B2 office chair seat',4.30,8.24,.43,.48,.48,.08,mats.graphite,.06);
+ box('B2 office chair back',4.53,8.24,.52,.07,.47,.56,mats.graphite,.04);
+ box('B2 chair centre column',4.30,8.24,.10,.045,.045,.34,mats.metal,.012);
+ for(const d of [-.18,.18])box('B2 chair star base',4.30+d,8.24,.025,.28,.025,.035,mats.metal,.006);
  // Use the complete solid run of B2's south wall (3.245..5.225 m) up to its
- // door. The door-side bay has an open mid-height niche so the original wall
- // switch stays accessible. The unlit mirror occupies the niche back.
+ // door. Door-side niche clear opening: 1200..2000 mm above finished floor.
+ // Switch location is unmeasured: retain it in the point register instead
+ // of inventing a block on the niche shelf or a cabinet door.
  box('B2 wardrobe ceiling scribe',4.2495,6.77,2.82,1.829,.60,.03,mats.wardrobeCab,.001);
- box('B2 three-door wardrobe 1440W plus niche',4.055,6.77,.02,1.44,.60,2.80,mats.wardrobeCab,.012);
+ const mainWidth=BEDROOM2.wardrobe.width-BEDROOM2.wardrobe.nicheWidth;
+ const nicheLeft=BEDROOM2.wardrobe.right-BEDROOM2.wardrobe.nicheWidth;
+ box('B2 three-door wardrobe 1440W plus 389W niche',BEDROOM2.wardrobe.left+mainWidth/2,6.77,.02,mainWidth,.60,2.80,mats.wardrobeCab,.012);
  for(let i=0;i<3;i++){
-  const x=3.575+i*.480;
-  box('B2 wardrobe door '+(i+1),x,7.079,.10,.464,.018,2.70,mats.wardrobeCab,.005);
-  box('B2 wardrobe slim pull '+(i+1),x+.18,7.091,1.10,.009,.008,.14,mats.metal,.003);
+  const bay=mainWidth/3,x=BEDROOM2.wardrobe.left+bay*(i+.5);
+  box('B2 wardrobe door '+(i+1),x,7.079,.10,bay-.018,.018,2.70,mats.wardrobeCab,.005);
+  box('B2 wardrobe slim pull '+(i+1),x+bay/2-.055,7.091,1.10,.009,.008,.14,mats.metal,.003);
  }
- box('B2 door-side small niche lower cabinet',4.9695,6.77,.02,.389,.60,.93,mats.wardrobeCab,.045);
- box('B2 door-side small niche upper cabinet',4.9695,6.77,1.55,.389,.60,1.27,mats.wardrobeCab,.045);
- // Only the inner divider is continuous; the door-facing end is open at
- // niche height, so the display cavity can be accessed from two sides.
- box('B2 niche inner divider',4.76,6.77,.02,.018,.60,2.80,mats.wardrobeCab,.003);
- box('B2 niche warm wood lower shelf',4.97,6.78,.95,.40,.56,.025,mats.nicheWood,.003);
- box('B2 niche warm wood upper soffit',4.97,6.78,1.53,.40,.56,.025,mats.nicheWood,.003);
- box('B2 niche warm wood inner reveal',4.775,6.77,.975,.015,.58,.555,mats.nicheWood,.002);
- box('B2 niche wood-lined back with switch cutout',4.97,6.465,.975,.40,.012,.555,mats.nicheWood,.002);
- // A pale mirror proxy stays legible in WebGL even without a reflection probe.
- const b2NicheMirrorMat=new THREE.MeshBasicMaterial({color:0xbdd2d5,side:THREE.DoubleSide});
- box('B2 niche unlit mirror, clear of accessible switch',4.88,6.488,1.015,.28,.008,.49,b2NicheMirrorMat,.002);
- box('B2 niche mirror soft edge highlight',4.755,6.497,1.025,.014,.004,.47,new THREE.MeshBasicMaterial({color:0xeaf3f3}),.001);
- box('B2 relocated switch visual placeholder in niche',5.11,6.479,1.12,.075,.012,.11,mats.ceramic,.002);
+ const n=BEDROOM2.wardrobe,finish=.025,clearHeight=n.nicheTop-n.nicheBottom;
+ nicheBlock('B2 niche lower carcass below finish board',.02,n.nicheBottom-finish-.02,mats.wardrobeCab);
+ nicheBlock('B2 niche upper carcass above finish board',n.nicheTop+finish,2.82-n.nicheTop-finish,mats.wardrobeCab);
+ // The adjacent wardrobe side supports the inner lining; the door-facing
+ // end remains open. Finish boards and carcasses have matching profiles.
+ nicheBlock('B2 niche lower shelf top 1200 mm',n.nicheBottom-finish,finish,mats.nicheWood);
+ nicheBlock('B2 niche upper soffit underside 2000 mm',n.nicheTop,finish,mats.nicheWood);
+ box('B2 niche wood inner reveal',nicheLeft+.0075,6.77,n.nicheBottom,.015,.60,clearHeight,mats.nicheWood,.002);
+ box('B2 niche wood-lined back',n.right-n.nicheWidth/2,6.47,n.nicheBottom,n.nicheWidth,.016,clearHeight,mats.nicheWood,.002);
+ nicheMirror();
  box('B2 wardrobe recessed plinth',4.2495,7.075,.02,1.829,.025,.075,mats.graphite,.002);
  // B3 is a complete four-door wardrobe with no open bay, mirror, power or light.
  box('B3 wardrobe ceiling scribe',6.8255,4.82,2.82,1.829,.60,.03,mats.wardrobeCab,.001);
@@ -487,7 +510,7 @@ function buildContactShadows(){
 }
 function batchStatic(root){
  root.updateMatrixWorld(true);const batches=new Map();
- root.traverse(m=>{if(!m.isMesh||!m.visible||Array.isArray(m.material)||m.material.transparent)return;
+ root.traverse(m=>{if(!m.isMesh||m.isReflector||!m.visible||Array.isArray(m.material)||m.material.transparent)return;
   const key=m.material.uuid+'-'+m.castShadow+'-'+m.receiveShadow;
   if(!batches.has(key))batches.set(key,{mat:m.material,geos:[],meshes:[],cast:m.castShadow,receive:m.receiveShadow});
   const b=batches.get(key),g=m.geometry.index?m.geometry.toNonIndexed():m.geometry.clone();g.applyMatrix4(m.matrixWorld);b.geos.push(g);b.meshes.push(m);
@@ -548,7 +571,7 @@ let bounceBudget={maxIrradiance:3.6,totals:Array(8).fill(0),scales:Array(8).fill
 const windowDaylight=createWindowDaylight(scene);
 const tileReflection=createTileReflection(scene,isMobile);
 const daylightFabrics=new Map();
-interior.traverse(m=>{if(m.isMesh&&/white sheer|dimout Roman fabric/.test(m.name))daylightFabrics.set(m.material,/Roman/.test(m.name)?.13:.65)});
+interior.traverse(m=>{if(m.isMesh&&/white sheer|linen-look sunscreen fabric/.test(m.name))daylightFabrics.set(m.material,/sunscreen/.test(m.name)?.25:.65)});
 const indoorCeiling=new THREE.Group();indoorCeiling.name='Original ceilings and retained existing plaster';indoorCeiling.visible=false;scene.add(indoorCeiling);
 const ceilingMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,side:THREE.DoubleSide});
 function ceilingPlane(name,outline,bottom,holes=[]){
@@ -623,8 +646,18 @@ for(const f of FIXTURES){
   const finish=f.white?trackWhite:trackBlack;
   for(let i=1;i<f.route.length;i++){const [ax,ay]=f.route[i-1],[bx,by]=f.route[i],length=Math.hypot(bx-ax,by-ay);const rail=new THREE.Mesh(new THREE.BoxGeometry(.036,.027,length),finish);rail.position.set((ax+bx)/2,roof-.015,-(ay+by)/2);rail.rotation.y=Math.atan2(bx-ax,-(by-ay));c.group.add(rail)}
   for(const [i,p] of f.heads.entries()){
+   if(f.id==='B2-TRACK'){
+    // Broad opal diffuser modules, not swivel spot heads. Their light exits
+    // downwards from the whole face; there is no conical spotlight target.
+    const housing=new THREE.Mesh(new RoundedBoxGeometry(.30,.045,.085,2,.008),finish);
+    housing.position.set(p[0],roof-.049,-p[1]);c.group.add(housing);
+    const lens=new THREE.Mesh(new THREE.PlaneGeometry(.28,.065),diffuserOffMat);
+    lens.rotation.x=Math.PI/2;lens.position.set(p[0],roof-.073,-p[1]);addLens(c,lens);
+    areaLamp(c,p[0],p[1],roof-.075,.28,.065,2200);
+    continue;
+   }
    const origin=new THREE.Vector3(p[0],roof-.10,-p[1]);
-   const aim=f.id==='L-L1'?(i<2?[p[0],p[1]-.80,.70]:[3.14,p[1],1.25]):f.id==='K-L2'?f.aims[i]:[p[0],7.45,.72];
+   const aim=f.id==='L-L1'||f.id==='K-L2'?f.aims[i]:[p[0],7.45,.72];
    const direction=new THREE.Vector3(aim[0],aim[2],-aim[1]).sub(origin).normalize();
    const mount=new THREE.Mesh(new THREE.BoxGeometry(.042,.038,.060),finish);mount.position.set(p[0],roof-.045,-p[1]);c.group.add(mount);
    const head=new THREE.Group();head.position.copy(origin);head.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),direction);c.group.add(head);
@@ -634,10 +667,7 @@ for(const f of FIXTURES){
    const emitter=origin.clone().addScaledVector(direction,.045);
    spotLamp(c,emitter.x,-emitter.z,emitter.y,...aim,f.white?120:95,f.white?.78:.54);
   }
-  if(f.id==='B2-TRACK'){
-   c.group.userData.provisional=true;
-   for(const p of f.route){const ring=new THREE.Mesh(new THREE.RingGeometry(.055,.063,20),new THREE.MeshBasicMaterial({color:0xc59352,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.set(p[0],roof-.18,-p[1]);c.group.add(ring)}
-  }
+  if(f.id==='B2-TRACK')c.group.userData.provisional=true;
  }else if(f.kind==='pendant'){
   const [sx,sy]=sourceModel(f.id),shadeY=1.65;
   const canopy=disc(.09,.028,trackBlack);canopy.position.set(sx,roof-.014,-sy);c.group.add(canopy);
@@ -792,6 +822,7 @@ let inside=false,daylight=false,interiorMode='walk',wideView=false;
 let lookPointer=null;
 const heldNavigation=new Set();
 function syncEnvironment(){
+ b2MirrorDirty=true;
  tileReflection.invalidate();tileReflection.surface.visible=inside&&interiorMode!=='overview'&&['common','foyer','entry','living','dining','kitchen','prep','hall'].includes(currentInsideRoom);
  viewingWhiteBalance.value.identity();
  document.querySelector('#daylightToggle').textContent=daylight?'Daylight on':'Night mode';
