@@ -1,4 +1,4 @@
-import {FIXTURES, FANS, BEDROOM2, sourceModel} from './agreed-design.js?v=20261015-cabinets-r2';
+import {FIXTURES, FANS, BEDROOM2, sourceModel} from './agreed-design.js?v=20261015-cabinets-r3';
 const $=id=>document.getElementById(id);
 const state={room:'living',system:'low',b2:'published'};
 const rooms={

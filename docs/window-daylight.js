@@ -85,6 +85,9 @@ export function createWindowDaylight(scene){
    // Multiple diffuse bounces fill the connected public area; rooms behind
    // solid partitions keep their own portals. Kitchen still has a local source.
    float bounce=i==0?.035+.11*exp(-depth/4.5):.08*exp(-depth/4.5);
+   // B2 / B3 pale walls provide diffuse return onto surfaces facing away from the window.
+   // This room-local daylight proxy prevents the cabinet end from reading as a dark finish.
+   if(i==1||i==3)bounce=.12+.10*exp(-depth/4.5);
    energy+=region*s.w*(direct+bounce);
   }
   return vec3(energy*windowDaylightStrength);

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
-import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261015-cabinets-r2';
+import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261015-cabinets-r3';
 
 export function createCabinetry({parent,mats,greyAshMat}){
  const root=new THREE.Group();root.name='Current coordinated cabinetry';parent.add(root);
@@ -14,11 +14,11 @@ export function createCabinetry({parent,mats,greyAshMat}){
  // Box geometry is batched per material, cabinet and visibility state. No new lights.
  function cabinet(id,label,origin,rotation){const group=new THREE.Group();group.name=label;group.position.set(origin[0],0,-origin[1]);group.rotation.y=rotation;root.add(group);const groups={};for(const key of ['shell','fronts','inside','always']){const g=new THREE.Group();g.name=label+' '+key;group.add(g);groups[key]=g;}const rec={id,label,group,groups,spec:S[id],pieces:[],drawers:[]};records.push(rec);return rec;}
  function piece(r,state,name,x,d,z,w,depth,h,material=f){
-  const mesh=new THREE.Mesh(r.id==='b3'&&name==='left side'?new RoundedBoxGeometry(w/1000,h/1000,depth/1000,3,.008):new THREE.BoxGeometry(w/1000,h/1000,depth/1000),material);mesh.name=name;mesh.position.set((x+w/2)/1000,(z+h/2)/1000,-(d+depth/2)/1000);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.cabinetPart=true;r.groups[state].add(mesh);r.pieces.push({name,state,box:[x,d,z,w,depth,h]});return mesh;
+  const mesh=new THREE.Mesh(r.id==='b3'&&name==='left side'?new RoundedBoxGeometry(w/1000,h/1000,depth/1000,3,.008):new THREE.BoxGeometry(w/1000,h/1000,depth/1000),material);mesh.name=name;mesh.position.set((x+w/2)/1000,(z+h/2)/1000,-(d+depth/2)/1000);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.cabinetPart=true;r.groups[state].add(mesh);r.pieces.push({name,state,box:[x,d,z,w,depth,h],finish:material.color.getHexString(THREE.SRGBColorSpace)});return mesh;
  }
  function shell(r,x,w,depth,bottom,top,mat=f){piece(r,'shell','left side',x,0,bottom,18,depth,top-bottom,mat);piece(r,'shell','right side',x+w-18,0,bottom,18,depth,top-bottom,mat);piece(r,'shell','back',x+18,depth-9,bottom,w-36,9,top-bottom,mat);piece(r,'shell','bottom',x+18,0,bottom,w-36,depth-9,18,mat);piece(r,'shell','top',x+18,0,top-18,w-36,depth-9,18,mat);}
  function shelf(r,x,w,z,depth,mat=f){piece(r,'inside','adjustable / fixed shelf',x,50,z-18,w,depth-59,18,mat);}
- function door(r,x,w,bottom,top,mat,handle=true,name='hinged door',depth=0){piece(r,'fronts',name,x+2,depth,bottom+2,w-4,18,top-bottom-4,mat);if(handle)piece(r,'fronts','slim door pull',x+w-54,depth-10,Math.max(bottom+70,Math.min(1070,top-200)),8,10,160,mats.metal);}
+ function door(r,x,w,bottom,top,mat,handle=true,name='hinged door',depth=0){const inset=x===0?(r.spec.exposedEndRadius||0):0;piece(r,'fronts',name,x+inset+2,depth,bottom+2,w-inset-4,18,top-bottom-4,mat);if(handle)piece(r,'fronts','slim door pull',x+w-54,depth-10,Math.max(bottom+70,Math.min(1070,top-200)),8,10,160,mats.metal);}
  function drawer(r,x,w,bottom,height,runner,label,frontMat=f,external=false,externalSpan=null){
   r.drawers.push({label,x,width:w,bottom,height,runner,external});
   piece(r,external?'fronts':'inside',label+' drawer front',external?(externalSpan?.x??x-16):x,external?0:35,bottom,external?(externalSpan?.width??w+32):w,18,height-3,frontMat);
@@ -31,10 +31,31 @@ export function createCabinetry({parent,mats,greyAshMat}){
  function rail(r,x,w,z){piece(r,'inside','hanging rail',x,295,z-11,w,22,22,rack);}
  function clothes(r,x,w,z,drop=760){rail(r,x,w,z);for(let i=0;i<4;i++){const cx=x+110+i*(w-220)/3;piece(r,'inside','illustrative hanger hook',cx-2,290,z-55,4,8,55,rack);piece(r,'inside','illustrative folded clothes',cx-55,260,z-drop,110,80,drop-100,fabric);piece(r,'inside','illustrative clothes shoulder',cx-88,260,z-145,176,80,45,fabric);}}
  function scribe(r,w,depth,top,mat){piece(r,'shell','ceiling scribe',0,0,top,w,depth,30,mat);}
+ // Integrated 18 mm end return with a true R40 quarter-round, inside the original footprint.
+ function curvedEnd(r,mat){
+  const R=r.spec.exposedEndRadius/1000,t=.018,w=r.spec.modules[0]/1000,d=r.spec.depth/1000;
+  for(const name of ['left side','bottom','top','ceiling scribe']){
+   const mesh=r.groups.shell.children.find(m=>m.name===name);if(mesh){mesh.removeFromParent();mesh.geometry.dispose();}
+   const index=r.pieces.findIndex(p=>p.name===name);if(index>=0)r.pieces.splice(index,1);
+  }
+  function extruded(name,shape,bottom,height,box){
+   const geo=new THREE.ExtrudeGeometry(shape,{depth:height/1000,bevelEnabled:false,curveSegments:32});geo.rotateX(-Math.PI/2);
+   const mesh=new THREE.Mesh(geo,mat);mesh.name=name;mesh.position.y=bottom/1000;mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.cabinetPart=true;r.groups.shell.add(mesh);
+   r.pieces.push({name,state:'shell',box,geometry:'quarter-round',radius:r.spec.exposedEndRadius,finish:mat.color.getHexString(THREE.SRGBColorSpace)});
+  }
+  function outline(){const s=new THREE.Shape();s.moveTo(R,0);s.lineTo(w,0);s.lineTo(w,d);s.lineTo(0,d);s.lineTo(0,R);s.absarc(R,R,R,Math.PI,1.5*Math.PI,false);s.closePath();return s;}
+  piece(r,'shell','exposed end flat side',0,R*1000,118,18,(d-R)*1000,r.spec.top-136,mat);
+  const edge=new THREE.Shape();edge.moveTo(0,R);edge.absarc(R,R,R,Math.PI,1.5*Math.PI,false);edge.lineTo(R,t);edge.absarc(R,R,R-t,1.5*Math.PI,Math.PI,true);edge.closePath();
+  extruded('small curved exposed end return',edge,118,r.spec.top-136,[0,0,118,R*1000,R*1000,r.spec.top-136]);
+  extruded('rounded first-bay base',outline(),100,18,[0,0,100,w*1000,d*1000,18]);
+  extruded('rounded first-bay top',outline(),r.spec.top-18,18,[0,0,r.spec.top-18,w*1000,d*1000,18]);
+  extruded('rounded first-bay ceiling scribe',outline(),r.spec.top,r.spec.scribe,[0,0,r.spec.top,w*1000,d*1000,r.spec.scribe]);
+  piece(r,'shell','remaining ceiling scribe',w*1000,0,r.spec.top,r.spec.width-w*1000,d*1000,r.spec.scribe,mat);
+ }
  function loft(r,modules,depth,split,top,mat){let x=0;for(const w of modules){shelf(r,x+18,w-36,split,depth);x+=w;}for(let i=0;i<r.spec.doors;i++){const w=r.spec.width/r.spec.doors;door(r,i*w,w,split,top,mat,false,'hinged loft door');}}
  // B2: front-facing left is at the entry-side end. Local x increases westward.
  {const r=cabinet('b2','B2 1440 three-door multipurpose cabinet',[4.775,7.033],Math.PI),s=S.b2;
-  shell(r,0,480,600,100,2820,mats.wardrobeCab);shell(r,480,960,600,100,2820,mats.wardrobeCab);scribe(r,s.width,600,2820,mats.wardrobeCab);
+  shell(r,0,480,600,100,2820,mats.wardrobeCab);shell(r,480,960,600,100,2820,mats.wardrobeCab);scribe(r,s.width,600,2820,mats.wardrobeCab);curvedEnd(r,mats.wardrobeCab);
   piece(r,'shell','B2 recessed plinth',20,35,20,1400,540,80,mats.graphite);
   for(let i=0;i<3;i++)door(r,i*480,480,100,2260,mats.wardrobeCab);
   loft(r,s.modules,600,2260,2820,mats.wardrobeCab);
@@ -47,11 +68,11 @@ export function createCabinetry({parent,mats,greyAshMat}){
   piece(r,'fronts','B2 unlit inside-door mirror',65,18,750,350,5,1400,rack);
  }
  {const r=cabinet('b3','B3 1829 four-door wardrobe',[5.911,4.52],0),s=S.b3;
-  shell(r,0,914.5,600,100,2820,mats.wardrobeCab);shell(r,914.5,914.5,600,100,2820,mats.wardrobeCab);scribe(r,s.width,600,2820,mats.wardrobeCab);
+  shell(r,0,914.5,600,100,2820,mats.wardrobeCab);shell(r,914.5,914.5,600,100,2820,mats.wardrobeCab);scribe(r,s.width,600,2820,mats.wardrobeCab);curvedEnd(r,mats.wardrobeCab);
   piece(r,'shell','B3 recessed plinth',20,35,20,1789,540,80,mats.graphite);
   for(let i=0;i<4;i++)door(r,i*457.25,457.25,i<2?s.leftDoorBottom:100,2260,mats.wardrobeCab);
   loft(r,s.modules,600,2260,2820,mats.wardrobeCab);clothes(r,38,838.5,2050);clothes(r,952.5,838.5,2050);clothes(r,952.5,838.5,1050);
-  shelf(r,18,878.5,968,600);let z=100;for(const [height,label]of [[350,'B3 bed linen'],[280,'B3 towels'],[220,'B3 underwear / socks']]){drawer(r,43,828.5,z,height,450,label,mats.wardrobeCab,true,{x:2,width:910.5});z+=height;}
+  shelf(r,18,878.5,968,600);let z=100;for(const [height,label]of [[350,'B3 bed linen'],[280,'B3 towels'],[220,'B3 underwear / socks']]){drawer(r,43,828.5,z,height,450,label,mats.wardrobeCab,true,{x:42,width:870.5});z+=height;}
   piece(r,'inside','illustrative suitcase stored flat',65,80,2278,700,450,280,mats.graphite);
  }
  {const r=cabinet('wet','Kitchen wet run 2065',[3.954,.81],Math.PI),s=S.wet;
