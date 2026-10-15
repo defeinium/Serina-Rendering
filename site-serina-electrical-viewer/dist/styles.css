@@ -182,3 +182,6 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .temperature-compare{flex-wrap:wrap}.temperature-compare span{flex:0 0 100%}.temperature-compare button{flex:1;min-width:0;padding-inline:5px}
 
 .paint-reference{display:flex;align-items:center;gap:7px;margin:12px 0 6px;color:#cbd0cb;font-size:10px}.paint-reference-swatch{width:20px;height:20px;flex:none;background:#e5e2d8;border:1px solid #727a75;border-radius:4px}
+
+/* Cabinet inspection uses the same compact camera toolbar. */
+@media(max-width:720px){.controlbar .view-actions{grid-template-columns:repeat(4,minmax(0,1fr))}.controlbar .overview-mode .view-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}.controlbar .overview-mode .view-actions button{padding:0 4px}}

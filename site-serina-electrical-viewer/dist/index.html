@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#f4f1e9" />
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="stylesheet" href="styles.css?v=20261013-r13" />
+  <link rel="stylesheet" href="styles.css?v=20261015-cabinets-r1" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -15,7 +15,7 @@
     <canvas id="measureOverlay" aria-hidden="true"></canvas>
     <header class="topbar">
       <div class="brand"><strong>SERINA</strong><span>Current renovation plan</span></div>
-      <div class="plan-caveat">Current scope · 14 Oct 2026 · dimensions provisional</div>
+      <div class="plan-caveat">Current scope · 15 Oct 2026 · dimensions provisional</div>
     </header>
 
     <div id="drawerScrim" class="drawer-scrim" hidden></div>
@@ -35,6 +35,7 @@
         <section><label>Current agreed design</label>
           <p id="ceilingNote" class="note"></p><div id="designFacts"></div>
         </section>
+        <section><label>Cabinet design</label><div class="viewtools"><button type="button" data-cabinet-interiors aria-pressed="false">Show interiors</button></div><p class="note" id="cabinetViewNote">Exterior view. Tap Interiors to inspect shelves, rails and drawer allocation.</p><a class="brief-panel-link" href="kitchen-cabinet-design.html#drawings">Kitchen cabinet drawings ↗</a><a class="brief-panel-link" href="other-cabinet-design.html#drawings">Wardrobes, TV &amp; shoe cabinet drawings ↗</a></section>
         <section><label>Camera and model</label>
           <div class="viewtools">
             <button id="homeView" type="button">Whole home</button>
@@ -45,7 +46,7 @@
             <button id="cutaway" type="button">Wall cutaway</button>
           </div>
         </section>
-        <section><a class="brief-panel-link" href="site-plan.html">Open current 2D lights &amp; fans drawing ↗</a><a class="brief-panel-link" href="contractor.html">Open current contractor brief ↗</a><a class="brief-panel-link" href="measure.html?v=20261014-b2-final">Open mobile site-measurement list ↗</a></section>
+        <section><a class="brief-panel-link" href="site-plan.html">Open current 2D lights &amp; fans drawing ↗</a><a class="brief-panel-link" href="contractor.html">Open current contractor brief ↗</a><a class="brief-panel-link" href="measure.html?v=20261015-cabinets-r1">Open mobile site-measurement list ↗</a></section>
       </div>
 
       <div id="tab-points" class="tab-pane" hidden>
@@ -58,7 +59,7 @@
 
       <div id="tab-measure" class="tab-pane" hidden>
         <p class="source-note"><b>Approximate model dimensions only.</b> Corner coordinates and wall runs come from the current plan model. Amber labels mark fixture targets; coloured spheres mark existing points. Measure finished wall faces, openings and every point centre before ordering or building.</p>
-        <a class="brief-panel-link" href="measure.html?v=20261014-b2-final">Record actual dimensions on site ↗</a>
+        <a class="brief-panel-link" href="measure.html?v=20261015-cabinets-r1">Record actual dimensions on site ↗</a>
         <button id="measureToggle" type="button" class="measure-toggle" aria-pressed="false">Show dimensions on model</button>
         <div id="measurementContent"></div>
       </div>
@@ -74,7 +75,7 @@
       <details id="moreLights" class="more-lights"><summary>More lights &amp; settings</summary>
         <div id="lightSwitches"></div>
         <div class="light-actions"><button id="houseLightsOn" type="button">All rooms on</button><button id="houseLightsOff" type="button">All rooms off</button></div>
-        <div class="paint-reference"><span class="paint-reference-swatch" aria-hidden="true"></span><span>Summer Snow 1928 · neutral swatch</span></div><p class="light-note">Compare common lights at 3000K, 3500K or 4000K. Bedrooms stay at 3500K. Brightness and colours are a preview; confirm with your chosen fittings and finish samples.</p>
+        <div class="paint-reference"><span class="paint-reference-swatch" aria-hidden="true"></span><span>Summer Snow 1928 · neutral swatch</span></div><p class="light-note">Compare common lights at 3000K, 3500K or 4000K. Bedrooms stay at 3500K. Daylight mode dims electric lights; night output stays unchanged. Brightness and colours are a preview; confirm with your chosen fittings and finish samples.</p>
       </details>
     </aside>
 
@@ -95,7 +96,7 @@
     <div id="walktools" class="walktools" hidden>
       <div class="walk-arrows"><button data-walk="left" aria-label="Move left">←</button><button data-walk="forward" aria-label="Move forward">↑</button><button data-walk="back" aria-label="Move back">↓</button><button data-walk="right" aria-label="Move right">→</button></div>
       <div class="look-arrows"><button data-look="left" aria-label="Turn left">⟲</button><button data-look="right" aria-label="Turn right">⟳</button></div>
-      <div class="view-actions"><button id="overviewView" type="button" aria-pressed="false">Overview</button><button id="wideView" type="button" aria-pressed="false">Wide</button><button id="resetView" type="button">Reset view</button></div>
+      <div class="view-actions"><button id="overviewView" type="button" aria-pressed="false">Overview</button><button id="wideView" type="button" aria-pressed="false">Wide</button><button id="resetView" type="button">Reset view</button><button id="cabinetViewToggle" type="button" data-cabinet-interiors aria-pressed="false" aria-label="Show cabinet interiors">Cabinets</button></div>
       <span class="walk-hint">Drag to look · arrows or WASD to move</span>
     </div>
 
@@ -104,6 +105,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=20261014-b2-final"></script>
+  <script type="module" src="app.js?v=20261015-cabinets-r1"></script>
 </body>
 </html>

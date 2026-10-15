@@ -1,14 +1,14 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-14-b2-final';
+export const DESIGN_REVISION = '2026-10-15-cabinets-r1';
 export const BEDROOM2 = {
  layout:'plain',
- wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside a main door; hardware to confirm'},
+ wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
  entry:{doorStart:5.135,doorEnd:5.935,solidWall:1.80,clearWall:.36},
  services:{socket:{centre:[4.96,6.448],height:.30,offsetFromFrame:.175},lightSwitch:{centre:[4.875,6.448],height:1.20,offsetFromFrame:.260},acSwitch:{centre:[4.965,6.448],height:1.20,offsetFromFrame:.170},leftSocket:{centre:[3.345,8.80],height:.30},status:'Drawing-scaled estimates; faceplate offsets not measured on site'},
  desk:{length:1.40,depth:.60,centre:[4.135,8.55],chairCentre:[4.135,8.03],faces:"window",windowGap:.10},
- circulator:{name:'Bedroom 2 standing circulator',model:'Xiaomi Smart Standing Air Circulation Fan · BPLDS11DM reference',size:[.326,.310,.886],centre:[4.955,7.22],aim:[4.135,8.03],power:'Existing entry-wall socket',status:'Plug-in floor fan; pulled forward beside the cabinet end, placement adjustable; keep cabinet doors and room entry clear',source:'https://www.mi.com/my/product/xiaomi-smart-standing-air-circulation-fan/specs/'}
+ circulator:{name:'Bedroom 2 standing circulator',model:'Xiaomi Smart Standing Air Circulation Fan · BPLDS11DM reference',size:[.326,.310,.886],centre:[5.005,7.51],aim:[4.135,8.03],power:'Existing entry-wall socket',status:'Plug-in floor fan; pulled forward beside the cabinet end, placement adjustable; keep cabinet doors and room entry clear',source:'https://www.mi.com/my/product/xiaomi-smart-standing-air-circulation-fan/specs/'}
 };
 // Four developer fan-coil feeds around the hall. Indoor units face INTO their
 // own rooms. Bodies are illustrative envelopes, not selected product sizes.
@@ -112,17 +112,17 @@ export const AGREED_SCOPE = {
  kitchen:'Grey woodgrain fridge; light non-yellow warm-grey prep and uppers; deep-grey lowers.',
  excluded:['New flat ceilings','Curtain boxes','Window / sofa cove strips','Wardrobe lighting','Yard exhaust fan','Hood coring / external ducting'],
  cabinetry:[
-  ['Kitchen package','2134 mm quoted','Full-height upper / lower; drawer set; sintered top; 600 mm sink and tap. Architectural run 2065 mm: site reconciliation required.'],
+  ['Kitchen package','2134 mm quoted','2065 mm source target: sink775 + sauce230 + hob960 with50 end allowances. Upper600 drainer +405 pantry +960 hood; VATTI V997 body896 ×360 ×421. Quoted2134: site reconciliation required.'],
   ['Fridge enclosure','762 mm quoted','Grey woodgrain to original ceiling; exact appliance clearances pending.'],
-  ['Prep cabinet','1372 × 762 mm quoted','Light warm grey; open above; separate sintered top.'],
-  ['Bedroom 2 storage','1440 × 600 mm target','Three main doors and separate loft, ceiling sealed. Approx. 360 mm original door-side wall stays clear for socket and switches. Internal drawers and inside-door mirror to shop drawing. Site dimensions pending.'],
+  ['Prep cabinet','1372 × 762 mm quoted','600 mm serving drawers +772 mm half-open appliance bay. Upper406 / divider18 / lower320 mm clear. Rice cooker stored below; oven model / ventilation unresolved. Light warm grey.'],
+  ['Bedroom 2 storage','1440 × 600 mm target','Three main doors and separate loft, ceiling sealed. Approx. 360 mm original door-side wall stays clear for socket and switches. Facing cabinet: LEFT480 adjustable shelves / provisional1200 high fin space; RIGHT960 convertible hanging above ONE broad250 high drawer. No small drawer. Inside-door mirror on left. Chair must tuck for drawer access. Site dimensions pending.'],
   ['Bedroom 2 desk','1400 × 600 mm target','Faces the window; open below, dual 24-inch monitors on arms. Keep roughly 100 mm at the window in the source plan; chair tucks under desk for wardrobe access. Actual window swing, sockets and chair clearance to verify.'],
-  ['Bedroom 3 wardrobe','1829 mm quoted','Full height; four main doors; no niche; rounded exposed corner. Hanging + three useful drawers + loft internal layout to sign off.'],
-  ['TV cabinet','2134 mm quoted','Low floor-standing graphite cabinet; Samsung The Frame Pro, size pending.'],
-  ['Shoe cabinet','610 mm quoted','Outside the main door in foyer recess; suspended/full-height detail to confirm.']
+  ['Bedroom 3 wardrobe','1829 mm quoted','Full height; four main doors; no niche; rounded exposed corner. Three broad internal drawers LEFT (350 /280 /220 high), double hanging RIGHT. 2260 main-door split and sliding loft proposal requires real fan-height check; open drawer leaves approx375 to modelled bed.'],
+  ['TV cabinet','2134 mm quoted','2134 ×360 ×320 low floor-standing graphite; three storage drawers and one ventilated equipment bay. Samsung The Frame Pro size / power route pending.'],
+  ['Shoe cabinet','610 mm quoted','610 ×380 ×2700 body floated120 above floor; adjustable shoe shelves and160 high direct-access key drawer. Private foyer recess; fixings / drawer price to confirm.']
  ],
  yard:'Laundry at existing Bath 2-side water/drain; litter trays at dry end. PD door opens outward into Yard; retained partly open, no cat hole. Not a bifold door. No exhaust fan.',
- appliances:'Recirculating hood: FOTILE or VATTI only. Induction hob independent; no model purchased or finalised.',
+ appliances:'VATTI V997 recirculating hood target; return-air kit pending. Induction hob independent. Combi oven not selected or approved for the reserved under-counter bay.',
  pending:['Living / Bedroom 3 fan models and manufacturer clearances','Bedroom 2 floor circulator placement and original window-side track supply','Dining pendant/adaptor and measured horizontal offset','Fixture sizes, heads, wattage and bathroom cut-outs','Cabinet shop drawings and board/stone samples','Final window-treatment purchase','All as-built dimensions']
 };
 export const fixtureMeta = c => {
