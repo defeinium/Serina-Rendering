@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-15-ceiling-r1';
+export const DESIGN_REVISION = '2026-10-15-living-yeelight-r1';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
@@ -22,7 +22,7 @@ export const AIR_CONDITIONERS = [
 export const HALL_CEILING = {bottom:2.72,slab:2.85,outline:[[3.245,5.20],[6.29,5.20],[6.29,6.353],[3.245,6.353]],status:'Existing lowered hallway plaster confirmed in inspection photos; 2720 mm is an unmeasured model height'};
 export const SOURCE_REGISTER = [
  ['F-L1','玄关',396,1144,'light','Entry original light point'],
- ['L-L1','客厅',491,365,'light','Living track supply'],
+ ['L-L1','客厅',491,365,'light','Living window-side light point'],
  ['L-FAN','客厅',491,468,'fan','Living original fan hook'],
  ['L-L2','客厅',491,570,'light','Living ceiling-light point'],
  ['D-L1','餐厅',491,865,'light','Dining original light point'],
@@ -79,13 +79,11 @@ export const FANS = [
 ];
 const pointFixture=(id,room,name,kind,extra={})=>({id,room,name,kind,centre:sourceModel(id),installed:true,status:'Position at original supply',...extra});
 const lf=registeredSource(491,365),kl=registeredSource(625,1144),hy=registeredSource(817,666)[1];
-const livingFeed=sourceModel('L-L1');
-const livingTurn=[livingFeed[0]+1,livingFeed[1]];
-const livingEnd=[livingTurn[0],livingTurn[1]-2];
+const livingYeelight={diameter:.30,thickness:.028,watts:21,lumens:1600,ratedLumensKelvin:4000,product:'Yeelight Ultra Slim 300C · YLXDD-0033',size:'Ø300 ×28 mm local-listed envelope; 21 W; 1600 lm at4000 K; tunable2700–6500 K',status:'Original living light point retained; white diffuse ceiling light, Apple HomeKit; final fixing and fan clearance checked on site'};
 export const FIXTURES = [
  pointFixture('F-L1','玄关','Entry ceiling light','ceiling',{diameter:.34}),
- pointFixture('L-L1','客厅','Living L-track','track',{route:[livingFeed,livingTurn,livingEnd],heads:[[livingFeed[0]+.62,livingFeed[1]],[livingTurn[0],livingTurn[1]-.38],[livingTurn[0],livingTurn[1]-1.00],[livingTurn[0],livingTurn[1]-1.62]],aims:[[2.15,livingFeed[1]-.55,.8],[3.14,livingTurn[1]-.38,1.25],[3.14,livingTurn[1]-1.00,1.25],[3.14,livingTurn[1]-1.62,1.25]],status:'1 m from original L-L1 toward TV side, then 2 m toward dining; verify actual fan and fitting clearances on site',size:'1 m + 2 m L-track target; model dimensions provisional'}),
- pointFixture('L-L2','客厅','Living ceiling light','ceiling',{diameter:.47}),
+ pointFixture('L-L1','客厅','Living Yeelight 300C · window side','ceiling',{...livingYeelight}),
+ pointFixture('L-L2','客厅','Living Yeelight 300C · dining side','ceiling',{...livingYeelight}),
  pointFixture('D-L1','餐厅','Dining pendant','pendant',{centre:DINING.centre,diameter:.46,status:'Horizontal offset to table centre · adaptor/model pending',size:'Illustrative Ø 460 mm; final fixture not selected'}),
  pointFixture('K-L2','厨房','Kitchen diffuse ceiling light','ceiling',{diameter:.38,lumens:[1800,2400],watts:[20,24],size:'White opal diffuser; diameter300–400 mm target, model380 mm; 1800–2400 lm; approx20–24 W, verify product efficacy',status:'At original kitchen light supply; broad ambient light between worktops; retain separate sink task strip'}),
  ...[['H1',465],['H2',586]].map(([id,x])=>({id,room:'走道',name:'Hall light '+id.slice(1),kind:'recessed',centre:planToModel(x,hy,'走道'),diameter:.12,installed:true,status:'Two aligned centres in existing plaster · set-out pending',feed:'H-L1'})),

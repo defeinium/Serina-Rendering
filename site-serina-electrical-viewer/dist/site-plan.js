@@ -131,9 +131,9 @@ const ceiling=[['F-L1',396,1144],['L-L1',491,365],['L-FAN',491,468,'fan'],['L-L2
 // Contractor-facing names; source codes remain in the tap details only.
 const pointLabels={
  'F-L1':{label:['Entry','ceiling light'],dx:14,dy:-16},
- 'L-L1':{label:['Existing supply'],dx:0,dy:26},
+ 'L-L1':{label:['Yeelight 300C','window side'],dx:0,dy:26},
  'L-FAN':{label:['Ceiling fan'],dx:17,dy:3},
- 'L-L2':{label:['Ceiling light'],dx:14,dy:5},
+ 'L-L2':{label:['Yeelight 300C','dining side'],dx:14,dy:5},
  'D-L1':{label:['Existing','supply'],dx:-15,dy:-13},
  'K-L2':{label:['Kitchen','ceiling light'],dx:16,dy:0},
  'Y-L1':{label:['Existing','light point'],dx:0,dy:-21},
@@ -153,9 +153,9 @@ const pointLabels={
 };
 const decisions={
  'F-L1':['Entry light','Confirmed',{'Type':'Diffuse ceiling light','Position':'Existing point'},'Inside the main door.'],
- 'L-L1':['Living L-track feed','Confirmed / set-out TBC',{'Type':'Surface L-track','Feed':'Existing L-L1'},'Track length and return require a check against the 48-inch fan, curtain and TV. Dashed track is a route study, not a fixing line.'],
- 'L-FAN':['Living fan','Size target',{'Diameter':'48 in / ~1220 mm','Position':'Existing hook target'},'Exact model, blade height and clearances to confirm; track set-out must suit the selected fan.'],
- 'L-L2':['Living ceiling light','Confirmed',{'Type':'Broad diffuse ceiling light','Position':'Existing L-L2'},'Latest owner brief replaces the earlier globe-pendant proposal. Model/output TBC.'],
+ 'L-L1':['Living Yeelight 300C · window side','Confirmed',{'Type':'Diffuse smart ceiling light','Size':'Ø300 ×28 mm','Rating':'21 W /1600 lm at4000 K','Position':'Original light point'},'White Yeelight Ultra Slim 300C. Keep the existing supply centre.'],
+ 'L-FAN':['Living fan','Size target',{'Diameter':'48 in / ~1220 mm','Position':'Existing hook target'},'Exact fan model, blade height and clearances to both ceiling lights require site confirmation.'],
+ 'L-L2':['Living Yeelight 300C · dining side','Confirmed',{'Type':'Diffuse smart ceiling light','Size':'Ø300 ×28 mm','Rating':'21 W /1600 lm at4000 K','Position':'Original light point'},'Second matching Yeelight Ultra Slim 300C. Keep the existing supply centre.'],
  'D-L1':['Dining pendant feed','Confirmed / offset TBC',{'Type':'Pendant + offset adaptor','Move':'Horizontal → table centre'},'Keep the bench against Bath 2 wall. Measure the horizontal offset on site; the old 620 mm model distance is not approved.'],
  'K-L2':['Kitchen ceiling light','Confirmed / product pending',{'Type':'Thin white opal ceiling light','Position':'Original kitchen light point','Output target':'1800–2400 lm; approx20–24 W','Diameter target':'300–400 mm'},'Broad diffuse ambient light. Keep the separate sink task strip; verify actual product output and coverage.'],
  'H-L1':['Hall lighting feed','Confirmed / set-out TBC',{'Install':'2 matching diffuse lights','Ceiling':'Existing plaster retained'},'Reuse the existing feed and loop the second light. Centres and cut-outs to confirm; no new plaster ceiling.'],
@@ -187,13 +187,8 @@ function track(id,points,heads,title,specs,note,labelAt){
  g.addEventListener('click',e=>{e.stopPropagation();select(id);});g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(id);}});
  add(id,title,'Set-out TBC',specs,note);
 }
-// Feed the surface L-track directly at the original L-L1 symbol. The feed
-// stays fixed; no separate window-side connection is implied.
-const livingFeed=source(491,365),lf=source(491,468);
-const livingTurn=[livingFeed[0]+(397-160)/(3.165-.17),livingFeed[1]];
-const livingEnd=[livingTurn[0],livingTurn[1]+2*(521-233)/(8.96-5.20)];
-const livingTrack=[livingFeed,livingTurn,livingEnd];
-track('L-TK',livingTrack,[[livingFeed[0]+.62*(397-160)/(3.165-.17),livingFeed[1]],[livingTurn[0],livingTurn[1]+.38*(521-233)/(8.96-5.20)],[livingTurn[0],livingTurn[1]+(521-233)/(8.96-5.20)],[livingTurn[0],livingTurn[1]+1.62*(521-233)/(8.96-5.20)]],'Living L-track',{'Leg targets':'1000 + 2000 mm','Feed':'At L-L1'},'One-metre arm runs from the original light point toward the TV side; two-metre arm turns toward dining. The rail is approximately 560 mm from the model TV wall. Confirm real fan, fitting and wall clearances on site before fixing.',[livingTurn[0]+10,livingFeed[1]-12]);
+// Both ceiling lights stay at the two original living light points.
+const lf=source(491,468);
 el('circle',{cx:lf[0],cy:lf[1],r:(1219.2/2)/commonMmPerPx,fill:'none',stroke:colours.proposed,'stroke-width':1.3,'stroke-dasharray':'5 4','data-fan':'Living'},groups.lighting);
 text(groups.lighting,lf[0]-3,lf[1]+58,'48 inches','point-label');
 const dl=source(491,865);
@@ -234,7 +229,7 @@ const ledgeLabel=text(groups.labels,603,852,['AIR-CONDITIONER','LEDGE'],'room-la
 
 
 function fullTerms(s){
- const references={'F-L1':'original entry light point','L-L1':'original living track supply','L-L2':'original living ceiling-light point','D-L1':'original dining light point','K-L2':'original kitchen light point','H-L1':'original hallway light supply','M-L2':'original master light point','B2-F':'original bedroom 2 fan provision','B2-L1':'first original bedroom 2 light point','B2-L2':'second original bedroom 2 light point','B3-L1':'bedroom 3 ceiling light 1','B3-L2':'bedroom 3 ceiling light 2'};
+ const references={'F-L1':'original entry light point','L-L1':'original living window-side light point','L-L2':'original living ceiling-light point','D-L1':'original dining light point','K-L2':'original kitchen light point','H-L1':'original hallway light supply','M-L2':'original master light point','B2-F':'original bedroom 2 fan provision','B2-L1':'first original bedroom 2 light point','B2-L2':'second original bedroom 2 light point','B3-L1':'bedroom 3 ceiling light 1','B3-L2':'bedroom 3 ceiling light 2'};
  return String(s).replace(/F-L1|L-L[12]|D-L1|K-L2|H-L1|M-L2|B2-F|B2-L[12]|B3-L[12]/g,m=>references[m]).replace(/\bTBC\b/g,'to confirm').replace(/\bB2\b/g,'Bedroom 2').replace(/\bB3\b/g,'Bedroom 3').replace(/\bBath ([12])\b/g,'Bathroom $1').replace(/\bL-track\b/g,'L-shaped track').replace(/\bLED\b/g,'light strip').replace(/\bWC\b/g,'toilet').replace(/\bAC\b/g,'air-conditioner').replace(/\bin\s*\//g,'inches /');
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}

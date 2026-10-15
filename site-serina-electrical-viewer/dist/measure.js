@@ -68,7 +68,7 @@ const OPENINGS={
 // search item, not an assertion that a faceplate exists at that location.
 const POINTS={
  '玄关':[['F-L1','Original ceiling light','ceiling'],['F-S1','13A socket beside entry / shoe cabinet','wall'],['F-DB','Distribution board','wall'],['F-DBELL','Doorbell point','wall'],['F-SW','Public-area switch groups','wall']],
- '客厅':[['L-L1','Original living-track supply','ceiling'],['L-L2','Original living ceiling-light supply','ceiling'],['L-FAN','Fan hook / structural centre','ceiling'],['L-S1','Sofa-wall socket 1','wall'],['L-S2','Sofa-wall socket 2','wall'],['L-S3','TV-wall socket 1','wall'],['L-S4','TV-wall socket 2','wall'],['L-D1','TV / fibre point','wall'],['L-AC','Air-con power / route','wall'],['L-AC-SW','AC pilot switch','wall']],
+ '客厅':[['L-L1','Original living window-side light supply','ceiling'],['L-L2','Original living ceiling-light supply','ceiling'],['L-FAN','Fan hook / structural centre','ceiling'],['L-S1','Sofa-wall socket 1','wall'],['L-S2','Sofa-wall socket 2','wall'],['L-S3','TV-wall socket 1','wall'],['L-S4','TV-wall socket 2','wall'],['L-D1','TV / fibre point','wall'],['L-AC','Air-con power / route','wall'],['L-AC-SW','AC pilot switch','wall']],
  '餐厅':[['D-L1','Original dining ceiling light','ceiling'],['D-S1','Dining socket group 1 — owner-reported','wall'],['D-S2','Dining socket group 2 — owner-reported','wall'],['D-S3','Dining socket group 3 — owner-reported','wall']],
  '厨房':[['K-L2','Original kitchen ceiling light','ceiling'],['K-S1','Counter socket group 1','wall'],['K-S2','Counter socket group 2','wall'],['K-FR','Fridge socket','wall'],['K-SW','Kitchen switch groups','wall'],['K-HOOD','Hood power / recirculation return-air opening','wall']],
  'Yard':[['Y-L1','Original Yard ceiling light','ceiling'],['Y-S1','Yard socket group 1','wall'],['Y-S2','Yard socket group 2','wall'],['Y-S3','Yard socket group 3','wall'],['Y-TAP','Washer tap / water supply','wall'],['Y-TRAP','Floor trap / drainage','floor']],
@@ -88,7 +88,7 @@ const FITOUT={
  ],
  '客厅':[
   ['sofa-tv','Sofa-to-TV geometry','Measure finished wall faces; sofa model is not a reliable size reference',[mm('sofaWall','Sofa wall usable'),mm('tvWall','TV wall usable'),mm('distance','Face-to-face distance'),mm('tvHeight','TV centre AFFL'),memo('note','Sofa / rail actual product sizes')]],
-  ['fan','Living fan clearance','48-inch target: check original hook, track, AC, walls and opened cabinet doors',[mm('hookWindow','Hook to window wall'),mm('hookSofa','Hook to sofa wall'),mm('hookTV','Hook to TV wall'),mm('blade','Blade height AFFL'),memo('note','Fan and light obstruction')]],
+  ['fan','Living fan clearance','48-inch target: check original hook, both ceiling lights, AC, walls and opened cabinet doors',[mm('hookWindow','Hook to window wall'),mm('hookSofa','Hook to sofa wall'),mm('hookTV','Hook to TV wall'),mm('blade','Blade height AFFL'),memo('note','Fan and light obstruction')]],
   ['window-slot','Window treatment and track clearance','Record original ceiling, window wall and blind/curtain projection; no curtain box or window strip',[mm('span','Wall-to-wall span'),mm('recess','Window reveal depth'),mm('blind','Blind projection'),mm('slot','Track-to-window clearance'),memo('note','Window-treatment details')]]
  ],
  '餐厅':[
