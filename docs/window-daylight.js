@@ -87,7 +87,7 @@ export function createWindowDaylight(scene){
    float bounce=i==0?.035+.11*exp(-depth/4.5):.08*exp(-depth/4.5);
    // B2 / B3 pale walls provide diffuse return onto surfaces facing away from the window.
    // This room-local daylight proxy prevents the cabinet end from reading as a dark finish.
-   if(i==1||i==3)bounce=.12+.10*exp(-depth/4.5);
+   if(i==1||i==3){float away=1.0-smoothstep(.05,.35,max(dot(n,direction),0.0));bounce+=(.12+.04*exp(-depth/4.5))*away;}
    energy+=region*s.w*(direct+bounce);
   }
   return vec3(energy*windowDaylightStrength);

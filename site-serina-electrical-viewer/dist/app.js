@@ -1,14 +1,14 @@
 import * as THREE from 'three';
-import {createCabinetry} from './cabinetry.js?v=20261015-cabinets-r3';
+import {createCabinetry} from './cabinetry.js?v=20261015-cabinets-r4';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
 import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261013-r13';
-import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261015-cabinets-r3';
+import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261015-cabinets-r4';
 
 import {createTileReflection} from './floor-reflection.js?v=20261013-r13';
 import {LIGHT_COLOUR, roomViewingMatrix} from './light-colour.js?v=20261013-r13';
-import {createWindowDaylight} from './window-daylight.js?v=20261015-cabinets-r3';
+import {createWindowDaylight} from './window-daylight.js?v=20261015-cabinets-r4';
 
 RectAreaLightUniformsLib.init();
 
