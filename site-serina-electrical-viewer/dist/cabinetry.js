@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
-import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261015-controls-r1';
+import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261015-ceiling-r1';
 
 export function createCabinetry({parent,mats,greyAshMat}){
  const root=new THREE.Group();root.name='Current coordinated cabinetry';parent.add(root);

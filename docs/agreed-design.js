@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-15-controls-r1';
+export const DESIGN_REVISION = '2026-10-15-ceiling-r1';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
@@ -26,7 +26,7 @@ export const SOURCE_REGISTER = [
  ['L-FAN','客厅',491,468,'fan','Living original fan hook'],
  ['L-L2','客厅',491,570,'light','Living ceiling-light point'],
  ['D-L1','餐厅',491,865,'light','Dining original light point'],
- ['K-L2','厨房',625,1144,'light','Kitchen track supply'],
+ ['K-L2','厨房',625,1144,'light','Kitchen original light supply'],
  ['Y-L1','Yard',812,1144,'light','Yard existing light point'],
  ['H-L1','走道',817,666,'light','Hall original lighting supply'],
  ['M-L1','主人房',1156,365,'light','Master unused window-side light point'],
@@ -73,7 +73,6 @@ export const DINING = {
  benchX:3.165-.43/2
 };
 const b2Front=435-600/2517*(435-233);
-const b2Window=sourceModel('B2-L1');
 export const FANS = [
  {id:'L-FAN',room:'客厅',label:'Living ceiling fan',diameter:1.2192,centre:sourceModel('L-FAN'),status:'48-inch target · exact model pending'},
  {id:'B3-F',room:'B3',label:'Bedroom 3 ceiling fan',diameter:.8382,centre:sourceModel('B3-F'),status:'33-inch target · fixing and clearances pending'}
@@ -88,10 +87,10 @@ export const FIXTURES = [
  pointFixture('L-L1','客厅','Living L-track','track',{route:[livingFeed,livingTurn,livingEnd],heads:[[livingFeed[0]+.62,livingFeed[1]],[livingTurn[0],livingTurn[1]-.38],[livingTurn[0],livingTurn[1]-1.00],[livingTurn[0],livingTurn[1]-1.62]],aims:[[2.15,livingFeed[1]-.55,.8],[3.14,livingTurn[1]-.38,1.25],[3.14,livingTurn[1]-1.00,1.25],[3.14,livingTurn[1]-1.62,1.25]],status:'1 m from original L-L1 toward TV side, then 2 m toward dining; verify actual fan and fitting clearances on site',size:'1 m + 2 m L-track target; model dimensions provisional'}),
  pointFixture('L-L2','客厅','Living ceiling light','ceiling',{diameter:.47}),
  pointFixture('D-L1','餐厅','Dining pendant','pendant',{centre:DINING.centre,diameter:.46,status:'Horizontal offset to table centre · adaptor/model pending',size:'Illustrative Ø 460 mm; final fixture not selected'}),
- pointFixture('K-L2','厨房','Kitchen track','track',{route:[[kl[0]-62,kl[1]],[kl[0]+62,kl[1]]].map(p=>planToModel(...p,'厨房')),heads:[[kl[0]-47,kl[1]],[kl[0]+6,kl[1]],[kl[0]+47,kl[1]]].map(p=>planToModel(...p,'厨房')),aims:[[2.425,.63,.90],[2.481,2.23,.925],[3.60,.63,.90]],size:'Approximately 1600 mm target · 3 heads',status:'Rail at original supply; 2 heads toward cabinets, 1 toward prep/island top'}),
+ pointFixture('K-L2','厨房','Kitchen diffuse ceiling light','ceiling',{diameter:.38,lumens:[1800,2400],watts:[20,24],size:'White opal diffuser; diameter300–400 mm target, model380 mm; 1800–2400 lm; approx20–24 W, verify product efficacy',status:'At original kitchen light supply; broad ambient light between worktops; retain separate sink task strip'}),
  ...[['H1',465],['H2',586]].map(([id,x])=>({id,room:'走道',name:'Hall light '+id.slice(1),kind:'recessed',centre:planToModel(x,hy,'走道'),diameter:.12,installed:true,status:'Two aligned centres in existing plaster · set-out pending',feed:'H-L1'})),
  pointFixture('M-L2','主人房','Master dimmable ceiling light','ceiling',{diameter:.47}),
- {id:'B2-TRACK',room:'B2',name:'Bedroom 2 diffuse track',kind:'track',centre:b2Window,route:[[b2Window[0]-.80,b2Window[1]],[b2Window[0]+.80,b2Window[1]]],heads:[[b2Window[0]-.65,b2Window[1]],[b2Window[0]+.65,b2Window[1]]],installed:true,white:true,feed:'B2-L1',status:'1600 mm transverse rail through original window-side point; diffuse light over the window-facing desk, no ceiling fan',size:'1600 mm track target; 2 downward opal-diffuser modules, not spotlights; exact size pending'},
+ pointFixture('B2-F','B2','Bedroom 2 dimmable ceiling light','ceiling',{diameter:.43,lumens:[2400,3000],watts:[24,36],size:'White opal diffuser; diameter400–450 mm target, model430 mm; 2400–3000 lm; approx24–36 W; dimmable, tunable3000–4000 K, use3500 K',status:'Centred at original fan provision; electrician to verify lighting-compatible supply, control and mounting. No ceiling fan. Original window-side and wardrobe-side light points unused; desk task lamp purchased separately if needed'}),
  pointFixture('B3-L1','B3','Bedroom 3 ceiling light 1','ceiling',{diameter:.30}),
  pointFixture('B3-L2','B3','Bedroom 3 ceiling light 2','ceiling',{diameter:.30}),
  ...[['Bath 1','B1',835,838],['Bath 2','B2B',463,463]].flatMap(([room,prefix,sx,mx])=>[
@@ -123,7 +122,7 @@ export const AGREED_SCOPE = {
  ],
  yard:'Laundry at existing Bath 2-side water/drain; litter trays at dry end. Former kitchen louvre replaced by a closed-back niche opening into Yard, same finish as kitchen uppers; niche depth to site measure. Grey door frames and matching skirting follow actual-unit photos. PD door opens outward into Yard; retained partly open, no cat hole. Not a bifold door. No exhaust fan.',
  appliances:'VATTI V997 recirculating hood target; return-air kit pending. Induction hob independent. Combi oven not selected or approved for the reserved under-counter bay.',
- pending:['Living / Bedroom 3 fan models and manufacturer clearances','Bedroom 2 floor circulator placement and original window-side track supply','Dining pendant/adaptor and measured horizontal offset','Fixture sizes, heads, wattage and bathroom cut-outs','Cabinet shop drawings and board/stone samples','Final window-treatment purchase','All as-built dimensions']
+ pending:['Living / Bedroom 3 fan models and manufacturer clearances','Bedroom 2 ceiling light at original fan provision: verify usable supply, control and mounting; standing circulator placement','Dining pendant/adaptor and measured horizontal offset','Fixture sizes, heads, wattage and bathroom cut-outs','Cabinet shop drawings and board/stone samples','Final window-treatment purchase','All as-built dimensions']
 };
 export const fixtureMeta = c => {
  const f=FIXTURES.find(f=>f.id===c.id);if(!f)return null;

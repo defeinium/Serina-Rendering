@@ -1,15 +1,15 @@
-import {createQuickControls} from './quick-controls.js?v=20261015-controls-r1';
+import {createQuickControls} from './quick-controls.js?v=20261015-ceiling-r1';
 import * as THREE from 'three';
-import {createCabinetry} from './cabinetry.js?v=20261015-controls-r1';
+import {createCabinetry} from './cabinetry.js?v=20261015-ceiling-r1';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261015-controls-r1';
-import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261015-controls-r1';
+import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261015-ceiling-r1';
+import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261015-ceiling-r1';
 
 import {createTileReflection} from './floor-reflection.js?v=20261013-r13';
 import {LIGHT_COLOUR, roomViewingMatrix} from './light-colour.js?v=20261013-r13';
-import {createWindowDaylight} from './window-daylight.js?v=20261015-controls-r1';
+import {createWindowDaylight} from './window-daylight.js?v=20261015-ceiling-r1';
 
 let quickControls=null;
 RectAreaLightUniformsLib.init();
@@ -19,9 +19,9 @@ const ROOMS=['全屋','玄关','客厅','餐厅','厨房','Yard','走道','主�
 const ROOM_LABELS={'全屋':'Whole home','玄关':'Entry','客厅':'Living room','餐厅':'Dining','厨房':'Kitchen','Yard':'Yard','走道':'Hall','主人房':'Master bedroom','B2':'Bedroom 2','B3':'Bedroom 3','Bath 1':'Bath 1','Bath 2':'Bath 2','AC Ledge':'AC ledge'};
 const points=SOURCE_REGISTER.map(([id,room,ex,ey,type,title])=>{
  const [x,y]=sourceModel(id);
- const unused=['M-L1','M-L3','M-FAN','B2-L2','B2-F'].includes(id);
+ const unused=['M-L1','M-L3','M-FAN','B2-L1','B2-L2'].includes(id);
  const fixture=FIXTURES.find(f=>f.id===id||f.feed===id),fan=FANS.find(f=>f.id===id);
- return {id,room,type,pos:[x,2.73,-y],title,spec:type==='fan'?'Original fan supply':'Original light supply',note:unused?'Unused: retain and safely cover. No fitting planned.':fixture?.status||fan?.status||(id==='B2-L1'?'Feed the proposed transverse track at this original point; verify circuit on site.':'Existing supply retained; new fitting centres are in the current 2D drawing.'),status:unused?'Unused':'Drawing-derived · verify on site',sourcePixel:[ex,ey]};
+ return {id,room,type:fixture?.kind==='ceiling'?'light':type,pos:[x,2.73,-y],title,spec:type==='fan'?(fixture?'Original fan provision reused for light · electrical check pending':'Original fan supply'):'Original light supply',note:unused?'Unused: retain and safely cover. No fitting planned.':fixture?.status||fan?.status||'Existing supply retained; new fitting centres are in the current 2D drawing.',status:unused?'Unused':'Drawing-derived · verify on site',sourcePixel:[ex,ey]};
 });
 // Outlet locations are inherited approximations, hidden by default. Do not
 // introduce a new wardrobe-niche supply or a powered mirror cabinet.
@@ -579,18 +579,8 @@ for(const f of FIXTURES){
   const finish=f.white?trackWhite:trackBlack;
   for(let i=1;i<f.route.length;i++){const [ax,ay]=f.route[i-1],[bx,by]=f.route[i],length=Math.hypot(bx-ax,by-ay);const rail=new THREE.Mesh(new THREE.BoxGeometry(.036,.027,length),finish);rail.position.set((ax+bx)/2,roof-.015,-(ay+by)/2);rail.rotation.y=Math.atan2(bx-ax,-(by-ay));c.group.add(rail)}
   for(const [i,p] of f.heads.entries()){
-   if(f.id==='B2-TRACK'){
-    // Broad opal diffuser modules, not swivel spot heads. Their light exits
-    // downwards from the whole face; there is no conical spotlight target.
-    const housing=new THREE.Mesh(new RoundedBoxGeometry(.30,.045,.085,2,.008),finish);
-    housing.position.set(p[0],roof-.049,-p[1]);c.group.add(housing);
-    const lens=new THREE.Mesh(new THREE.PlaneGeometry(.28,.065),diffuserOffMat);
-    lens.rotation.x=Math.PI/2;lens.position.set(p[0],roof-.073,-p[1]);addLens(c,lens);
-    areaLamp(c,p[0],p[1],roof-.075,.28,.065,2200);
-    continue;
-   }
    const origin=new THREE.Vector3(p[0],roof-.10,-p[1]);
-   const aim=f.id==='L-L1'||f.id==='K-L2'?f.aims[i]:[p[0],7.45,.72];
+   const aim=f.aims[i];
    const direction=new THREE.Vector3(aim[0],aim[2],-aim[1]).sub(origin).normalize();
    const mount=new THREE.Mesh(new THREE.BoxGeometry(.042,.038,.060),finish);mount.position.set(p[0],roof-.045,-p[1]);c.group.add(mount);
    const head=new THREE.Group();head.position.copy(origin);head.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),direction);c.group.add(head);
@@ -600,7 +590,6 @@ for(const f of FIXTURES){
    const emitter=origin.clone().addScaledVector(direction,.045);
    spotLamp(c,emitter.x,-emitter.z,emitter.y,...aim,f.white?120:95,f.white?.78:.54);
   }
-  if(f.id==='B2-TRACK')c.group.userData.provisional=true;
  }else if(f.kind==='pendant'){
   const [sx,sy]=sourceModel(f.id),shadeY=1.65;
   const canopy=disc(.09,.028,trackBlack);canopy.position.set(sx,roof-.014,-sy);c.group.add(canopy);
@@ -641,7 +630,7 @@ for(const f of FANS){
 // Fixed-size light pools avoid shader recompilation each time a room or
 // switch changes. Invisible rooms use no slots; every circuit retains its
 // individual state and physical lens. This is an interactive lighting proxy.
-const areaPool=Array.from({length:7},()=>{const l=new THREE.RectAreaLight(LIGHT_3500K,0,.1,.1);scene.add(l);return l});
+const areaPool=Array.from({length:8},()=>{const l=new THREE.RectAreaLight(LIGHT_3500K,0,.1,.1);scene.add(l);return l});
 const spotPool=Array.from({length:11},()=>{const l=new THREE.SpotLight(LIGHT_3500K,0,5,.66,.9,2);l.castShadow=true;l.shadow.mapSize.set(512,512);l.shadow.bias=-.00015;l.shadow.normalBias=.018;scene.add(l,l.target);return l});
 // Daytime preview dims electric fittings only; source CCT and night output stay fixed.
 function electricPreviewScale(){return daylight?.60:1}
@@ -675,7 +664,7 @@ function renderLightSwitches(){
  const makeRow=(c,compact)=>{
   const row=document.createElement('div');row.className='light-row'+(compact?' compact':'');
   const toggle=document.createElement('button');toggle.type='button';toggle.className='light-switch'+(c.on?' on':'');toggle.setAttribute('aria-pressed',String(c.on));
-  const label=document.createElement('span');label.className='fixture-name';label.textContent=c.name+(c.id==='B2-TRACK'?' · position pending':'');
+  const label=document.createElement('span');label.className='fixture-name';label.textContent=c.name;
   const state=document.createElement('span');state.className='light-state';state.textContent=c.on?'ON':'OFF';
   toggle.append(label,state);toggle.onclick=()=>{c.on=!c.on;syncLights();renderLightSwitches()};
   const pin=document.createElement('button');pin.type='button';pin.className='light-pin'+(quickLightIds.has(c.id)?' pinned':'');pin.textContent=quickLightIds.has(c.id)?'★':'☆';pin.setAttribute('aria-label',`${quickLightIds.has(c.id)?'Remove':'Add'} ${c.name} ${quickLightIds.has(c.id)?'from':'to'} quick controls`);pin.setAttribute('aria-pressed',String(quickLightIds.has(c.id)));
@@ -691,7 +680,7 @@ function renderLightSwitches(){
 const QUICK_LIGHTS_KEY='serina-quick-lights-current-20261012-r2';
 const DEFAULT_QUICK_LIGHTS=FIXTURES.map(f=>f.id);
 let savedQuickLights;try{savedQuickLights=JSON.parse(localStorage.getItem(QUICK_LIGHTS_KEY))}catch{}
-const quickLightIds=new Set(Array.isArray(savedQuickLights)?savedQuickLights:DEFAULT_QUICK_LIGHTS);
+const quickLightIds=new Set(Array.isArray(savedQuickLights)?savedQuickLights.map(id=>id==='B2-TRACK'?'B2-F':id):DEFAULT_QUICK_LIGHTS);
 const lightPanel=document.querySelector('#lightPanel'),lightPanelToggle=document.querySelector('#lightPanelToggle');
 function setLightPanelOpen(open){lightPanel.hidden=!open;lightPanelToggle.setAttribute('aria-expanded',String(open));if(open){quickControls?.close();closeDrawer();renderLightSwitches()}}
 lightPanelToggle.onclick=()=>setLightPanelOpen(lightPanel.hidden);
@@ -1116,4 +1105,4 @@ function animate(now){requestAnimationFrame(animate);const dt=Math.min(.05,Math.
   frameCount=0;frameWindowStart=now}}
 requestAnimationFrame(animate);
 
-window.serinaViewer={snapshot:()=>({revision:AGREED_SCOPE.revision,cabinetry:cabinetry.snapshot(),inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),yardNiche,finishes:{kitchenLower:'#'+mats.cabinet.color.getHexString(THREE.SRGBColorSpace),kitchenUpper:'#'+mats.lightCab.color.getHexString(THREE.SRGBColorSpace)},floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{commonKelvin,electricPreviewScale:electricPreviewScale(),localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),viewingIlluminantRGB,adaptationDegree,exposure:renderer.toneMappingExposure,bounceBudget,bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,bedroom2:BEDROOM2,standingCirculators:[{...BEDROOM2.circulator,visible:interior.getObjectByName(BEDROOM2.circulator.name)?.visible}],scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setCabinetsOpen:setCabinetsOpen,setAllLights:on=>{for(const c of lightCircuits)c.on=on;syncLights();renderLightSwitches();},stand:indoorPlace};
+window.serinaViewer={snapshot:()=>({revision:AGREED_SCOPE.revision,cabinetry:cabinetry.snapshot(),inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),yardNiche,finishes:{kitchenLower:'#'+mats.cabinet.color.getHexString(THREE.SRGBColorSpace),kitchenUpper:'#'+mats.lightCab.color.getHexString(THREE.SRGBColorSpace)},floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{commonKelvin,electricPreviewScale:electricPreviewScale(),localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),viewingIlluminantRGB,adaptationDegree,exposure:renderer.toneMappingExposure,bounceBudget,bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,diameter:c.diameter,lumens:c.lumens,watts:c.watts,status:c.status,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({type:l.type,visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,bedroom2:BEDROOM2,standingCirculators:[{...BEDROOM2.circulator,visible:interior.getObjectByName(BEDROOM2.circulator.name)?.visible}],scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setCabinetsOpen:setCabinetsOpen,setAllLights:on=>{for(const c of lightCircuits)c.on=on;syncLights();renderLightSwitches();},stand:indoorPlace};

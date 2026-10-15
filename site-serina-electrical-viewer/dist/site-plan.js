@@ -135,15 +135,15 @@ const pointLabels={
  'L-FAN':{label:['Ceiling fan'],dx:17,dy:3},
  'L-L2':{label:['Ceiling light'],dx:14,dy:5},
  'D-L1':{label:['Existing','supply'],dx:-15,dy:-13},
- 'K-L2':{label:['Existing supply'],dx:0,dy:26},
+ 'K-L2':{label:['Kitchen','ceiling light'],dx:16,dy:0},
  'Y-L1':{label:['Existing','light point'],dx:0,dy:-21},
  'H-L1':{label:['Existing supply'],dx:0,dy:23},
  'M-L1':{label:['Unused light point'],dx:0,dy:25},
  'M-FAN':{label:['Unused fan point'],dx:0,dy:25},
  'M-L2':{label:['Dimmable','ceiling light'],dx:14,dy:4},
  'M-L3':{label:['Unused light point'],dx:0,dy:24},
- 'B2-L1':{label:['Track supply'],dx:0,dy:23},
- 'B2-F':{label:['Unused fan hook'],dx:-15,dy:-12},
+ 'B2-L1':{label:['Unused','light point'],dx:0,dy:23},
+ 'B2-F':{label:['Dimmable','ceiling light'],dx:19,dy:-8},
  'B2-L2':{label:['Unused','light point'],dx:14,dy:2},
  'B3-F':{label:['Ceiling fan'],dx:0,dy:29},
  'B3-L1':{label:['Ceiling','light 1'],dx:0,dy:23},
@@ -157,12 +157,12 @@ const decisions={
  'L-FAN':['Living fan','Size target',{'Diameter':'48 in / ~1220 mm','Position':'Existing hook target'},'Exact model, blade height and clearances to confirm; track set-out must suit the selected fan.'],
  'L-L2':['Living ceiling light','Confirmed',{'Type':'Broad diffuse ceiling light','Position':'Existing L-L2'},'Latest owner brief replaces the earlier globe-pendant proposal. Model/output TBC.'],
  'D-L1':['Dining pendant feed','Confirmed / offset TBC',{'Type':'Pendant + offset adaptor','Move':'Horizontal → table centre'},'Keep the bench against Bath 2 wall. Measure the horizontal offset on site; the old 620 mm model distance is not approved.'],
- 'K-L2':['Kitchen track','Confirmed / length TBC',{'Type':'Straight surface track','Feed':'Directly at K-L2'},'Track crosses the existing point. Length, heads and aiming to confirm; sink cabinet LED is separate.'],
+ 'K-L2':['Kitchen ceiling light','Confirmed / product pending',{'Type':'Thin white opal ceiling light','Position':'Original kitchen light point','Output target':'1800–2400 lm; approx20–24 W','Diameter target':'300–400 mm'},'Broad diffuse ambient light. Keep the separate sink task strip; verify actual product output and coverage.'],
  'H-L1':['Hall lighting feed','Confirmed / set-out TBC',{'Install':'2 matching diffuse lights','Ceiling':'Existing plaster retained'},'Reuse the existing feed and loop the second light. Centres and cut-outs to confirm; no new plaster ceiling.'],
  'M-L2':['Master ceiling light','Confirmed',{'Type':'Dimmable diffuse ceiling light','Position':'Existing M-L2','Fan':'None'},'Other master ceiling points remain unused and safely covered. No curtain box.'],
- 'B2-L1':['Bedroom 2 track supply','Proposed / site check',{'Type':'1600 mm transverse diffuse track','Feed':'Original window-side light point'},'Rail crosses the existing window-side point over the window-facing desk. Two broad diffuse modules; no ceiling fan. Confirm circuit and light output on site.'],
+ 'B2-L1':['Bedroom 2 window-side light point','Unused',{'Action':'Retain and safely cover'},'Replaced by one diffuse ceiling light at the original central fan provision.'],
  'B2-L2':['Bedroom 2 wardrobe-side light point','Unused',{'Action':'Safely terminate and retain access'},'The proposed wardrobe occupies this point. No second ceiling light is planned here.'],
- 'B2-F':['Bedroom 2 original fan hook','Unused',{'Action':'Retain original hook and safely cover supply','Fan':'Plug-in standing circulator'},'No ceiling fan or hook relocation.'],
+ 'B2-F':['Bedroom 2 ceiling light at original fan provision','Electrical check pending',{'Type':'Thin white opal dimmable ceiling light','Output target':'2400–3000 lm; approx24–36 W','Diameter target':'400–450 mm','Colour':'Tunable3000–4000 K; use3500 K'},'Original fan location retained as the fitting centre. Electrician must confirm lighting-compatible supply, control and mounting; no ceiling fan. Separate desk task light if needed.'],
  'B3-L1':['B3 ceiling light 1','Confirmed',{'Type':'Diffuse ceiling light','Position':'Existing B3-L1'},'Match B3-L2. Exact diameter/output TBC.'],
  'B3-L2':['B3 ceiling light 2','Confirmed',{'Type':'Diffuse ceiling light','Position':'Existing B3-L2'},'Match B3-L1. Exact diameter/output TBC.'],
  'B3-F':['B3 fan','Proposed size',{'Diameter':'33 in / ~838 mm','Position':'Existing hook target'},'Source centre corrected. No forced relocation is shown; model, height and opened wardrobe doors still require checking.'],
@@ -170,12 +170,12 @@ const decisions={
  'B2B-L':['Bath 2 original feed','Existing feed',{'Action':'Feed 2 proposed lights'},'One shower downlight + one offset mirror-task spotlight. Original symbol is NOT a third light.'],
  'Y-L1':['Yard light feed','Fitting TBC',{'Action':'Confirm retained light'},'Not included in the latest owner installation count. Do not silently add a new fitting.']
 };
-const unused=new Set(['M-L1','M-L3','M-FAN','B2-F','B2-L2','B1-L','B2B-L','H-L1','Y-L1']);
+const unused=new Set(['M-L1','M-L3','M-FAN','B2-L1','B2-L2','B1-L','B2B-L','H-L1','Y-L1']);
 for(const [id,ex,ey,type] of ceiling){
  const [x,y]=source(ex,ey),a=decisions[id]||[type==='fan'?'Unused master fan point':'Unused master light point','Unused',{'Action':'Safely cap / cover'},'Retain access.'];
  add(id,...a,x,y);
  const l=pointLabels[id]||{label:['Unused light point'],dx:0,dy:24};
- const m=marker(groups.lighting,id,x,y,type||'light',unused.has(id)?colours.unused:colours.source,unused.has(id),l.dx,l.dy,l.label);
+ const m=marker(groups.lighting,id,x,y,id==='B2-F'?'light':type||'light',unused.has(id)?colours.unused:colours.source,unused.has(id),l.dx,l.dy,l.label);
  m.dataset.sourceX=ex;m.dataset.sourceY=ey;m.dataset.cx=x;m.dataset.cy=y;
 }
 function studyLine(points, parent=groups.lighting){return path(parent,points,{stroke:colours.proposed,'stroke-width':3,'stroke-dasharray':'6 4','stroke-linecap':'round'});}
@@ -183,7 +183,7 @@ function track(id,points,heads,title,specs,note,labelAt){
  const g=el('g',{class:'marker',tabindex:'0',role:'button','aria-label':title,'data-id':id},groups.lighting);
  path(g,points,{stroke:'transparent','stroke-width':22});studyLine(points,g);
  for(const [x,y] of heads)el('rect',{x:x-3,y:y-5,width:6,height:10,rx:2,stroke:colours.proposed,'stroke-width':1,fill:'#fff'},g);
- text(g,...labelAt,id==='L-TK'?['L-shaped track lights']:id==='B2-TRACK'?['Diffuse track lights']:['Track lights'],'point-label','end');
+ text(g,...labelAt,id==='L-TK'?['L-shaped track lights']:['Track lights'],'point-label','end');
  g.addEventListener('click',e=>{e.stopPropagation();select(id);});g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(id);}});
  add(id,title,'Set-out TBC',specs,note);
 }
@@ -200,8 +200,6 @@ const dl=source(491,865);
 path(groups.lighting,[dl,[diningX,diningY]],{stroke:colours.proposed,'stroke-width':1.7,'stroke-dasharray':'5 4'});
 marker(groups.lighting,'D-P',diningX,diningY,'light',colours.proposed,false,15,-11,['Dining','pendant']);
 add('D-P','Dining pendant','Offset TBC',{'Centre':'Table centre','Move':'Horizontal only'},'Bench back against Bath 2 wall. Measure the canopy-to-centre offset before ordering the adaptor.',diningX,diningY);
-const kl=source(625,1144);
-track('K-TK',[[kl[0]-62,kl[1]],[kl[0]+62,kl[1]]],[[kl[0]-47,kl[1]],[kl[0]+6,kl[1]],[kl[0]+47,kl[1]]],'Kitchen track',{'Length target':'~1600 mm','Feed':'Direct at K-L2'},'Use the rated feed adaptor at the existing point. Aim two heads at the kitchen cabinets and the middle head at the prep/island top.',[kl[0]+61,kl[1]-15]);
 studyLine([[394,887],[446,887]]);
 marker(groups.lighting,'K-LED',423,887,'light',colours.proposed,false,-9,25,['Sink light strip']);
 add('K-LED','Sink task LED','Detail TBC',{'Position':'Under upper cabinet','Length / driver':'Confirm'},'Keep the driver accessible.',423,887);
@@ -216,9 +214,6 @@ const b2StandingX=416+1620/2865*221,b2StandingY=233+1740/2517*202;
 el('ellipse',{cx:b2StandingX,cy:b2StandingY,rx:155/2865*221,ry:155/2517*202,fill:'#fff',stroke:colours.proposed,'stroke-width':1.5,'data-standing-fan':'B2'},groups.furniture);
 marker(groups.lighting,'B2-CIRCULATOR',b2StandingX,b2StandingY,'fan',colours.proposed,false,17,-13,['Standing','circulator']);
 add('B2-CIRCULATOR','Bedroom 2 standing circulator','Confirmed layout / placement adjustable',{'Type':'Xiaomi plug-in standing air circulator','Reference body':'326 × 310 × 886 mm','Power':'Original entry-wall socket'},'Place near the 360 mm clear wall strip, forward into the room as needed. Keep the socket, cupboard doors and room entry usable. No ceiling fan or hook relocation.',b2StandingX,b2StandingY);
-// Proposed track is anchored to the exact registered window-side supply.
-const b2Light=source(827,362),b2Half=800/(2865/(637-416)),b2Head=650/(2865/(637-416));
-track('B2-TRACK',[[b2Light[0]-b2Half,b2Light[1]],[b2Light[0]+b2Half,b2Light[1]]],[[b2Light[0]-b2Head,b2Light[1]],[b2Light[0]+b2Head,b2Light[1]]],'Bedroom 2 diffuse track',{'Length target':'1600 mm','Feed':'Original window-side light point'},'Transverse rail at original supply over the window-facing desk; two broad diffuse modules. Verify original circuit and light output on site.',[b2Light[0]+b2Half,b2Light[1]-16]);
 const b3=source(985,895);
 el('ellipse',{cx:b3[0],cy:b3[1],rx:419/(2865/(755-534)),ry:419/(2450/(725-535)),fill:'none',stroke:colours.proposed,'stroke-width':1.4,'stroke-dasharray':'5 4','data-fan':'B3'},groups.lighting);
 text(groups.lighting,b3[0],b3[1]-25,'33 inches','point-label');
@@ -239,8 +234,8 @@ const ledgeLabel=text(groups.labels,603,852,['AIR-CONDITIONER','LEDGE'],'room-la
 
 
 function fullTerms(s){
- const references={'F-L1':'original entry light point','L-L1':'original living track supply','L-L2':'original living ceiling-light point','D-L1':'original dining light point','K-L2':'original kitchen light point','H-L1':'original hallway light supply','M-L2':'original master light point','B2-L1':'first original bedroom 2 light point','B2-L2':'second original bedroom 2 light point','B3-L1':'bedroom 3 ceiling light 1','B3-L2':'bedroom 3 ceiling light 2'};
- return String(s).replace(/F-L1|L-L[12]|D-L1|K-L2|H-L1|M-L2|B2-L[12]|B3-L[12]/g,m=>references[m]).replace(/\bTBC\b/g,'to confirm').replace(/\bB2\b/g,'Bedroom 2').replace(/\bB3\b/g,'Bedroom 3').replace(/\bBath ([12])\b/g,'Bathroom $1').replace(/\bL-track\b/g,'L-shaped track').replace(/\bLED\b/g,'light strip').replace(/\bWC\b/g,'toilet').replace(/\bAC\b/g,'air-conditioner').replace(/\bin\s*\//g,'inches /');
+ const references={'F-L1':'original entry light point','L-L1':'original living track supply','L-L2':'original living ceiling-light point','D-L1':'original dining light point','K-L2':'original kitchen light point','H-L1':'original hallway light supply','M-L2':'original master light point','B2-F':'original bedroom 2 fan provision','B2-L1':'first original bedroom 2 light point','B2-L2':'second original bedroom 2 light point','B3-L1':'bedroom 3 ceiling light 1','B3-L2':'bedroom 3 ceiling light 2'};
+ return String(s).replace(/F-L1|L-L[12]|D-L1|K-L2|H-L1|M-L2|B2-F|B2-L[12]|B3-L[12]/g,m=>references[m]).replace(/\bTBC\b/g,'to confirm').replace(/\bB2\b/g,'Bedroom 2').replace(/\bB3\b/g,'Bedroom 3').replace(/\bBath ([12])\b/g,'Bathroom $1').replace(/\bL-track\b/g,'L-shaped track').replace(/\bLED\b/g,'light strip').replace(/\bWC\b/g,'toilet').replace(/\bAC\b/g,'air-conditioner').replace(/\bin\s*\//g,'inches /');
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function select(id){

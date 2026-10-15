@@ -1,4 +1,4 @@
-import {CABINETS as CABINET_SPECS,CABINET_REVISION} from './cabinet-data.js?v=20261015-controls-r1';
+import {CABINETS as CABINET_SPECS,CABINET_REVISION} from './cabinet-data.js?v=20261015-ceiling-r1';
 const $ = s => document.querySelector(s);
 const state = { view:'wet', layout:'quoted', rice:'stored', oven:'bay', inside:false, selected:'hob' };
 const C = { ink:'#34443e', dim:'#a7613d', ref:'#7d8983', line:'#6a7770', upper:'#d2d3ce', base:'#60615d', wood:'#a2a49b', stone:'#eeeee7', open:'#f5f5ed', accent:'#e7eee1', orange:'#ba7851' };
