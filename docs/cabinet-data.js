@@ -1,5 +1,5 @@
 // Millimetres. Current 2D cabinet targets, not fabrication dimensions.
-export const CABINET_REVISION='2026-10-15-cabinets-r4';
+export const CABINET_REVISION='2026-10-15-cabinets-r5';
 export const CABINETS={
  wet:{width:2065,depth:650,worktop:900,stone:20,plinth:100,modules:[50,775,230,960,50],frontOrder:['filler','sink','sauce','hob','filler'],upper:[600,405,960],upperDepth:350,dailyBottom:1450,loftBottom:2200,top:2820,hood:{model:'VATTI V997',width:896,depth:360,bodyHeight:421,overallHeight:908,chimneyWidth:420,bottom:1200,opening:924,requiredOpening:910},sink:{width:600,depth:450,centre:437.5},hob:{width:600,depth:430,centre:1535},notes:'2065 source run versus 2134 quoted: site reconciliation. Recirculation fittings / hood return-air route pending.'},
  prep:{width:1372,depth:762,worktop:900,stone:20,plinth:100,modules:[600,772],drawers:[350,270,160],ovenBay:{width:736,height:406,depth:726,model:null},riceBay:{height:320,storageOnly:true},divider:18,rearFinish:'continuous light warm grey',notes:'Continuous light warm-grey dining-facing rear; woodgrain inside appliance recess only. Upper appliance bay is a position reservation only; no oven selected or approved for operation. Rice cooker removed to worktop for use.'},

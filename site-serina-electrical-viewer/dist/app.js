@@ -1,14 +1,14 @@
 import * as THREE from 'three';
-import {createCabinetry} from './cabinetry.js?v=20261015-cabinets-r4';
+import {createCabinetry} from './cabinetry.js?v=20261015-cabinets-r5';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
 import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261013-r13';
-import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261015-cabinets-r4';
+import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261015-cabinets-r5';
 
 import {createTileReflection} from './floor-reflection.js?v=20261013-r13';
 import {LIGHT_COLOUR, roomViewingMatrix} from './light-colour.js?v=20261013-r13';
-import {createWindowDaylight} from './window-daylight.js?v=20261015-cabinets-r4';
+import {createWindowDaylight} from './window-daylight.js?v=20261015-cabinets-r5';
 
 RectAreaLightUniformsLib.init();
 
@@ -780,7 +780,7 @@ function syncEnvironment(){
  // calculation is used for every CCT: no fixed 4000 K white or per-CCT filter.
  const roomWindowNames={common:['Living','Kitchen via yard window'],hall:['Living'],master:['Master'],b2:['Bedroom 2'],b3:['Bedroom 3'],bath1:['Bath 1'],bath2:['Bath 2'],yard:['Yard']};
  const names=roomWindowNames[currentInsideRoom]||roomWindowNames.common;
- const skyWeight=daylight?windowDaylight.windows.filter(w=>names.includes(w.name)).reduce((v,w)=>v+w.width*w.height*w.transmission*.55,0):0;
+ const skyWeight=daylight?windowDaylight.windows.filter(w=>names.includes(w.name)).reduce((v,w)=>v+w.width*w.height*w.transmission*(w.previewGain??1)*.55,0):0;
  const mixed=new THREE.Vector3(skyWeight,skyWeight,skyWeight);let weight=skyWeight;
  for(const c of lit){const zone=zoneFor[c.room]??0;const energy=(c.kind==='ceiling'?.72:c.kind==='track'?.52:c.kind==='pendant'?.42:c.kind==='floorLamp'?.26:.30)*scales[zone]*.5*electricScale;mixed.addScaledVector(new THREE.Vector3(...colourForRoom(c.room).toArray()),energy);weight+=energy;}
  viewingIlluminantRGB=weight>0?mixed.divideScalar(weight).toArray():[1,1,1];

@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-15-cabinets-r4';
+export const DESIGN_REVISION = '2026-10-15-cabinets-r5';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},

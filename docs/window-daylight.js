@@ -8,7 +8,8 @@ export const WINDOWS = [
  // Light-filtering roller-blind preview; actual fabric transmission is unmeasured.
  {name:'Bedroom 2',centre:[4.85,1.515,-9.065],width:2.145,height:1.54,bounds:[3.245,6.29,-9.06,-6.353],axis:0,inward:1,transmission:.48},
  {name:'Master',centre:[7.975,1.515,-9.065],width:2.245,height:1.54,bounds:[6.29,9.65,-9.06,-5.20],axis:0,inward:1,transmission:.57},
- {name:'Bedroom 3',centre:[7.155,1.695,-2.585],width:1.05,height:1.14,bounds:[4.775,7.82,-5.20,-2.59],axis:0,inward:-1,transmission:.90},
+ // Owner confirms this is the weakest-daylight room; shaded-window preview gain is illustrative.
+ {name:'Bedroom 3',previewGain:.40,centre:[7.155,1.695,-2.585],width:1.05,height:1.14,bounds:[4.775,7.82,-5.20,-2.59],axis:0,inward:-1,transmission:.90},
  {name:'Bath 1',centre:[8.355,1.85,-2.585],width:.49,height:.54,bounds:[7.82,9.65,-5.20,-2.59],axis:0,inward:-1,transmission:.52},
  {name:'Bath 2',centre:[4.425,1.85,-2.585],width:.49,height:.54,bounds:[3.245,4.775,-5.20,-2.59],axis:0,inward:-1,transmission:.52},
  {name:'Yard',centre:[5.395,1.42,-1.80],width:1.52,height:2.40,bounds:[4.04,5.37,-2.60,-.08],axis:1,inward:-1,transmission:.50},
@@ -30,7 +31,7 @@ export function createWindowDaylight(scene){
  const strength={value:0},skyDay={value:1};
  const centres={value:WINDOWS.map(w=>new THREE.Vector4(...w.centre,w.width))};
  const extents={value:WINDOWS.map(w=>new THREE.Vector4(...w.bounds))};
- const specs={value:WINDOWS.map(w=>new THREE.Vector4(w.height,w.axis,w.inward,w.transmission))};
+ const specs={value:WINDOWS.map(w=>new THREE.Vector4(w.height,w.axis,w.inward,w.transmission*(w.previewGain??1)))};
  const bounceBounds={value:BOUNCE_ZONES.map(z=>new THREE.Vector4(...z.bounds))};
  const bounceColours={value:BOUNCE_ZONES.map(()=>new THREE.Vector3())};
  const bounceEnabled={value:0};
