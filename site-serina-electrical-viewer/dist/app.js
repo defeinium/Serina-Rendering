@@ -1,14 +1,14 @@
 import * as THREE from 'three';
-import {createCabinetry} from './cabinetry.js?v=20261015-cabinets-r1';
+import {createCabinetry} from './cabinetry.js?v=20261015-cabinets-r2';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
 import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261013-r13';
-import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261015-cabinets-r1';
+import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261015-cabinets-r2';
 
 import {createTileReflection} from './floor-reflection.js?v=20261013-r13';
 import {LIGHT_COLOUR, roomViewingMatrix} from './light-colour.js?v=20261013-r13';
-import {createWindowDaylight} from './window-daylight.js?v=20261014-b2-window-desk';
+import {createWindowDaylight} from './window-daylight.js?v=20261015-cabinets-r2';
 
 RectAreaLightUniformsLib.init();
 
@@ -493,7 +493,7 @@ let bounceBudget={maxIrradiance:3.6,totals:Array(8).fill(0),scales:Array(8).fill
 const windowDaylight=createWindowDaylight(scene);
 const tileReflection=createTileReflection(scene,isMobile);
 const daylightFabrics=new Map();
-interior.traverse(m=>{if(m.isMesh&&/white sheer|linen-look dimout fabric/.test(m.name))daylightFabrics.set(m.material,/dimout/.test(m.name)?.12:.65)});
+interior.traverse(m=>{if(m.isMesh&&/white sheer|linen-look dimout fabric/.test(m.name))daylightFabrics.set(m.material,/dimout/.test(m.name)?.36:.65)});
 const indoorCeiling=new THREE.Group();indoorCeiling.name='Original ceilings and retained existing plaster';indoorCeiling.visible=false;scene.add(indoorCeiling);
 const ceilingMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,side:THREE.DoubleSide});
 function ceilingPlane(name,outline,bottom,holes=[]){
@@ -1046,6 +1046,9 @@ for(const mat of viewingMaterials){
  mat.customProgramCacheKey=()=> 'serina-bounded-room-colour-v10';mat.needsUpdate=true;
 }
 daylight=initialParams.get('daylight')!=='0';
+// Start in natural daylight with every electric circuit off. Explicit night links retain their lit preview.
+for(const circuit of lightCircuits)circuit.on=!daylight;
+renderLightSwitches();
 commonKelvin=[3000,3500,4000].includes(Number(initialParams.get('cct')))?Number(initialParams.get('cct')):3500;
 document.querySelectorAll('[data-cct]').forEach(b=>{const on=Number(b.dataset.cct)===commonKelvin;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
 function setCabinetsOpen(open){
@@ -1059,7 +1062,7 @@ if(initialParams.get('cabinetview')==='inside')setCabinetsOpen(true);
 const canonicalUrl=new URL(location.href);canonicalUrl.searchParams.delete('scheme');history.replaceState(null,'',canonicalUrl);
 document.querySelector('#ceilingNote').textContent=AGREED_SCOPE.ceiling;
 const facts=document.querySelector('#designFacts');
-const factRows=[['Lighting','15 installation groups + sink strip'],['Fans','Living + Bedroom 3 ceiling fans; Bedroom 2 plug-in standing circulator'],['Air conditioning','Four existing doorway-side provisions; illustrative indoor units'],['Master','One dimmable ceiling light; no fan or curtain box'],['Wardrobes','B2: left adjustable shelves / fin space; right hanging above ONE broad drawer. B3: three broad drawers LEFT, double hanging RIGHT. Separate lofts; no niches or cabinet lights.'],['Overview','Selected walls retain Summer Snow 1928 as low solid cutaways; other walls stay translucent.'],['Finishes',AGREED_SCOPE.wallPaint+'. Matt-white ceilings; existing glossy tile and warm pale oak bedroom floor retained.'],['Curtains',AGREED_SCOPE.windowTreatments],['Kitchen',AGREED_SCOPE.kitchen+' Current shell gives about948 mm aisle versus1038 mm in the source-based study; measure the real finished faces before fabrication.'],['Yard',AGREED_SCOPE.yard],['Appliances',AGREED_SCOPE.appliances]];
+const factRows=[['Lighting','15 installation groups + sink strip'],['Fans','Living + Bedroom 3 ceiling fans; Bedroom 2 plug-in standing circulator'],['Air conditioning','Four existing doorway-side provisions; illustrative indoor units'],['Master','One dimmable ceiling light; no fan or curtain box'],['Wardrobes','B2: left adjustable shelves / fin space; right hanging above ONE broad drawer. B3: three external drawers LEFT, double hanging RIGHT. Separate lofts; no niches or cabinet lights.'],['Overview','Selected walls retain Summer Snow 1928 as low solid cutaways; other walls stay translucent.'],['Finishes',AGREED_SCOPE.wallPaint+'. Matt-white ceilings; existing glossy tile and warm pale oak bedroom floor retained.'],['Curtains',AGREED_SCOPE.windowTreatments],['Kitchen',AGREED_SCOPE.kitchen+' Current shell gives about948 mm aisle versus1038 mm in the source-based study; measure the real finished faces before fabrication.'],['Yard',AGREED_SCOPE.yard],['Appliances',AGREED_SCOPE.appliances]];
 for(const [label,value] of factRows){const row=document.createElement('div');row.className='design-fact';const title=document.createElement('strong');title.textContent=label;const detail=document.createElement('span');detail.textContent=value;row.append(title,detail);facts.append(row);}
 const pending=document.createElement('p');pending.className='note';pending.textContent='Pending: '+AGREED_SCOPE.pending.slice(0,4).join(' · ');facts.append(pending);
 syncLights();syncEnvironment();

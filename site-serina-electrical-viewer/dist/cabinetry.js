@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
-import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261015-cabinets-r1';
+import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261015-cabinets-r2';
 
 export function createCabinetry({parent,mats,greyAshMat}){
  const root=new THREE.Group();root.name='Current coordinated cabinetry';parent.add(root);
@@ -18,20 +18,20 @@ export function createCabinetry({parent,mats,greyAshMat}){
  }
  function shell(r,x,w,depth,bottom,top,mat=f){piece(r,'shell','left side',x,0,bottom,18,depth,top-bottom,mat);piece(r,'shell','right side',x+w-18,0,bottom,18,depth,top-bottom,mat);piece(r,'shell','back',x+18,depth-9,bottom,w-36,9,top-bottom,mat);piece(r,'shell','bottom',x+18,0,bottom,w-36,depth-9,18,mat);piece(r,'shell','top',x+18,0,top-18,w-36,depth-9,18,mat);}
  function shelf(r,x,w,z,depth,mat=f){piece(r,'inside','adjustable / fixed shelf',x,50,z-18,w,depth-59,18,mat);}
- function door(r,x,w,bottom,top,mat,handle=true){piece(r,'fronts','hinged door',x+2,0,bottom+2,w-4,18,top-bottom-4,mat);if(handle)piece(r,'fronts','slim door pull',x+w-54,-10,Math.max(bottom+70,Math.min(1070,top-200)),8,10,160,mats.metal);}
- function drawer(r,x,w,bottom,height,runner,label,frontMat=f,external=false){
+ function door(r,x,w,bottom,top,mat,handle=true,name='hinged door',depth=0){piece(r,'fronts',name,x+2,depth,bottom+2,w-4,18,top-bottom-4,mat);if(handle)piece(r,'fronts','slim door pull',x+w-54,depth-10,Math.max(bottom+70,Math.min(1070,top-200)),8,10,160,mats.metal);}
+ function drawer(r,x,w,bottom,height,runner,label,frontMat=f,external=false,externalSpan=null){
   r.drawers.push({label,x,width:w,bottom,height,runner,external});
-  piece(r,external?'fronts':'inside',label+' drawer front',external?x-16:x,external?0:35,bottom,external?w+32:w,18,height-3,frontMat);
-  piece(r,'inside',label+' drawer base',x+12,55,bottom+12,w-24,runner-12,12,f);
-  for(const xx of [x+12,x+w-24])piece(r,'inside',label+' drawer side',xx,55,bottom+24,12,runner-12,Math.max(45,height-60),f);
-  piece(r,'inside',label+' drawer back',x+24,55+runner-24,bottom+24,w-48,12,Math.max(45,height-60),f);
-  if(external)piece(r,'inside',label+' internal cutaway front',x,35,bottom,w,18,height-3,frontMat);
+  piece(r,external?'fronts':'inside',label+' drawer front',external?(externalSpan?.x??x-16):x,external?0:35,bottom,external?(externalSpan?.width??w+32):w,18,height-3,frontMat);
+  piece(r,'inside',label+' drawer base',x+12,55,bottom+24,w-24,runner-12,12,f);
+  for(const xx of [x+12,x+w-24])piece(r,'inside',label+' drawer side',xx,55,bottom+36,12,runner-12,Math.max(45,height-60),f);
+  piece(r,'inside',label+' drawer back',x+24,55+runner-24,bottom+36,w-48,12,Math.max(45,height-60),f);
+  if(external)piece(r,'inside',label+' drawer box front',x+24,55,bottom+36,w-48,12,Math.max(45,height-60),f);
   piece(r,external?'fronts':'inside',label+' drawer pull',x+w*.25,external?-5:29,bottom+height-28,w*.5,6,5,mats.metal);
  }
  function rail(r,x,w,z){piece(r,'inside','hanging rail',x,295,z-11,w,22,22,rack);}
  function clothes(r,x,w,z,drop=760){rail(r,x,w,z);for(let i=0;i<4;i++){const cx=x+110+i*(w-220)/3;piece(r,'inside','illustrative hanger hook',cx-2,290,z-55,4,8,55,rack);piece(r,'inside','illustrative folded clothes',cx-55,260,z-drop,110,80,drop-100,fabric);piece(r,'inside','illustrative clothes shoulder',cx-88,260,z-145,176,80,45,fabric);}}
  function scribe(r,w,depth,top,mat){piece(r,'shell','ceiling scribe',0,0,top,w,depth,30,mat);}
- function loft(r,modules,depth,split,top,mat,sliding=false){let x=0;for(const w of modules){shelf(r,x+18,w-36,split,depth);x+=w;}if(sliding){for(let i=0;i<2;i++)piece(r,'fronts','sliding loft panel',i*(r.spec.width/2),i?11:0,split,r.spec.width/2,18,top-split-3,mat);}else{for(let i=0;i<r.spec.doors;i++){const w=r.spec.width/r.spec.doors;door(r,i*w,w,split,top,mat,false);}}}
+ function loft(r,modules,depth,split,top,mat){let x=0;for(const w of modules){shelf(r,x+18,w-36,split,depth);x+=w;}for(let i=0;i<r.spec.doors;i++){const w=r.spec.width/r.spec.doors;door(r,i*w,w,split,top,mat,false,'hinged loft door');}}
  // B2: front-facing left is at the entry-side end. Local x increases westward.
  {const r=cabinet('b2','B2 1440 three-door multipurpose cabinet',[4.775,7.033],Math.PI),s=S.b2;
   shell(r,0,480,600,100,2820,mats.wardrobeCab);shell(r,480,960,600,100,2820,mats.wardrobeCab);scribe(r,s.width,600,2820,mats.wardrobeCab);
@@ -49,17 +49,26 @@ export function createCabinetry({parent,mats,greyAshMat}){
  {const r=cabinet('b3','B3 1829 four-door wardrobe',[5.911,4.52],0),s=S.b3;
   shell(r,0,914.5,600,100,2820,mats.wardrobeCab);shell(r,914.5,914.5,600,100,2820,mats.wardrobeCab);scribe(r,s.width,600,2820,mats.wardrobeCab);
   piece(r,'shell','B3 recessed plinth',20,35,20,1789,540,80,mats.graphite);
-  for(let i=0;i<4;i++)door(r,i*457.25,457.25,100,2260,mats.wardrobeCab);
-  loft(r,s.modules,600,2260,2820,mats.wardrobeCab,true);clothes(r,38,838.5,2050);clothes(r,952.5,838.5,2050);clothes(r,952.5,838.5,1050);
-  shelf(r,18,878.5,968,600);let z=100;for(const [height,label]of [[350,'B3 bed linen'],[280,'B3 towels'],[220,'B3 underwear / socks']]){drawer(r,43,828.5,z,height,450,label,mats.wardrobeCab);z+=height;}
+  for(let i=0;i<4;i++)door(r,i*457.25,457.25,i<2?s.leftDoorBottom:100,2260,mats.wardrobeCab);
+  loft(r,s.modules,600,2260,2820,mats.wardrobeCab);clothes(r,38,838.5,2050);clothes(r,952.5,838.5,2050);clothes(r,952.5,838.5,1050);
+  shelf(r,18,878.5,968,600);let z=100;for(const [height,label]of [[350,'B3 bed linen'],[280,'B3 towels'],[220,'B3 underwear / socks']]){drawer(r,43,828.5,z,height,450,label,mats.wardrobeCab,true,{x:2,width:910.5});z+=height;}
   piece(r,'inside','illustrative suitcase stored flat',65,80,2278,700,450,280,mats.graphite);
  }
  {const r=cabinet('wet','Kitchen wet run 2065',[3.954,.81],Math.PI),s=S.wet;
   let x=50;for(const w of [775,230,960]){shell(r,x,w,650,100,880,mats.cabinet);x+=w;}
+  for(const xx of [0,2015]){piece(r,'fronts','base end filler',xx,0,100,50,18,780,mats.cabinet);piece(r,'fronts','upper end filler',xx,300,1450,50,18,1370,mats.lightCab);}
   piece(r,'shell','kitchen recessed plinth',50,50,0,1965,560,100,mats.graphite);
   for(const [x,w]of [[50,387.5],[437.5,387.5]])door(r,x,w,100,880,mats.cabinet);
-  drawer(r,843,194,100,780,500,'230 sauce pull-out',mats.cabinet,true);
-  for(const z of [310,540,770])shelf(r,843,194,z,580);
+  // A pull-out wire rack, not a 780 mm-tall solid drawer box with fixed shelves.
+  r.drawers.push({label:'230 sauce pull-out',x:843,width:194,bottom:100,height:780,runner:500,external:true});
+  piece(r,'fronts','sauce rack external front',827,0,102,226,18,776,mats.cabinet);
+  piece(r,'fronts','sauce rack pull',997,-10,590,8,10,160,mats.metal);
+  for(const z of [138,370,602]){
+   piece(r,'inside','sauce rack removable tray',851,55,z,178,495,8,rack);
+   for(const xx of [851,1025])piece(r,'inside','sauce rack tray guard',xx,55,z+8,4,495,48,rack);
+   for(const dd of [55,546])piece(r,'inside','sauce rack tray guard',851,dd,z+8,178,4,48,rack);
+  }
+  for(const xx of [851,1025])piece(r,'inside','sauce rack upright',xx,535,146,4,4,510,rack);
   piece(r,'fronts','hob top ventilation / service panel',1057,-18,760,956,18,118,mats.cabinet);
   drawer(r,1073,924,100,330,450,'hob cookware lower',mats.cabinet,true);drawer(r,1073,924,430,330,450,'hob cookware upper',mats.cabinet,true);
   // Stone surrounds a real opening at the sink, rather than covering its bowl.
@@ -76,13 +85,10 @@ export function createCabinetry({parent,mats,greyAshMat}){
    // Shift complete uppers back 300 mm relative to the 650 mm base front.
    for(const m of r.groups.shell.children.slice(-5))m.position.z-=.30;for(const info of r.pieces.slice(-5))info.box[1]+=300;
    piece(r,'shell','upper loft shelf',start+18,300,2182,w-36,341,18,mats.lightCab);
-   if(start===1055){door(r,start,480,1621,2200,mats.lightCab);door(r,start+480,480,1621,2200,mats.lightCab);}
-   else door(r,start,w,1450,2200,mats.lightCab);
-   door(r,start,w,2200,2820,mats.lightCab,false);
-   // Door helpers default to the base face; place these at the upper face.
+   if(start===1055){door(r,start,480,1621,2200,mats.lightCab,true,'hinged upper door',300);door(r,start+480,480,1621,2200,mats.lightCab,true,'hinged upper door',300);}
+   else door(r,start,w,1450,2200,mats.lightCab,true,'hinged upper door',300);
+   door(r,start,w,2200,2820,mats.lightCab,false,'hinged upper loft door',300);
   }
-  // Reposition every upper front (heights >=1450) to d=300 mm.
-  for(const m of r.groups.fronts.children)if(m.position.y-m.geometry.parameters.height/2>=1.45-1e-6)m.position.z-=.30;
   piece(r,'shell','wet upper ceiling scribe',0,300,2820,2065,350,30,mats.lightCab);
   for(const z of [1620,1900]){piece(r,'inside','dish drainer removable rack',80,320,z,540,275,8,rack);for(let i=0;i<7;i++)piece(r,'inside','drainer divider',100+i*65,320,z+8,4,250,70,rack);}
   piece(r,'inside','dish drainer removable drip tray',80,320,1470,540,275,20,rack);
@@ -92,10 +98,19 @@ export function createCabinetry({parent,mats,greyAshMat}){
   const glass=piece(r,'always','V997 sloping intake glass',hoodX+43,277,1300,810,20,220,dark);glass.rotation.x=-.15;
   piece(r,'inside','V997 420W chimney',1325,420,1621,420,210,487,mats.graphite);
   for(let i=0;i<3;i++)piece(r,'always','recirculation return grille indication',1095,280,2155+i*12,880,8,5,dark);
+  piece(r,'inside','sink schematic waste tailpipe',425,285,570,30,30,110,mats.ceramic);
+  piece(r,'inside','sink schematic trap vertical',425,285,450,30,30,120,mats.ceramic);
+  piece(r,'inside','sink schematic waste trap return',425,285,450,160,30,30,mats.ceramic);
+  piece(r,'inside','sink schematic wall waste connection',555,315,450,30,319,30,mats.ceramic);
   piece(r,'inside','LG ATOM-U reference envelope',110,150,118,170,410,420,mats.ceramic);
  }
  {const r=cabinet('prep','Preparation base 1372 half-open',[1.820,1.758],0),s=S.prep;
-  shell(r,0,600,762,100,880,mats.islandCabinet);shell(r,600,772,762,100,880,greyAshMat);
+  shell(r,0,600,753,100,880,mats.islandCabinet);shell(r,600,772,753,100,880,greyAshMat);
+  // The dining-facing rear is one warm-grey finish; woodgrain belongs inside the appliance recess.
+  for(const mesh of [...r.groups.shell.children])if(mesh.name==='back'){mesh.removeFromParent();mesh.geometry.dispose();}
+  r.pieces=r.pieces.filter(p=>p.name!=='back');
+  piece(r,'shell','continuous light warm-grey dining-facing rear panel',0,753,100,1372,9,780,mats.islandCabinet);
+  piece(r,'shell','appliance recess inner wood lining',618,744,118,736,9,744,greyAshMat);
   piece(r,'shell','prep recessed plinth',20,45,0,1332,700,100,mats.graphite);
   piece(r,'shell','prep stone worktop',0,0,880,1372,762,20,mats.counter);
   let z=100;for(const [height,label]of [[350,'prep containers'],[270,'prep plates / bowls'],[160,'prep cutlery']]){drawer(r,18,564,z,height,450,label,mats.islandCabinet,true);z+=height;}
@@ -105,7 +120,6 @@ export function createCabinetry({parent,mats,greyAshMat}){
   const cooker=new THREE.Mesh(new THREE.CylinderGeometry(.15,.145,.25,28),mats.ceramic);cooker.name='Stored rice cooker illustrative 300W x300H';cooker.position.set(.815,.268,-.23);cooker.castShadow=true;cooker.receiveShadow=true;cooker.userData.cabinetPart=true;r.groups.always.add(cooker);
   piece(r,'always','stored cooker base',685,90,118,260,280,25,mats.ceramic);
   piece(r,'always','stored cooker closed lid',670,70,393,290,320,25,mats.ceramic);
-  piece(r,'shell','upper oven bay reserved back',618,753,456,736,9,406,greyAshMat);
  }
  {const r=cabinet('fridge','Fridge 762 full-height surround',[3.192,1.758],0),s=S.fridge;
   shell(r,0,762,762,0,2820,greyAshMat);scribe(r,762,762,2820,greyAshMat);
