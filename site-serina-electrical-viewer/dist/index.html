@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#f4f1e9" />
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="stylesheet" href="styles.css?v=20261015-cabinets-r5" />
+  <link rel="stylesheet" href="styles.css?v=20261015-controls-r1" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -17,6 +17,21 @@
       <div class="brand"><strong>SERINA</strong><span>Current renovation plan</span></div>
       <div class="plan-caveat">Current scope · 15 Oct 2026 · dimensions provisional</div>
     </header>
+
+    <div id="quickDrawer" class="quick-drawer">
+      <aside id="quickControls" class="quick-surface" aria-label="Spaces and quick controls" aria-hidden="true" inert>
+        <div class="quick-heading"><div><small>QUICK ACCESS</small><h2 id="quickCurrent">Spaces</h2></div><button type="button" data-quick-close aria-label="Close quick controls">×</button></div>
+        <div class="quick-scroll">
+          <section><h3>Space</h3><div id="quickSpaces" class="quick-grid" aria-label="Spaces"></div></section>
+          <section><h3>View</h3><div class="quick-segments"><button type="button" data-quick-action="plan">Plan</button><button type="button" data-quick-action="inside">Inside</button><button type="button" data-quick-action="overview">Overview</button></div></section>
+          <section><h3>Light</h3><div class="quick-segments"><button type="button" data-quick-action="day">Daylight</button><button type="button" data-quick-action="night">Night</button></div><div id="quickTemperature" class="quick-segments quick-temperature" role="group" aria-label="Common-area colour temperature"><button type="button" data-cct="3000">3000K</button><button type="button" data-cct="3500">3500K</button><button type="button" data-cct="4000">4000K</button></div><div class="quick-grid quick-secondary"><button type="button" data-quick-action="lights-on">Room lights on</button><button type="button" data-quick-action="lights-off">Room lights off</button><button type="button" data-quick-action="lights">Individual lights ↗</button><button type="button" data-quick-action="reset">Reset view</button></div></section>
+          <section><h3>Inspect</h3><div class="quick-grid"><button type="button" data-quick-action="cabinets" aria-pressed="false">Cabinet interiors</button><button type="button" data-quick-action="dimensions" aria-pressed="false">Dimensions</button></div></section>
+          <section><h3>More viewpoints</h3><div id="quickViewpoints" class="quick-grid"></div></section>
+        </div>
+        <div class="quick-footer">Drag the edge to close</div>
+      </aside>
+      <button id="quickGrip" class="quick-grip" type="button" aria-controls="quickControls" aria-expanded="false" aria-label="Open quick controls"><span class="quick-grip-lines" aria-hidden="true">⋮</span><span>Spaces</span><span aria-hidden="true">›</span></button>
+    </div>
 
     <div id="drawerScrim" class="drawer-scrim" hidden></div>
     <aside class="panel collapsed" aria-label="Planning details" aria-hidden="true">
@@ -29,7 +44,7 @@
         <button type="button" data-tab="points">Points</button>
         <button type="button" data-tab="measure">Measure</button>
       </nav>
-      <label class="drawer-room">SPACE <select id="drawerRoomSelect" aria-label="Select space for details"></select></label>
+      <div class="drawer-room"><button type="button" data-open-quick aria-controls="quickControls" aria-expanded="false">Space · <span id="quickDetailsSpace">Whole home</span> ↗</button><select id="drawerRoomSelect" aria-label="Select space for details"></select></div>
 
       <div id="tab-layout" class="tab-pane">
         <section><label>Current agreed design</label>
@@ -46,7 +61,7 @@
             <button id="cutaway" type="button">Wall cutaway</button>
           </div>
         </section>
-        <section><a class="brief-panel-link" href="site-plan.html">Open current 2D lights &amp; fans drawing ↗</a><a class="brief-panel-link" href="contractor.html">Open current contractor brief ↗</a><a class="brief-panel-link" href="measure.html?v=20261015-cabinets-r5">Open mobile site-measurement list ↗</a></section>
+        <section><a class="brief-panel-link" href="site-plan.html">Open current 2D lights &amp; fans drawing ↗</a><a class="brief-panel-link" href="contractor.html">Open current contractor brief ↗</a><a class="brief-panel-link" href="measure.html?v=20261015-controls-r1">Open mobile site-measurement list ↗</a></section>
       </div>
 
       <div id="tab-points" class="tab-pane" hidden>
@@ -59,7 +74,7 @@
 
       <div id="tab-measure" class="tab-pane" hidden>
         <p class="source-note"><b>Approximate model dimensions only.</b> Corner coordinates and wall runs come from the current plan model. Amber labels mark fixture targets; coloured spheres mark existing points. Measure finished wall faces, openings and every point centre before ordering or building.</p>
-        <a class="brief-panel-link" href="measure.html?v=20261015-cabinets-r5">Record actual dimensions on site ↗</a>
+        <a class="brief-panel-link" href="measure.html?v=20261015-controls-r1">Record actual dimensions on site ↗</a>
         <button id="measureToggle" type="button" class="measure-toggle" aria-pressed="false">Show dimensions on model</button>
         <div id="measurementContent"></div>
       </div>
@@ -68,7 +83,7 @@
 
     <aside id="lightPanel" class="light-panel" aria-label="Quick lighting controls" hidden>
       <div class="light-panel-head"><div><small>QUICK CONTROLS</small><strong>Lighting</strong></div><button id="lightPanelClose" type="button" aria-label="Close lighting controls">×</button></div>
-      <label class="light-room-picker">Area <select id="lightRoomSelect" aria-label="Select lighting area"></select></label>
+      <div class="light-room-picker"><button type="button" data-open-quick aria-controls="quickControls" aria-expanded="false">Area · <span id="quickLightingSpace">Common area</span> ↗</button><select id="lightRoomSelect" aria-label="Select lighting area"></select></div>
       <div class="light-compare"><button id="daylightToggle" class="daylight-toggle" type="button" aria-pressed="false">Daylight</button><button id="lightsAllOn" type="button">Room on</button><button id="lightsAllOff" type="button">Room off</button></div>
       <div id="temperatureCompare" class="temperature-compare" role="group" aria-label="Common-area colour temperature"><span>Common lights</span><button type="button" data-cct="3000" aria-pressed="false">3000K</button><button type="button" data-cct="3500" class="active" aria-pressed="true">3500K</button><button type="button" data-cct="4000" aria-pressed="false">4000K</button></div>
       <div id="quickLightSwitches" class="quick-light-switches"></div>
@@ -81,7 +96,7 @@
 
     <div class="controlbar" aria-label="Viewer controls">
     <nav class="dock" aria-label="Main viewer controls">
-      <div class="room-control"><label class="room-label" for="roomSelect">Room</label><select id="roomSelect" aria-label="Select room"></select><label class="inside-room-picker"><span id="cameraSpaceLabel">Space</span> <select id="insideRoom" aria-label="Choose standing space">
+      <div class="room-control"><button type="button" class="quick-space-button" data-open-quick aria-controls="quickControls" aria-expanded="false"><span aria-hidden="true">☰</span><span id="quickCurrentSpace">Whole home</span></button><label class="room-label" for="roomSelect">Room</label><select id="roomSelect" aria-label="Select room"></select><label class="inside-room-picker"><span id="cameraSpaceLabel">Space</span> <select id="insideRoom" aria-label="Choose standing space">
         <option value="overview">Whole-home overview</option><option value="common">Common area</option><option value="foyer">Outer foyer / shoe cabinet</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
       </select></label></div>
       <div class="dock-divider"></div>
@@ -105,6 +120,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=20261015-cabinets-r5"></script>
+  <script type="module" src="app.js?v=20261015-controls-r1"></script>
 </body>
 </html>

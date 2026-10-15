@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-15-cabinets-r5';
+export const DESIGN_REVISION = '2026-10-15-controls-r1';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
@@ -109,7 +109,7 @@ export const AGREED_SCOPE = {
  bedroomFloor:'Retain actual warm pale oak bedroom floors; inspection-photo colour approximation.',
  ceilingPaint:'Matt white · repaint scope to confirm',
  windowTreatments:'Living: full-height double fabric curtain, white sheer + grey-greige drape, exposed rail. Bedroom 2: linen-look dimout roller blind, softly translucent rather than blackout; physical fabric sample pending. Master: full-wall double curtain; no curtain boxes.',
- kitchen:'Grey woodgrain fridge; light non-yellow warm-grey prep and uppers; deep-grey lowers.',
+ kitchen:'Grey woodgrain fridge; light non-yellow warm-grey prep and uppers; neutral charcoal-grey lowers.',
  excluded:['New flat ceilings','Curtain boxes','Window / sofa cove strips','Wardrobe lighting','Yard exhaust fan','Hood coring / external ducting'],
  cabinetry:[
   ['Kitchen package','2134 mm quoted','2065 mm source target: sink775 + sauce230 + hob960 with50 end allowances. Upper600 drainer +405 pantry +960 hood; VATTI V997 body896 ×360 ×421. Quoted2134: site reconciliation required.'],
@@ -121,7 +121,7 @@ export const AGREED_SCOPE = {
   ['TV cabinet','2134 mm quoted','2134 ×360 ×320 low floor-standing graphite; three storage drawers and one ventilated equipment bay. Samsung The Frame Pro size / power route pending.'],
   ['Shoe cabinet','610 mm quoted','610 ×380 ×2700 body floated120 above floor; adjustable shoe shelves and160 high direct-access key drawer. Private foyer recess; fixings / drawer price to confirm.']
  ],
- yard:'Laundry at existing Bath 2-side water/drain; litter trays at dry end. PD door opens outward into Yard; retained partly open, no cat hole. Not a bifold door. No exhaust fan.',
+ yard:'Laundry at existing Bath 2-side water/drain; litter trays at dry end. Former kitchen louvre replaced by a closed-back niche opening into Yard, same finish as kitchen uppers; niche depth to site measure. Grey door frames and matching skirting follow actual-unit photos. PD door opens outward into Yard; retained partly open, no cat hole. Not a bifold door. No exhaust fan.',
  appliances:'VATTI V997 recirculating hood target; return-air kit pending. Induction hob independent. Combi oven not selected or approved for the reserved under-counter bay.',
  pending:['Living / Bedroom 3 fan models and manufacturer clearances','Bedroom 2 floor circulator placement and original window-side track supply','Dining pendant/adaptor and measured horizontal offset','Fixture sizes, heads, wattage and bathroom cut-outs','Cabinet shop drawings and board/stone samples','Final window-treatment purchase','All as-built dimensions']
 };

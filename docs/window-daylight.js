@@ -13,7 +13,9 @@ export const WINDOWS = [
  {name:'Bath 1',centre:[8.355,1.85,-2.585],width:.49,height:.54,bounds:[7.82,9.65,-5.20,-2.59],axis:0,inward:-1,transmission:.52},
  {name:'Bath 2',centre:[4.425,1.85,-2.585],width:.49,height:.54,bounds:[3.245,4.775,-5.20,-2.59],axis:0,inward:-1,transmission:.52},
  {name:'Yard',centre:[5.395,1.42,-1.80],width:1.52,height:2.40,bounds:[4.04,5.37,-2.60,-.08],axis:1,inward:-1,transmission:.50},
- {name:'Kitchen via yard window',centre:[4.055,1.52,-.62],width:.54,height:1.17,bounds:[1.715,4.13,-2.68,.08],axis:1,inward:-1,transmission:.35,exterior:false}
+ {name:'Kitchen via yard window',closedByNiche:true,centre:[4.055,1.52,-.62],width:.54,height:1.17,bounds:[1.715,4.13,-2.68,.08],axis:1,inward:-1,transmission:0,exterior:false},
+ // Borrowed daylight through the retained partly-open yard door, not through the closed niche.
+ {name:'Kitchen via open yard door',centre:[4.055,1.065,-1.45],width:.61,height:2.04,bounds:[1.715,4.13,-2.68,.08],axis:1,inward:-1,transmission:.22,exterior:false}
 ];
 
 export const BOUNCE_ZONES = [
@@ -86,6 +88,10 @@ export function createWindowDaylight(scene){
    // Multiple diffuse bounces fill the connected public area; rooms behind
    // solid partitions keep their own portals. Kitchen still has a local source.
    float bounce=i==0?.035+.11*exp(-depth/4.5):.08*exp(-depth/4.5);
+   // Diffuse return builds deeper into the open living/dining area. Keep the
+   // near-window direct term unchanged and retain surface orientation, rather
+   // than lifting global exposure or every room with an even grey fill.
+   if(i==0){float deepReturn=smoothstep(1.5,6.5,depth);bounce+=.075*deepReturn*(.45+.55*max(dot(n,direction),0.0));}
    // B2 / B3 pale walls provide diffuse return onto surfaces facing away from the window.
    // This room-local daylight proxy prevents the cabinet end from reading as a dark finish.
    if(i==1||i==3){float away=1.0-smoothstep(.05,.35,max(dot(n,direction),0.0));bounce+=(.12+.04*exp(-depth/4.5))*away;}
