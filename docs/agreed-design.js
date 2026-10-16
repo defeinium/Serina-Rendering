@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-15-living-yeelight-r1';
+export const DESIGN_REVISION = '2026-10-16-prep-curve-r1';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
@@ -111,7 +111,7 @@ export const AGREED_SCOPE = {
  cabinetry:[
   ['Kitchen package','2134 mm quoted','2065 mm source target: sink775 + sauce230 + hob960 with50 end allowances. Upper600 drainer +405 pantry +960 hood; VATTI V997 body896 ×360 ×421. Quoted2134: site reconciliation required.'],
   ['Fridge enclosure','762 mm quoted','Grey woodgrain to original ceiling; exact appliance clearances pending.'],
-  ['Prep cabinet','1372 × 762 mm quoted','600 mm serving drawers +772 mm half-open appliance bay. Upper406 / divider18 / lower320 mm clear. Rice cooker stored below; oven model / ventilation unresolved. Light warm grey.'],
+  ['Prep cabinet','1372 × 762 mm quoted','Cabinet1372 ×762; stone1382 ×782 mm. Two free-end corners: body R50 / stone R60;10 mm projection at three exposed edges, flush at fridge. 600 mm serving drawers +772 mm half-open appliance bay. Upper406 / divider18 / lower320 mm clear. Rice cooker stored below; oven model / ventilation unresolved. Light warm grey.'],
   ['Bedroom 2 storage','1440 × 600 mm target','Three main doors and separate loft, ceiling sealed; R40 exposed-end curve target, matching front finish. Approx. 360 mm original door-side wall stays clear for socket and switches. Facing cabinet: LEFT480 adjustable shelves / provisional1200 high fin space; RIGHT960 convertible hanging above ONE broad250 high drawer. No small drawer. Inside-door mirror on left. Chair must tuck for drawer access. Site dimensions pending.'],
   ['Bedroom 2 desk','1400 × 600 mm target','Faces the window; open below, dual 24-inch monitors on arms. Keep roughly 100 mm at the window in the source plan; chair tucks under desk for wardrobe access. Actual window swing, sockets and chair clearance to verify.'],
   ['Bedroom 3 wardrobe','1829 mm quoted','Full height; four main doors; no niche; R40 exposed-end curve target in matching front finish. Three broad external drawers LEFT (350 /280 /220 high), double hanging RIGHT. Aligned hinged main / loft doors split at2260 require real upper-door / fan clearance check; open drawer leaves approx375 to modelled bed.'],

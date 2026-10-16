@@ -1,4 +1,4 @@
-import {FIXTURES,FANS} from './agreed-design.js?v=20261015-living-yeelight-r1';
+import {FIXTURES,FANS} from './agreed-design.js?v=20261016-prep-curve-r1';
 const lights=FIXTURES.filter(f=>f.room==='客厅'&&f.kind==='ceiling'),fan=FANS.find(f=>f.id==='L-FAN');
 const x0=.17,y0=8.96,w=2.995,h=3.76,s=100,ox=90,oy=65;
 const p=([x,y])=>[ox+(x-x0)*s,oy+(y0-y)*s];

@@ -1,7 +1,8 @@
+import {freeEndProfile} from './prep-profile.js?v=20261016-prep-curve-r1';
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
-import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261015-living-yeelight-r1';
+import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261016-prep-curve-r1';
 
 export function createCabinetry({parent,mats,greyAshMat}){
  const root=new THREE.Group();root.name='Current coordinated cabinetry';parent.add(root);
@@ -51,6 +52,28 @@ export function createCabinetry({parent,mats,greyAshMat}){
   extruded('rounded first-bay top',outline(),r.spec.top-18,18,[0,0,r.spec.top-18,w*1000,d*1000,18]);
   extruded('rounded first-bay ceiling scribe',outline(),r.spec.top,r.spec.scribe,[0,0,r.spec.top,w*1000,d*1000,r.spec.scribe]);
   piece(r,'shell','remaining ceiling scribe',w*1000,0,r.spec.top,r.spec.width-w*1000,d*1000,r.spec.scribe,mat);
+ }
+ // Two true quarter circles at the free end. The fridge junction stays square.
+ function profileShape(p){const k=.001,{x0,d0,x1,d1,radius:R}=p,s=new THREE.Shape();s.moveTo((x0+R)*k,d0*k);s.lineTo(x1*k,d0*k);s.lineTo(x1*k,d1*k);s.lineTo((x0+R)*k,d1*k);s.absarc((x0+R)*k,(d1-R)*k,R*k,Math.PI/2,Math.PI,false);s.lineTo(x0*k,(d0+R)*k);s.absarc((x0+R)*k,(d0+R)*k,R*k,Math.PI,Math.PI*1.5,false);s.closePath();return s;}
+ function prepProfilePart(r,name,p,bottom,height,mat,ease=0){
+  const geo=new THREE.ExtrudeGeometry(profileShape(p),{depth:(height-2*ease)/1000,bevelEnabled:ease>0,bevelThickness:ease/1000,bevelSize:ease/1000,bevelSegments:2,curveSegments:32});geo.rotateX(-Math.PI/2);
+  const m=new THREE.Mesh(geo,mat);m.name=name;m.position.y=(bottom+ease)/1000;m.castShadow=true;m.receiveShadow=true;m.userData.cabinetPart=true;r.groups.shell.add(m);
+  r.pieces.push({name,state:'shell',box:[p.x0-ease,p.d0-ease,bottom,p.x1-p.x0+2*ease,p.d1-p.d0+2*ease,height],geometry:'two-quarter-rounds',radius:p.radius+ease,edgeEase:ease,profile:{...p},finish:mat.color.getHexString(THREE.SRGBColorSpace)});
+ }
+ function prepCurve(r,s){
+  // Replace the first bay's square end, top and base. Keep drawer boxes and the appliance bay.
+  for(const name of ['left side','bottom','top']){const mesh=r.groups.shell.children.find(m=>m.name===name);mesh.removeFromParent();mesh.geometry.dispose();r.pieces.splice(r.pieces.findIndex(p=>p.name===name),1);}
+  piece(r,'shell','prep free-end straight side',0,50,118,18,662,744,mats.islandCabinet);
+  const k=.001,R=s.exposedEndRadius*k,t=.018,d=s.depth*k;
+  for(const rear of [false,true]){
+   const shape=new THREE.Shape();if(!rear){shape.moveTo(0,R);shape.absarc(R,R,R,Math.PI,Math.PI*1.5,false);shape.lineTo(R,t);shape.absarc(R,R,R-t,Math.PI*1.5,Math.PI,true);}
+   else{shape.moveTo(R,d);shape.absarc(R,d-R,R,Math.PI/2,Math.PI,false);shape.lineTo(t,d-R);shape.absarc(R,d-R,R-t,Math.PI,Math.PI/2,true);}shape.closePath();
+   const geo=new THREE.ExtrudeGeometry(shape,{depth:.744,bevelEnabled:false,curveSegments:32});geo.rotateX(-Math.PI/2);const m=new THREE.Mesh(geo,mats.islandCabinet);m.name='prep R50 '+(rear?'dining':'kitchen')+' corner return';m.position.y=.118;m.castShadow=true;m.receiveShadow=true;m.userData.cabinetPart=true;r.groups.shell.add(m);
+   r.pieces.push({name:m.name,state:'shell',box:[0,rear?s.depth-50:0,118,50,50,744],geometry:'quarter-round-return',radius:50,thickness:18,finish:mats.islandCabinet.color.getHexString(THREE.SRGBColorSpace)});
+  }
+  prepProfilePart(r,'prep rounded drawer-bay base',freeEndProfile(600,s.depth,50),100,18,mats.islandCabinet);
+  prepProfilePart(r,'prep rounded drawer-bay top',freeEndProfile(600,s.depth,50),862,18,mats.islandCabinet);
+  prepProfilePart(r,'prep R60 stone worktop',freeEndProfile(s.width,s.depth,s.stoneRadius,s.stoneOverhang,s.stoneEdgeEase),880,s.stone,mats.counter,s.stoneEdgeEase);
  }
  function loft(r,modules,depth,split,top,mat){let x=0;for(const w of modules){shelf(r,x+18,w-36,split,depth);x+=w;}for(let i=0;i<r.spec.doors;i++){const w=r.spec.width/r.spec.doors;door(r,i*w,w,split,top,mat,false,'hinged loft door');}}
  // B2: front-facing left is at the entry-side end. Local x increases westward.
@@ -130,11 +153,11 @@ export function createCabinetry({parent,mats,greyAshMat}){
   // The dining-facing rear is one warm-grey finish; woodgrain belongs inside the appliance recess.
   for(const mesh of [...r.groups.shell.children])if(mesh.name==='back'){mesh.removeFromParent();mesh.geometry.dispose();}
   r.pieces=r.pieces.filter(p=>p.name!=='back');
-  piece(r,'shell','continuous light warm-grey dining-facing rear panel',0,753,100,1372,9,780,mats.islandCabinet);
+  piece(r,'shell','continuous light warm-grey dining-facing rear panel',50,753,100,1322,9,780,mats.islandCabinet);
   piece(r,'shell','appliance recess inner wood lining',618,744,118,736,9,744,greyAshMat);
-  piece(r,'shell','prep recessed plinth',20,45,0,1332,700,100,mats.graphite);
-  piece(r,'shell','prep stone worktop',0,0,880,1372,762,20,mats.counter);
-  let z=100;for(const [height,label]of [[350,'prep containers'],[270,'prep plates / bowls'],[160,'prep cutlery']]){drawer(r,18,564,z,height,450,label,mats.islandCabinet,true);z+=height;}
+  prepProfilePart(r,'prep rounded recessed plinth',{x0:20,d0:45,x1:1352,d1:745,radius:30},0,100,mats.graphite);
+  prepCurve(r,s);
+  let z=100;for(const [height,label]of [[350,'prep containers'],[270,'prep plates / bowls'],[160,'prep cutlery']]){drawer(r,18,564,z,height,450,label,mats.islandCabinet,true,{x:52,width:546});z+=height;}
   piece(r,'shell','appliance bay removable divider',618,0,438,736,753,18,greyAshMat);
   piece(r,'inside','oven position marker shelf (empty)',618,20,456,736,713,4,f);
   // Closed cooker only, parked in lower bay. No appliance is shown operating.
@@ -168,6 +191,6 @@ export function createCabinetry({parent,mats,greyAshMat}){
  function batch(g){g.updateMatrix();const bins=new Map();for(const m of [...g.children]){if(!m.isMesh||m.material.transparent)continue;m.updateMatrix();const geo=(m.geometry.index?m.geometry.toNonIndexed():m.geometry.clone()).applyMatrix4(m.matrix);const id=m.material.uuid;if(!bins.has(id))bins.set(id,{material:m.material,geos:[]});bins.get(id).geos.push(geo);m.removeFromParent();m.geometry.dispose();}for(const bin of bins.values()){const geo=mergeGeometries(bin.geos,false);const m=new THREE.Mesh(geo,bin.material);m.name=g.name+' material batch';m.userData.cabinetPart=true;m.castShadow=true;m.receiveShadow=true;g.add(m);for(const x of bin.geos)x.dispose();}}
  for(const r of records)for(const g of Object.values(r.groups))batch(g);
  function setOpen(on){opened=!!on;for(const r of records){r.groups.fronts.visible=!opened;r.groups.inside.visible=opened;}return opened;}
- function snapshot(){root.updateMatrixWorld(true);return {revision:CABINET_REVISION,open:opened,kitchenPlacement:{wetEnd:3.954,wetFront:.810,prepFront:1.758,backWallFace:2.520,modelAisle:948,sourcePlanAisle:1038,status:'Current model wall faces differ from the drawing-derived depth by90 mm; site reconciliation required.'},cabinets:records.map(r=>({id:r.id,label:r.label,spec:r.spec,origin:[r.group.position.x,-r.group.position.z],rotation:r.group.rotation.y,frontsVisible:r.groups.fronts.visible,insideVisible:r.groups.inside.visible,drawers:r.drawers,pieces:r.pieces,bounds:(()=>{const b=new THREE.Box3().setFromObject(r.group);return {min:b.min.toArray(),max:b.max.toArray()}})(),notes:r.spec.notes}))};}
+ function snapshot(){root.updateMatrixWorld(true);return {revision:CABINET_REVISION,open:opened,kitchenPlacement:{wetEnd:3.954,wetFront:.810,prepFront:1.758,backWallFace:2.520,modelAisle:938,sourcePlanAisle:1028,cabinetFaceAisle:948,stoneProjection:10,status:'Current model wall faces differ from the drawing-derived depth by90 mm; site reconciliation required.'},cabinets:records.map(r=>({id:r.id,label:r.label,spec:r.spec,origin:[r.group.position.x,-r.group.position.z],rotation:r.group.rotation.y,frontsVisible:r.groups.fronts.visible,insideVisible:r.groups.inside.visible,drawers:r.drawers,pieces:r.pieces,bounds:(()=>{const b=new THREE.Box3().setFromObject(r.group);return {min:b.min.toArray(),max:b.max.toArray()}})(),notes:r.spec.notes}))};}
  setOpen(false);return {root,setOpen,snapshot,footprints:()=>records.map(r=>{const old=r.groups.inside.visible;r.groups.inside.visible=false;const b=new THREE.Box3().setFromObject(r.group);r.groups.inside.visible=old;return {minX:b.min.x,maxX:b.max.x,minY:-b.max.z,maxY:-b.min.z,name:r.label};})};
 }

@@ -91,7 +91,13 @@ furniture('TABLE',tableEast-tableWidth,diningY-tableLength/2,tableWidth,tableLen
 furniture('BENCH',benchFront,diningY-(1550/commonMmPerPx)/2,benchWidth,1550/commonMmPerPx,'Dining bench','1550 × 430 target','Back against Bath 2 wall; tuck the two opposite chairs under the table.','Bench');
 for(const y of [diningY-47,diningY+19])el('rect',{x:tableEast-tableWidth-22,y,width:35,height:36,rx:5,fill:'#eef1eb',stroke:'#c2cbbe'},groups.furniture);
 furniture('KITCHEN',296,881,161,50,'Kitchen cabinets','2134 W quoted','7 ft package. Architectural run is labelled 2065 mm: Jason must confirm the actual finished run. Full-height upper; lower depth ~610 mm target. Sink task LED; filter hood.','Kitchen');
-furniture('PREP',291,741,107,60,'Prep cabinet','1372 × 762 quoted','2.5 × 4.5 ft; sintered-stone top. Light warm grey, no yellow undertone. Final height to confirm.','Prep');
+// Cabinet1372 ×762; stone10 mm out on free end/front/rear, flush at fridge.
+const prepContext=el('g',{'data-context':'PREP','data-body-radius':'50','data-stone-radius':'60'},groups.furniture);
+for(const [inset,R,fill,dash]of [[-10,60,'#eff2ec',''],[0,50,'none','3 2']]){
+ const sx=107/1372,sy=60/762,x=291+inset*sx,y=741+inset*sy,right=398,bottom=801-inset*sy,rx=R*sx,ry=R*sy;
+ el('path',{d:`M${x+rx},${y} H${right} V${bottom} H${x+rx} A${rx},${ry} 0 0 1 ${x},${bottom-ry} V${y+ry} A${rx},${ry} 0 0 1 ${x+rx},${y} Z`,fill,stroke:'#a8b4a4','stroke-width':.8,'stroke-dasharray':dash},prepContext);
+}
+el('title',{},prepContext).textContent='Prep body1372 ×762 / R50; stone1382 ×782 / R60;10 mm at exposed edges; flush at fridge.';
 furniture('FRIDGE',398,741,59,60,'Fridge cabinet','762 W quoted','Grey woodgrain. Depth, opening and ventilation depend on the actual fridge.','Fridge');
 // Window cabinet detail is not drawn as an invented standalone box.
 furniture('SHOE',259,886,27,48,'Shoe cabinet','610 W quoted','OUTSIDE the main door, in the foyer recess. Height, depth and suspended fixing to confirm.','');
