@@ -5,7 +5,7 @@ export function createQuickControls(api){
  const openers=[grip,...document.querySelectorAll('[data-open-quick]')];
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let opened=false,x=0,target=0,velocity=0,frame=0,last=0,drag=null,swallowedClick=false,returnFocus=grip,resumeLighting=false;
- const closedX=()=>-root.offsetWidth-12;
+ const closedX=()=>-root.offsetWidth-parseFloat(getComputedStyle(root).left)-12;
  x=target=closedX();
  function paint(){root.style.transform=`translate3d(${x}px,0,0)`}
  function tick(now){
@@ -55,13 +55,14 @@ export function createQuickControls(api){
  const roomHost=root.querySelector('#quickSpaces');
  const spaces=[['common','Common area'],['entry','Entry'],['kitchen','Kitchen'],['dining','Dining'],['living','Living room'],['hall','Hall'],['master','Master bedroom'],['b2','Bedroom 2'],['b3','Bedroom 3'],['bath1','Bath 1'],['bath2','Bath 2'],['yard','Yard']];
  const viewpoints=[['prep','Prep counter'],['foyer','Outer foyer'],['ledge','AC ledge']];
- function choosePlace(key){const lighting=resumeLighting||!!returnFocus.closest('#lightPanel');api.place(key);sync();if(lighting||matchMedia('(max-width:720px)').matches)setOpen(false)}
+ function choosePlace(key){api.place(key);sync();setOpen(false)}
  for(const [key,label]of spaces){const b=document.createElement('button');b.type='button';b.dataset.quickPlace=key;b.textContent=label;b.onclick=()=>choosePlace(key);roomHost.append(b)}
  for(const [key,label]of viewpoints){const b=document.createElement('button');b.type='button';b.dataset.quickPlace=key;b.textContent=label;b.onclick=()=>choosePlace(key);root.querySelector('#quickViewpoints').append(b)}
  for(const b of root.querySelectorAll('[data-quick-action]'))b.onclick=()=>{api.action(b.dataset.quickAction);sync()};
  function sync(){
   const s=api.state(),name=s.overview?'Whole home':s.label;
   document.querySelector('#quickCurrentSpace').textContent=name;
+  const launcher=document.querySelector('.side-launchers [data-open-quick]');launcher.setAttribute('aria-label',(opened?'Hide':'Show')+' spaces · '+name);
   document.querySelector('#quickLightingSpace').textContent=s.lightLabel;
   document.querySelector('#quickDetailsSpace').textContent=s.label;
   root.querySelector('#quickCurrent').textContent=name;
