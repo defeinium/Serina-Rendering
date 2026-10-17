@@ -16,14 +16,16 @@ export function createQuickControls(api){
   frame=requestAnimationFrame(tick);
  }
  function animate(){cancelAnimationFrame(frame);if(reduced.matches){x=target;velocity=0;frame=0;paint();return}last=performance.now();frame=requestAnimationFrame(tick)}
- function setOpen(on,{keyboard=false,source=grip}={}){
-  if(on&&!opened)resumeLighting=!!api.state().lightingOpen;
+ function setOpen(on,{keyboard=false,source=grip,restore=true}={}){
+  const restoreLights=!on&&opened&&resumeLighting&&restore;
+  if(on&&!opened&&panel.inert)resumeLighting=!!api.state().lightingOpen;
   opened=on;target=on?0:closedX();panel.inert=!on;panel.setAttribute('aria-hidden',String(!on));
   root.classList.toggle('is-open',on);openers.forEach(b=>b.setAttribute('aria-expanded',String(on)));
   grip.setAttribute('aria-label',on?'Close quick controls':'Open quick controls');
   if(on){returnFocus=source;api.beforeOpen();if(keyboard)panel.querySelector('button').focus({preventScroll:true})}
   else if(panel.contains(document.activeElement))(returnFocus.getClientRects().length?returnFocus:grip).focus({preventScroll:true});
   animate();
+  if(restoreLights){resumeLighting=false;api.openLights()}
  }
  for(const b of openers)b.addEventListener('click',e=>{if(swallowedClick){swallowedClick=false;return}setOpen(!opened,{keyboard:e.detail===0,source:b})});
  root.querySelector('[data-quick-close]').onclick=()=>setOpen(false);
@@ -33,7 +35,7 @@ export function createQuickControls(api){
   });
   el.addEventListener('pointermove',e=>{if(drag?.id!==e.pointerId)return;const dx=e.clientX-drag.start;
    if(!drag.moved&&Math.abs(dx)<6)return;
-   if(!drag.moved){drag.moved=true;panel.inert=false;panel.setAttribute('aria-hidden','false');api.beforeOpen()}
+   if(!drag.moved){if(!opened)resumeLighting=!!api.state().lightingOpen;drag.moved=true;panel.inert=false;panel.setAttribute('aria-hidden','false');api.beforeOpen()}
    const dt=e.timeStamp-drag.lastT;if(dt>0)velocity=(e.clientX-drag.lastX)/dt*1000;
    drag.lastX=e.clientX;drag.lastT=e.timeStamp;x=Math.max(closedX(),Math.min(0,drag.origin+dx));paint();e.preventDefault();
   });
@@ -47,13 +49,13 @@ export function createQuickControls(api){
   el.addEventListener('lostpointercapture',e=>{if(drag?.id===e.pointerId){drag=null;velocity=0;target=opened?0:closedX();animate()}});
  }
  document.addEventListener('keydown',e=>{if(opened&&e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();setOpen(false)}},true);
- document.addEventListener('pointerdown',e=>{if(opened&&!root.contains(e.target)&&!openers.some(b=>b.contains(e.target)))setOpen(false)},true);
+ document.addEventListener('pointerdown',e=>{if(opened&&!root.contains(e.target)&&!openers.some(b=>b.contains(e.target)))setOpen(false,{restore:!e.target.closest('#lightPanelToggle')})},true);
  // Ignore movement shortcuts while using a control, even when the drawer is non-modal.
  root.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.stopPropagation()});
  const roomHost=root.querySelector('#quickSpaces');
  const spaces=[['common','Common area'],['entry','Entry'],['kitchen','Kitchen'],['dining','Dining'],['living','Living room'],['hall','Hall'],['master','Master bedroom'],['b2','Bedroom 2'],['b3','Bedroom 3'],['bath1','Bath 1'],['bath2','Bath 2'],['yard','Yard']];
  const viewpoints=[['prep','Prep counter'],['foyer','Outer foyer'],['ledge','AC ledge']];
- function choosePlace(key){const lighting=resumeLighting||!!returnFocus.closest('#lightPanel');api.place(key);sync();if(lighting||matchMedia('(max-width:720px)').matches)setOpen(false);if(lighting)api.openLights()}
+ function choosePlace(key){const lighting=resumeLighting||!!returnFocus.closest('#lightPanel');api.place(key);sync();if(lighting||matchMedia('(max-width:720px)').matches)setOpen(false)}
  for(const [key,label]of spaces){const b=document.createElement('button');b.type='button';b.dataset.quickPlace=key;b.textContent=label;b.onclick=()=>choosePlace(key);roomHost.append(b)}
  for(const [key,label]of viewpoints){const b=document.createElement('button');b.type='button';b.dataset.quickPlace=key;b.textContent=label;b.onclick=()=>choosePlace(key);root.querySelector('#quickViewpoints').append(b)}
  for(const b of root.querySelectorAll('[data-quick-action]'))b.onclick=()=>{api.action(b.dataset.quickAction);sync()};
@@ -70,5 +72,5 @@ export function createQuickControls(api){
  }
  new ResizeObserver(()=>{if(drag)return;target=opened?0:closedX();if(!opened){cancelAnimationFrame(frame);frame=0;x=target;paint()}}).observe(root);
  reduced.addEventListener('change',()=>{if(frame)animate()});
- panel.inert=true;paint();sync();return{sync,close:()=>setOpen(false)};
+ panel.inert=true;paint();sync();return{sync,close:()=>setOpen(false,{restore:false})};
 }

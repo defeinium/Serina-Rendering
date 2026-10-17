@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#f4f1e9" />
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="stylesheet" href="styles.css?v=20261017-viewer-ui-r1" />
-  <link rel="stylesheet" href="viewer-ui.css?v=20261017-viewer-ui-r1" />
+  <link rel="stylesheet" href="styles.css?v=20261017-viewer-ui-r2" />
+  <link rel="stylesheet" href="viewer-ui.css?v=20261017-viewer-ui-r2" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -97,7 +97,7 @@
       <div class="room-control"><button type="button" class="quick-space-button" data-open-quick aria-controls="quickControls" aria-expanded="false"><span aria-hidden="true">☰</span><span id="quickCurrentSpace">Whole home</span></button><label class="room-label" for="roomSelect">Room</label><select id="roomSelect" aria-label="Select room"></select><label class="inside-room-picker"><span id="cameraSpaceLabel">Space</span> <select id="insideRoom" aria-label="Choose standing space">
         <option value="overview">Whole-home overview</option><option value="common">Common area</option><option value="foyer">Outer foyer / shoe cabinet</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
       </select></label></div>
-      <button id="lightPanelToggle" type="button" aria-expanded="false" aria-controls="lightPanel">Lights <span id="dockLightCount" class="count-dot">0</span></button>
+      <button id="lightPanelToggle" type="button" aria-expanded="false" aria-controls="lightPanel">Lights <span id="dockLightCount" class="count-dot">0</span><span class="panel-chevron" aria-hidden="true">⌄</span></button>
       <div class="view-actions" role="group" aria-label="View options"><button id="wideView" type="button" aria-pressed="false">Wide</button><button id="overviewView" type="button" aria-pressed="false">Overview</button><button id="cabinetViewToggle" type="button" data-cabinet-interiors aria-pressed="false" aria-label="Show cabinet interiors">Cabinets</button></div>
       <div hidden><button id="planView" type="button">Plan</button><button id="insideView" type="button">Inside</button><details id="viewerMore" class="tools-menu"><summary>More</summary><div class="tools-popover"><button id="measureQuick" type="button">Dimensions</button><button id="panelToggle" type="button">Electrical points</button><button id="schemeQuick" type="button">Design &amp; drawings</button></div></details></div>
     </nav>
@@ -113,6 +113,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=20261017-viewer-ui-r1"></script>
+  <script type="module" src="app.js?v=20261017-viewer-ui-r2"></script>
 </body>
 </html>
