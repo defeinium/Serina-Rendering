@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-17-whole-home-cabinets-r1';
+export const DESIGN_REVISION = '2026-10-17-retained-louvre-r1';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
@@ -106,7 +106,7 @@ export const AGREED_SCOPE = {
  bedroomFloor:'Retain actual warm pale oak bedroom floors; inspection-photo colour approximation.',
  ceilingPaint:'Matt white · repaint scope to confirm',
  windowTreatments:'Living: full-height double fabric curtain, white sheer + grey-greige drape, exposed rail. Bedroom 2: linen-look dimout roller blind, softly translucent rather than blackout; physical fabric sample pending. Master: full-wall double curtain; no curtain boxes.',
- cabinetFinishes:'Sahara Stone 37P002: kitchen uppers, island all visible sides / curved returns, shoe cabinet, Bedroom 2 / Bedroom 3 cabinets and yard niche. Phantom 37P309: fridge surround only, vertical grain. Plain charcoal grey: kitchen lowers and TV console. Stone tops retained. Photo-based finish approximation.',
+ cabinetFinishes:'Sahara Stone 37P002: kitchen uppers, island all visible sides / curved returns, shoe cabinet, Bedroom 2 / Bedroom 3 cabinets. Phantom 37P309: fridge surround only, vertical grain. Plain charcoal grey: kitchen lowers and TV console. Stone tops retained. Photo-based finish approximation.',
  kitchen:'Phantom 37P309 vertical woodgrain on fridge surround ONLY; Sahara Stone 37P002 light cabinetry; plain charcoal-grey kitchen lowers retained. Photo-based finish preview.',
  excluded:['New flat ceilings','Curtain boxes','Window / sofa cove strips','Wardrobe lighting','Yard exhaust fan','Hood coring / external ducting'],
  cabinetry:[
@@ -119,7 +119,7 @@ export const AGREED_SCOPE = {
   ['TV cabinet','2134 mm quoted','2134 ×360 ×320 low floor-standing plain charcoal grey matching kitchen lowers; three storage drawers and one ventilated equipment bay. Samsung The Frame Pro size / power route pending.'],
   ['Shoe cabinet','610 mm quoted','Sahara Stone on all visible cabinet faces. 610 ×380 ×2700 body floated120 above floor; adjustable shoe shelves and160 high direct-access key drawer. Private foyer recess; fixings / drawer price to confirm.']
  ],
- yard:'Laundry at existing Bath 2-side water/drain; litter trays at dry end. Former kitchen louvre replaced by a closed-back niche opening into Yard, same finish as kitchen uppers; niche depth to site measure. Grey door frames and matching skirting follow actual-unit photos. PD door opens outward into Yard; retained partly open, no cat hole. Not a bifold door. No exhaust fan.',
+ yard:'Laundry at existing Bath 2-side water/drain; litter trays at dry end. Retain original grey-frame kitchen-to-yard glass louvre; cancel the window niche cabinet. Grey door frames and matching skirting follow actual-unit photos. PD door opens outward into Yard; retained partly open, no cat hole. Not a bifold door. No exhaust fan.',
  appliances:'VATTI V997 recirculating hood target; return-air kit pending. Induction hob independent. Combi oven not selected or approved for the reserved under-counter bay.',
  pending:['Living / Bedroom 3 fan models and manufacturer clearances','Bedroom 2 ceiling light at original fan provision: verify usable supply, control and mounting; standing circulator placement','Dining pendant/adaptor and measured horizontal offset','Fixture sizes, heads, wattage and bathroom cut-outs','Cabinet shop drawings and board/stone samples','Final window-treatment purchase','All as-built dimensions']
 };

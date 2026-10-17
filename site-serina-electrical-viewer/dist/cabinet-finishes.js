@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 // Visual approximations from Jason's photographed samples, not calibrated swatches.
-import {CABINET_FINISHES} from './cabinet-palette.js?v=20261017-whole-home-cabinets-r1';
+import {CABINET_FINISHES} from './cabinet-palette.js?v=20261017-retained-louvre-r1';
 export {CABINET_FINISHES};
 export function createCabinetFinishes(renderer){
  const texture=c=>{const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;};

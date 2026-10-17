@@ -1,4 +1,4 @@
-import {CABINET_FINISH_ASSIGNMENTS} from './cabinet-palette.js?v=20261017-whole-home-cabinets-r1';
+import {CABINET_FINISH_ASSIGNMENTS} from './cabinet-palette.js?v=20261017-retained-louvre-r1';
 // Millimetres. Current 2D cabinet targets, not fabrication dimensions.
 export const CABINET_REVISION='2026-10-17-whole-home-cabinets-r1';
 export const CABINETS={

@@ -13,8 +13,8 @@ export const WINDOWS = [
  {name:'Bath 1',centre:[8.355,1.85,-2.585],width:.49,height:.54,bounds:[7.82,9.65,-5.20,-2.59],axis:0,inward:-1,transmission:.52},
  {name:'Bath 2',centre:[4.425,1.85,-2.585],width:.49,height:.54,bounds:[3.245,4.775,-5.20,-2.59],axis:0,inward:-1,transmission:.52},
  {name:'Yard',centre:[5.395,1.42,-1.80],width:1.52,height:2.40,bounds:[4.04,5.37,-2.60,-.08],axis:1,inward:-1,transmission:.50},
- {name:'Kitchen via yard window',closedByNiche:true,centre:[4.055,1.52,-.62],width:.54,height:1.17,bounds:[1.715,4.13,-2.68,.08],axis:1,inward:-1,transmission:0,exterior:false},
- // Borrowed daylight through the retained partly-open yard door, not through the closed niche.
+ {name:'Kitchen via yard window',retainedLouvre:true,centre:[4.055,1.52,-.62],width:.54,height:1.17,bounds:[1.715,4.13,-2.68,.08],axis:1,inward:-1,transmission:.18,exterior:false},
+ // Borrowed daylight through the retained louvre and partly-open yard door. Gains are illustrative, not measured glazing transmission.
  {name:'Kitchen via open yard door',centre:[4.055,1.065,-1.45],width:.61,height:2.04,bounds:[1.715,4.13,-2.68,.08],axis:1,inward:-1,transmission:.22,exterior:false}
 ];
 

@@ -8,5 +8,5 @@ export const CABINET_FINISHES={
 // External finish assignments. Stone tops, recessed plinths and hardware remain separate.
 export const CABINET_FINISH_ASSIGNMENTS={
  wet:{upper:'light',lower:'lower'},prep:'light',fridge:'fridge',
- b2:'light',b3:'light',tv:'lower',shoe:'light',yardNiche:'light'
+ b2:'light',b3:'light',tv:'lower',shoe:'light'
 };
