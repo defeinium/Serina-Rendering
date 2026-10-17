@@ -2,7 +2,7 @@ import {freeEndProfile} from './prep-profile.js?v=20261016-prep-curve-r1';
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
-import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261016-prep-curve-r1';
+import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261017-side-controls-r2';
 
 export function createCabinetry({parent,mats,greyAshMat}){
  const root=new THREE.Group();root.name='Current coordinated cabinetry';parent.add(root);
@@ -129,9 +129,8 @@ export function createCabinetry({parent,mats,greyAshMat}){
    // Shift complete uppers back 300 mm relative to the 650 mm base front.
    for(const m of r.groups.shell.children.slice(-5))m.position.z-=.30;for(const info of r.pieces.slice(-5))info.box[1]+=300;
    piece(r,'shell','upper loft shelf',start+18,300,2182,w-36,341,18,mats.lightCab);
-   if(start===1055){door(r,start,480,1621,2200,mats.lightCab,true,'hinged upper door',300);door(r,start+480,480,1621,2200,mats.lightCab,true,'hinged upper door',300);}
-   else door(r,start,w,1450,2200,mats.lightCab,true,'hinged upper door',300);
-   door(r,start,w,2200,2820,mats.lightCab,false,'hinged upper loft door',300);
+   if(start===1055){door(r,start,480,1621,2820,mats.lightCab,true,'full-height hinged upper door',300);door(r,start+480,480,1621,2820,mats.lightCab,true,'full-height hinged upper door',300);}
+   else door(r,start,w,1450,2820,mats.lightCab,true,'full-height hinged upper door',300);
   }
   piece(r,'shell','wet upper ceiling scribe',0,300,2820,2065,350,30,mats.lightCab);
   for(const z of [1620,1900]){piece(r,'inside','dish drainer removable rack',80,320,z,540,275,8,rack);for(let i=0;i<7;i++)piece(r,'inside','drainer divider',100+i*65,320,z+8,4,250,70,rack);}

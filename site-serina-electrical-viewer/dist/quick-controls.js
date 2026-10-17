@@ -1,3 +1,4 @@
+import {createSpacePlan} from './space-plan.js?v=20261017-side-controls-r2';
 // Non-modal left drawer: direct space selection and common viewer actions.
 // Only its edge grip / header owns horizontal gestures; content keeps native scrolling.
 export function createQuickControls(api){
@@ -53,11 +54,8 @@ export function createQuickControls(api){
  // Ignore movement shortcuts while using a control, even when the drawer is non-modal.
  root.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.stopPropagation()});
  const roomHost=root.querySelector('#quickSpaces');
- const spaces=[['common','Common area'],['entry','Entry'],['kitchen','Kitchen'],['dining','Dining'],['living','Living room'],['hall','Hall'],['master','Master bedroom'],['b2','Bedroom 2'],['b3','Bedroom 3'],['bath1','Bath 1'],['bath2','Bath 2'],['yard','Yard']];
- const viewpoints=[['prep','Prep counter'],['foyer','Outer foyer'],['ledge','AC ledge']];
  function choosePlace(key){api.place(key);sync();setOpen(false)}
- for(const [key,label]of spaces){const b=document.createElement('button');b.type='button';b.dataset.quickPlace=key;b.textContent=label;b.onclick=()=>choosePlace(key);roomHost.append(b)}
- for(const [key,label]of viewpoints){const b=document.createElement('button');b.type='button';b.dataset.quickPlace=key;b.textContent=label;b.onclick=()=>choosePlace(key);root.querySelector('#quickViewpoints').append(b)}
+ const spacePlan=createSpacePlan(roomHost,choosePlace);
  for(const b of root.querySelectorAll('[data-quick-action]'))b.onclick=()=>{api.action(b.dataset.quickAction);sync()};
  function sync(){
   const s=api.state(),name=s.overview?'Whole home':s.label;
@@ -67,7 +65,7 @@ export function createQuickControls(api){
   document.querySelector('#quickDetailsSpace').textContent=s.label;
   root.querySelector('#quickCurrent').textContent=name;
   const temperature=root.querySelector('#quickTemperature');if(temperature)temperature.hidden=s.lightScope!=='common';
-  root.querySelectorAll('[data-quick-place]').forEach(b=>b.setAttribute('aria-pressed',String(!s.overview&&b.dataset.quickPlace===s.place)));
+  spacePlan.sync(s.inside?s.location:s.place,s.overview);
   const pressed={day:s.daylight,night:!s.daylight,plan:!s.inside,inside:s.inside&&!s.overview,overview:s.overview,cabinets:s.cabinets,dimensions:s.dimensions};
   root.querySelectorAll('[data-quick-action]').forEach(b=>{if(b.dataset.quickAction in pressed)b.setAttribute('aria-pressed',String(pressed[b.dataset.quickAction]))});
  }

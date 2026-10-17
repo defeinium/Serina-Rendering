@@ -1,0 +1,41 @@
+{
+  "version": "2026.10.17.4",
+  "revision": "20261017-side-controls-r2",
+  "date": "2026-10-17",
+  "releases": [
+    {
+      "version": "2026.10.17.4",
+      "date": "17 Oct 2026",
+      "notes": [
+        "Visible version, history and manual update check.",
+        "Refined 2D space map: unified common area and a larger breathing person location marker.",
+        "Connected Entry / Dining / Living / Kitchen walking area.",
+        "Full-height kitchen upper doors; internal shelves retained."
+      ]
+    },
+    {
+      "version": "2026.10.17.3",
+      "date": "17 Oct 2026",
+      "notes": [
+        "Left-side Spaces / Lights; three clearly named view tools.",
+        "Whole-home night lighting, selected preset states and modern stone coffee table."
+      ]
+    },
+    {
+      "version": "2026.10.17.2",
+      "date": "17 Oct 2026",
+      "notes": [
+        "Text ON / OFF light controls and consistent panel behaviour.",
+        "Prevent text selection and long-press callouts on touch controls."
+      ]
+    },
+    {
+      "version": "2026.10.17.1",
+      "date": "17 Oct 2026",
+      "notes": [
+        "Independent day / night memory and simpler viewer controls.",
+        "Four-leg travertine dining table."
+      ]
+    }
+  ]
+}

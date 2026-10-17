@@ -227,3 +227,62 @@
 @media(prefers-reduced-transparency:reduce){.side-launchers>button{background:#222b25;backdrop-filter:none}.side-launchers>button[aria-expanded=true]{background:var(--ui-selected)}}
 
 #app.overview-view .temperature-compare>span{display:block;font-size:9px;line-height:1.3}
+
+/* Small release badge; history is available on demand, away from daily controls. */
+.version-info{position:absolute;z-index:9;right:18px;bottom:18px;color:var(--ui-muted);font-size:10px}
+.version-info>summary{display:flex;align-items:center;justify-content:center;min-height:36px;padding:0 10px;list-style:none;cursor:pointer;border-radius:9px;background:var(--ui-bg);border:1px solid var(--ui-line);font-variant-numeric:tabular-nums;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.version-info>summary::-webkit-details-marker{display:none}.version-info[open]>summary{color:var(--ui-text);border-color:#8f9b8e}
+.version-card{position:absolute;right:0;bottom:calc(100% + 8px);width:min(330px,calc(100vw - 24px));max-height:calc(100dvh - 150px);display:flex;flex-direction:column;padding:15px;border:1px solid var(--ui-line);border-radius:18px;background:#232b26;box-shadow:0 12px 36px #0003;color:var(--ui-text)}
+.version-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none}.version-heading strong{font-size:15px;letter-spacing:-.02em}.version-heading button{height:36px;width:36px;border:0;border-radius:50%;background:#ffffff0c;color:var(--ui-text);font-size:22px}
+.release-list{overflow:auto;min-height:0;overscroll-behavior:contain;scrollbar-width:thin;margin-top:8px}.release-list article{padding:12px 0;border-top:1px solid var(--ui-line)}.release-list article>strong{font-size:12px;display:block}.release-list small{font-size:10px;display:block;margin-top:3px;color:var(--ui-muted)}.release-list p{font-size:11px;line-height:1.45;color:#c8d1c8;margin:7px 0 0}
+.version-actions{flex:none;padding-top:10px;border-top:1px solid var(--ui-line)}.version-actions button{min-height:40px;padding:0 12px;border:1px solid var(--ui-line);border-radius:9px;background:#ffffff0a;color:var(--ui-text);font-size:11px;margin-right:5px}.version-actions button[hidden]{display:none}.version-actions p{font-size:10px;line-height:1.4;color:var(--ui-muted);margin:8px 0 0}
+@media(max-width:720px){.version-info{right:12px;bottom:calc(var(--controls-height) + 22px)}.version-info>summary{font-size:9px;min-height:36px;padding:0 8px}.version-card{max-height:calc(100dvh - var(--controls-height) - 126px);padding:13px}}
+@media(max-height:520px) and (orientation:landscape){.version-info{bottom:18px;right:12px}.version-card{max-height:calc(100dvh - 90px)}}
+
+/* The space picker uses the actual Type A source-plan silhouette. */
+.space-plan-host{display:block;padding:0 2px}
+#app .quick-drawer{width:min(380px,calc(100vw - 120px))}
+#app .space-plan-host .common-space-link{width:100%;text-align:center;min-height:42px;font-size:12px;margin:0 0 10px}
+.space-plan{display:block;width:100%;height:auto;aspect-ratio:770/734;background:#fff;border-radius:9px;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.space-plan *{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.space-plan-source{pointer-events:none}
+.space-plan-room{cursor:pointer;touch-action:manipulation;outline:none}
+.space-plan-room>path{fill:#f6f6f1;stroke:#c8cdc5;stroke-width:1.2}
+.space-plan-room>text{fill:#34453a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:25px;font-weight:600;pointer-events:none;letter-spacing:-.3px}
+.space-plan-room.compact-room>text{font-size:20px}
+.space-plan-room[aria-pressed=true]>path{fill:#ccd9c0;stroke:#587653;stroke-width:4}
+.space-plan-room:hover>path{fill:#e2e9dc}
+.space-plan-room:focus-visible>path{fill:#e0e6d4;stroke:#7b5e26;stroke-width:7}
+.space-plan-cues{pointer-events:none;fill:none;stroke:#8e9c91;stroke-width:2}
+.space-plan-caption{font-size:11px;color:var(--ui-muted);margin:9px 2px 3px;text-align:center}
+#app .quick-footer{font-size:10px;padding:8px 18px 12px}
+@media(max-width:720px){
+ #app .quick-drawer{left:10px;top:218px;width:calc(100vw - 20px);max-height:calc(100dvh - var(--controls-height) - 252px)}
+ #app .quick-heading{padding:13px 14px 10px}#app .quick-heading h2{font-size:19px}#app .quick-scroll{padding:0 12px 8px}
+ #app .space-plan-host .common-space-link{min-height:38px;margin-bottom:8px;font-size:11px}
+ #app .quick-footer{display:none}
+}
+@media(max-height:520px) and (orientation:landscape){
+ #app .quick-drawer{left:92px;top:72px;width:350px;max-height:calc(100dvh - var(--controls-height) - 100px)}
+ #app .space-plan-host .common-space-link{min-height:35px}#app .space-plan{max-height:270px}
+}
+
+/* Calm diagram, one open public zone; large location badge stays readable. */
+.space-plan{background:#e9ede7;border:1px solid #ffffff12;border-radius:16px;padding:10px}
+.space-plan-room>path{fill:#f9faf7;stroke:#d7ded3;stroke-width:1.5;transition:fill .15s ease,stroke .15s ease}
+.space-plan-room>text{fill:#687565;font-size:25px;font-weight:550;letter-spacing:0}
+.space-plan-room.common-plan-room>text{font-size:31px;font-weight:600;fill:#52634b}
+.space-plan-room.compact-room>text{font-size:19px;fill:#7b8676}
+.space-plan-room:hover>path{fill:#edf3e7;stroke:#a8b99d}
+.space-plan-room[data-current=true]>path,.space-plan-room[aria-pressed=true]>path{fill:#d4e3c7;stroke:#91aa7a;stroke-width:2.5}
+.space-plan-room[data-current=true]>text{fill:#355233}
+.space-plan-room:focus-visible>path{stroke:#4d7643;stroke-width:5}
+.space-plan-windows{fill:none;stroke:#a6b8b0;stroke-width:5;stroke-linecap:round;pointer-events:none}
+.space-plan-person{pointer-events:none}
+.person-halo{fill:#658d50;opacity:.18;animation:location-breathe 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.person-badge{fill:#365337;stroke:#f9fcf4;stroke-width:4;filter:drop-shadow(0 3px 4px #243e2830)}
+.person-head,.person-body{fill:#f9fcf4}
+.space-plan-caption{display:flex;align-items:center;justify-content:center;gap:7px;padding-top:4px;font-size:11px}
+.space-plan-caption:before{content:'';width:5px;height:5px;border-radius:50%;background:#b3cb9c}
+@keyframes location-breathe{0%,100%{opacity:.10;transform:scale(.86)}50%{opacity:.29;transform:scale(1.10)}}
+@media(prefers-reduced-motion:reduce){.person-halo{animation:none;opacity:.2}.space-plan-room>path{transition:none}}

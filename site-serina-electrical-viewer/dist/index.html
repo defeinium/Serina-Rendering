@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#f4f1e9" />
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r1" />
-  <link rel="stylesheet" href="viewer-ui.css?v=20261017-side-controls-r1" />
+  <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
+  <link rel="stylesheet" href="viewer-ui.css?v=20261017-side-controls-r2" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -21,12 +21,12 @@
 
     <div id="quickDrawer" class="quick-drawer">
       <aside id="quickControls" class="quick-surface" aria-label="Spaces and quick controls" aria-hidden="true" inert>
-        <div class="quick-heading"><div><small id="quickCurrent">Whole home</small><h2>Choose a space</h2></div><button type="button" data-quick-close aria-label="Close quick controls">×</button></div>
+        <div class="quick-heading"><div><small id="quickCurrent">Whole home</small><h2>Your home</h2></div><button type="button" data-quick-close aria-label="Close quick controls">×</button></div>
         <div class="quick-scroll">
           <section><h3>Space</h3><div id="quickSpaces" class="quick-grid" aria-label="Spaces"></div></section>
-          <details class="extra-viewpoints"><summary>Other viewpoints</summary><div id="quickViewpoints" class="quick-grid"></div></details>
+
         </div>
-        <div class="quick-footer">Your lighting and viewing angle stay as you left them.</div>
+        <div class="quick-footer">The person marks your current space.</div>
       </aside>
       <button id="quickGrip" class="quick-grip" type="button" aria-controls="quickControls" aria-expanded="false" aria-label="Open quick controls"><span class="quick-grip-lines" aria-hidden="true">⋮</span><span>Spaces</span><span aria-hidden="true">›</span></button>
     </div>
@@ -115,6 +115,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=20261017-side-controls-r1"></script>
+  <script type="module" src="app.js?v=20261017-side-controls-r2"></script>
 </body>
 </html>
