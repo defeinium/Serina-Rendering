@@ -1,8 +1,18 @@
 {
-  "version": "2026.10.17.5",
-  "revision": "20261017-cabinet-finishes-r1",
+  "version": "2026.10.17.6",
+  "revision": "20261017-whole-home-cabinets-r1",
   "date": "2026-10-17",
   "releases": [
+    {
+      "version": "2026.10.17.6",
+      "date": "17 Oct 2026",
+      "notes": [
+        "Whole-home cabinetry: Sahara Stone on light cabinets, exposed sides and curved returns.",
+        "Phantom vertical woodgrain on fridge surround only.",
+        "TV console and kitchen lower cabinets share plain charcoal grey.",
+        "Matching 2D / 3D finish assignments; cabinet dimensions and storage layouts retained."
+      ]
+    },
     {
       "version": "2026.10.17.5",
       "date": "17 Oct 2026",

@@ -1,12 +1,13 @@
-import {CABINETS as CABINET_SPECS,CABINET_REVISION} from './cabinet-data.js?v=20261017-cabinet-finishes-r1';
-import {BEDROOM2,DESIGN_REVISION} from './agreed-design.js?v=20261017-cabinet-finishes-r1';
+import {CABINET_FINISHES} from './cabinet-palette.js?v=20261017-whole-home-cabinets-r1';
+import {CABINETS as CABINET_SPECS,CABINET_REVISION} from './cabinet-data.js?v=20261017-whole-home-cabinets-r1';
+import {BEDROOM2,DESIGN_REVISION} from './agreed-design.js?v=20261017-whole-home-cabinets-r1';
 const $=s=>document.querySelector(s), esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;'), N=v=>Math.round(v*10)/10;
-const C={ink:'#34453d',line:'#78857b',dim:'#a7613d',ref:'#88938c',front:'#c7c3b7',shoe:'#c7c3b7',inside:'#f1f3eb',wood:'#c1c4b9',drawer:'#dae3d5',graphite:'#4c5357',blue:'#c2d5d0'};
+const C={ink:'#34453d',line:'#78857b',dim:'#a7613d',ref:'#88938c',front:CABINET_FINISHES.light.colour,shoe:CABINET_FINISHES.light.colour,inside:'#f1f3eb',wood:'#c1c4b9',drawer:'#dae3d5',graphite:CABINET_FINISHES.lower.colour,blue:'#c2d5d0'};
 const state={cabinet:'all',view:'front',part:null};
 const D={
  b2:{name:'Bedroom 2 multipurpose cabinet',code:'W-01',width:Math.round(BEDROOM2.wardrobe.width*1000),depth:600,height:2850,bodyTop:2820,plinth:100,split:2260,doors:3,endRadius:CABINET_SPECS.b2.exposedEndRadius,modules:CABINET_SPECS.b2.modules,note:'1440 mm three-door cabinet · convertible hanging + one drawer',parts:['b2-hang','b2-drawer','b2-shelves','b2-mirror','b2-loft'],drawer:[100,350],drawerRunner:450,drawerSide:'under right two-door hanging bay when facing cabinet',check:'Facing the cabinet: LEFT 480 mm adjustable shelves / fin compartment, RIGHT 960 mm hanging bay with ONE broad bottom drawer. No small drawer in the shelf column. Keep the 360 mm entry-side services wall clear. Pull both hanging doors open and tuck the chair before using the broad drawer. The room view distinguishes the working chair from a proposed tucked position; actual chair / hinges remain to verify.'},
  b3:{name:'Bedroom 3 wardrobe',code:'W-02',width:1829,depth:600,height:2850,bodyTop:2820,plinth:100,split:2260,doors:4,endRadius:CABINET_SPECS.b3.exposedEndRadius,modules:CABINET_SPECS.b3.modules,drawers:[350,280,220],drawerSide:'external drawers at left when facing cabinet',drawerRunner:450,note:'1829 mm footprint · aligned hinged main and loft doors',parts:['b3-hang','b3-extra','b3-drawers','b3-loft'],check:'Main doors finish at 2260 mm; four separate hinged loft doors align above. Upper doors still swing through the possible blade-height band; fan / door clearance remains to measure. Three external drawers at LEFT, nearest the entry / bed-foot aisle; open them directly without opening the wardrobe doors. Both bays have the same approximately 825 mm cabinet-to-bed gap in the current model; a 450 mm drawer leaves only about 375 mm. Use the foot-side approach and verify real standing space, hinges and bed together; changing sides does not create a wider frontal aisle.'},
- tv:{name:'Television cabinet',code:'L-01',width:2134,depth:360,height:320,modules:[533.5,533.5,533.5,533.5],note:'Quoted 7 ft footprint · low floor-standing graphite finish',parts:['tv-left','tv-equipment','tv-media','tv-right'],check:'The equipment front is removable and ventilated, with rear access. Keep the Wi-Fi router in the open. Test Wireless One Connect signal and heat in the actual bay before closing its front. The TV still needs a power lead; the dashed surface route is not a concealed wall chase. No TV model or mounting height is fixed by this drawing.'},
+ tv:{name:'Television cabinet',code:'L-01',width:2134,depth:360,height:320,modules:[533.5,533.5,533.5,533.5],note:'Quoted 7 ft footprint · low floor-standing plain charcoal finish',parts:['tv-left','tv-equipment','tv-media','tv-right'],check:'The equipment front is removable and ventilated, with rear access. Keep the Wi-Fi router in the open. Test Wireless One Connect signal and heat in the actual bay before closing its front. The TV still needs a power lead; the dashed surface route is not a concealed wall chase. No TV model or mounting height is fixed by this drawing.'},
  shoe:{name:'Shoe cabinet',code:'E-01',width:610,depth:380,height:2700,bottom:120,top:2820,drawer:[1000,1160],note:'Quoted 2 ft width · 2700 mm BODY · floated 120 mm',parts:['shoe-daily','shoe-keys','shoe-upper','shoe-mount'],check:'Cabinet body 2700 mm + 120 mm floor clearance = 2820 mm top; 30 mm site scribe to the assumed 2850 mm ceiling. The new key drawer is a proposed addition. Confirm loaded-wall fixings, the private foyer location, door / grille swings and clear exit path. Shelf spacing must suit the actual shoes.'}
 };
 const P={
@@ -36,7 +37,7 @@ function dim(x1,y1,x2,y2,t,ref=false){const col=ref?C.ref:C.dim;return line(x1,y
 function part(id,body){return `<g data-part="${id}" tabindex="0" role="button" aria-label="${esc(P[id].title)}">${body}</g>`;}
 function svg(body,w=1000,h=1040,name='Cabinet drawing'){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" role="group" aria-label="${esc(name)}">${body}</svg>`;}
 const pull=(x,y,h=160)=>line(x,y,x,y+h,C.ink,'stroke-width="2.5"');
-function wardrobeFrame(id){const d=D[id],s=.24,x=260,f=850,X=v=>x+v*s,Y=v=>f-v*s;let a=text(500,40,d.name.toUpperCase(),22)+text(500,71,state.view==='inside'?'INTERNAL ELEVATION · Fronts removed':'FRONT ELEVATION · Proposed joinery',16,C.ref);a+=rect(X(0),Y(2820),d.width*s,2720*s,state.view==='inside'?C.inside:C.front);a+=rect(X(0),Y(100),d.width*s,100*s,'#69736b')+rect(X(0),Y(2850),d.width*s,30*s,'#dbded5');a+=dim(X(0),137,X(d.width),137,`${d.width} overall`)+dim(175,Y(0),175,Y(2850),'2850 ceiling · assumed',true);a+=dim(215,Y(100),215,Y(2260),id==='b3'?'2160 right doors':'2160 main doors');a+=dim(800,Y(2260),800,Y(2820),'560 loft');a+=text(500,997,'600 overall depth · R40 exposed-end target · All sizes mm',15,C.ref);return {a,s,x,f,X,Y};}
+function wardrobeFrame(id){const d=D[id],s=.24,x=260,f=850,X=v=>x+v*s,Y=v=>f-v*s;let a=text(500,40,d.name.toUpperCase(),22)+text(500,71,state.view==='inside'?'INTERNAL ELEVATION · Fronts removed':'Sahara Stone 37P002 · doors, sides and curved return',16,C.ref);a+=rect(X(0),Y(2820),d.width*s,2720*s,state.view==='inside'?C.inside:C.front);a+=rect(X(0),Y(100),d.width*s,100*s,'#69736b')+rect(X(0),Y(2850),d.width*s,30*s,C.front);a+=dim(X(0),137,X(d.width),137,`${d.width} overall`)+dim(175,Y(0),175,Y(2850),'2850 ceiling · assumed',true);a+=dim(215,Y(100),215,Y(2260),id==='b3'?'2160 right doors':'2160 main doors');a+=dim(800,Y(2260),800,Y(2820),'560 loft');a+=text(500,997,'600 overall depth · R40 exposed-end target · All sizes mm',15,C.ref);return {a,s,x,f,X,Y};}
 function hangDrawing(X,Y,l,r,h,drop=760){let b=line(X(l),Y(h),X(r),Y(h),C.ink,'stroke-width="3"');for(let i=0;i<4;i++){const z=l+110+i*(r-l-220)/3;const pts=[[z-45,h-90],[z-100,h-145],[z-72,h-210],[z-55,h-185],[z-55,h-drop],[z+55,h-drop],[z+55,h-185],[z+72,h-210],[z+100,h-145],[z+45,h-90]];b+=line(X(z),Y(h),X(z),Y(h-55),'#97a69a')+`<path d="M ${X(z)} ${Y(h-55)} L ${X(z-75)} ${Y(h-100)} L ${X(z+75)} ${Y(h-100)} Z" fill="none" stroke="#97a69a"/><polygon points="${pts.map(([xx,yy])=>X(xx)+','+Y(yy)).join(' ')}" fill="#d7e1d7" stroke="#97a69a" stroke-width="1"/>`;}return b;}
 function wardrobe(id){const d=D[id],q=wardrobeFrame(id),{s,X,Y}=q;let a=q.a;const inside=state.view==='inside';
  a+=line(X(40),Y(100),X(40),Y(2820),C.ref)+text(X(-35),Y(1400),'R40',12,C.dim);
@@ -79,7 +80,7 @@ function wardrobe(id){const d=D[id],q=wardrobeFrame(id),{s,X,Y}=q;let a=q.a;cons
  a+=words(500,947,['Facing cabinet: 3 external drawers LEFT · Double hanging RIGHT','Hinged loft doors align above main doors; verify fan clearance'],15,C.ref);
  }
  return svg(a,1000,1040,d.name);}
-function tv(){const d=D.tv,s=.34,x=165,f=810,X=v=>x+v*s,Y=v=>f-v*s,inside=state.view==='inside';let a=text(550,40,'TELEVISION CABINET / ELEVATION',22)+text(550,72,'Low floor-standing base · Graphite fronts',16,C.ref);
+function tv(){const d=D.tv,s=.34,x=165,f=810,X=v=>x+v*s,Y=v=>f-v*s,inside=state.view==='inside';let a=text(550,40,'TELEVISION CABINET / ELEVATION',22)+text(550,72,'Plain charcoal grey · matches kitchen lower cabinets',16,C.ref);
  const tw=1456.8,th=836.9,c=1100;a+=rect(X((d.width-tw)/2),Y(c+th/2),tw*s,th*s,'#f0f1ea','#aeb8ae','stroke-dasharray="7 5"')+words(X(d.width/2),Y(1100),['SAMSUNG THE FRAME PRO','65-inch context only · size not selected'],16,C.ref);
  a+=line(X(d.width/2),Y(c-th/2),X(d.width/2),Y(320),C.ref,'stroke-dasharray="5 5"')+words(930,Y(560),['TV POWER','Surface route','to confirm'],14,C.ref);
  a+=rect(X(0),Y(320),d.width*s,320*s,C.graphite)+rect(X(25),Y(60),(d.width-50)*s,60*s,'#303c35')+line(X(0),Y(302),X(d.width),Y(302),'#7f8980');
@@ -88,8 +89,8 @@ function tv(){const d=D.tv,s=.34,x=165,f=810,X=v=>x+v*s,Y=v=>f-v*s,inside=state.
  a+=dim(65,Y(0),65,Y(1100),'1100 TV centre · study',true);
  a+=words(550,940,['4 × 533.5 mm nominal fronts · 360 overall depth','Ventilated equipment front / rear access · Router stays in the open'],16,C.ref);
  return svg(a,1100,1010,d.name);}
-function shoe(){const d=D.shoe,s=.26,x=220,f=850,X=v=>x+v*s,Y=v=>f-v*s,inside=state.view==='inside';let a=text(500,40,'SHOE CABINET / ELEVATION',22)+text(500,72,'2700 mm BODY floated 120 mm · 610 mm wide',16,C.ref);
- a+=rect(X(0),Y(2820),610*s,2700*s,inside?C.inside:C.shoe)+rect(X(0),Y(2850),610*s,30*s,'#dce1d5');
+function shoe(){const d=D.shoe,s=.26,x=220,f=850,X=v=>x+v*s,Y=v=>f-v*s,inside=state.view==='inside';let a=text(500,40,'SHOE CABINET / ELEVATION',22)+text(500,72,'Sahara Stone 37P002 · 610 wide · floated 120',16,C.ref);
+ a+=rect(X(0),Y(2820),610*s,2700*s,inside?C.inside:C.shoe)+rect(X(0),Y(2850),610*s,30*s,C.shoe);
  if(inside){const shelves=[338,553,768,982,1160,1478,1778,2078,2408];for(const h of shelves)a+=rect(X(18),Y(h),574*s,18*s,'#c3cfbe');
  a+=part('shoe-daily',rect(X(18),Y(982),574*s,844*s,'transparent')+words(510,Y(650),['DAILY SHOES','4 adjustable rows'],13));
  for(const h of [240,450,665,875])for(const v of [80,350])a+=rect(X(v),Y(h),180*s,75*s,'#d3dfcf',C.line,'rx="8"');
@@ -97,7 +98,7 @@ function shoe(){const d=D.shoe,s=.26,x=220,f=850,X=v=>x+v*s,Y=v=>f-v*s,inside=st
  }else{
  for(const [lo,hi] of [[120,1000],[1160,2820]])a+=line(X(305),Y(lo),X(305),Y(hi));
  a+=line(X(0),Y(1000),X(610),Y(1000))+line(X(0),Y(1160),X(610),Y(1160));
- [270,340].forEach(v=>a+=pull(X(v),Y(1360),160*s));
+ // Concealed edge grips at the drawer split; no external vertical door handles.
  }
  a+=part('shoe-keys',rect(X(0),Y(1160),610*s,160*s,inside?C.drawer:C.shoe)+line(X(100),Y(1120),X(510),Y(1120),C.line,'stroke-width="2"'));
  a+=words(510,Y(1100),['KEY DRAWER','1000–1160'],13,C.ink);

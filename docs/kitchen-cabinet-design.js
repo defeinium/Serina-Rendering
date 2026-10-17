@@ -1,8 +1,9 @@
+import {CABINET_FINISHES} from './cabinet-palette.js?v=20261017-whole-home-cabinets-r1';
 import {freeEndProfile,profileSVG} from './prep-profile.js?v=20261016-prep-curve-r1';
-import {CABINETS as CABINET_SPECS,CABINET_REVISION} from './cabinet-data.js?v=20261017-cabinet-finishes-r1';
+import {CABINETS as CABINET_SPECS,CABINET_REVISION} from './cabinet-data.js?v=20261017-whole-home-cabinets-r1';
 const $ = s => document.querySelector(s);
 const state = { view:'wet', layout:'quoted', rice:'stored', oven:'bay', inside:false, selected:'hob' };
-const C = { ink:'#34443e', dim:'#a7613d', ref:'#7d8983', line:'#6a7770', upper:'#c7c3b7', base:'#60615d', wood:'#5c5b56', stone:'#eeeee7', open:'#f5f5ed', accent:'#e7eee1', orange:'#ba7851' };
+const C = { ink:'#34443e', dim:'#a7613d', ref:'#7d8983', line:'#6a7770', upper:CABINET_FINISHES.light.colour, base:CABINET_FINISHES.lower.colour, wood:CABINET_FINISHES.fridge.colour, stone:'#eeeee7', open:'#f5f5ed', accent:'#e7eee1', orange:'#ba7851' };
 const esc = s => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
 const n = v => Math.round(v * 10) / 10;
 const rect = (x,y,w,h,fill=C.open,stroke=C.line,extra='') => `<rect x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" fill="${fill}" stroke="${stroke}" stroke-width="1.4" ${extra}/>`;

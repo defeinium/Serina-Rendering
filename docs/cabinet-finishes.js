@@ -1,11 +1,7 @@
 import * as THREE from 'three';
 // Visual approximations from Jason's photographed samples, not calibrated swatches.
-export const CABINET_FINISHES={
- light:{name:'Sahara Stone',code:'37P002',colour:'#c7c3b7',grain:'fine mineral texture'},
- fridge:{name:'Phantom',code:'37P309',colour:'#5c5b56',grain:'restrained vertical woodgrain'},
- lower:{name:'Plain charcoal grey',colour:'#60615d',grain:'none'},
- status:'Photo-based colour / texture preview; confirm physical samples on site.'
-};
+import {CABINET_FINISHES} from './cabinet-palette.js?v=20261017-whole-home-cabinets-r1';
+export {CABINET_FINISHES};
 export function createCabinetFinishes(renderer){
  const texture=c=>{const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;};
  let seed=309;const rand=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);

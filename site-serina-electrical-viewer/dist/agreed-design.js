@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-17-cabinet-finishes-r1';
+export const DESIGN_REVISION = '2026-10-17-whole-home-cabinets-r1';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
@@ -106,17 +106,18 @@ export const AGREED_SCOPE = {
  bedroomFloor:'Retain actual warm pale oak bedroom floors; inspection-photo colour approximation.',
  ceilingPaint:'Matt white · repaint scope to confirm',
  windowTreatments:'Living: full-height double fabric curtain, white sheer + grey-greige drape, exposed rail. Bedroom 2: linen-look dimout roller blind, softly translucent rather than blackout; physical fabric sample pending. Master: full-wall double curtain; no curtain boxes.',
+ cabinetFinishes:'Sahara Stone 37P002: kitchen uppers, island all visible sides / curved returns, shoe cabinet, Bedroom 2 / Bedroom 3 cabinets and yard niche. Phantom 37P309: fridge surround only, vertical grain. Plain charcoal grey: kitchen lowers and TV console. Stone tops retained. Photo-based finish approximation.',
  kitchen:'Phantom 37P309 vertical woodgrain on fridge surround ONLY; Sahara Stone 37P002 light cabinetry; plain charcoal-grey kitchen lowers retained. Photo-based finish preview.',
  excluded:['New flat ceilings','Curtain boxes','Window / sofa cove strips','Wardrobe lighting','Yard exhaust fan','Hood coring / external ducting'],
  cabinetry:[
-  ['Kitchen package','2134 mm quoted','2065 mm source target: sink775 + sauce230 + hob960 with50 end allowances. Upper600 drainer +405 pantry +960 hood; VATTI V997 body896 ×360 ×421. Quoted2134: site reconciliation required.'],
+  ['Kitchen package','2134 mm quoted','2065 mm source target: sink775 + sauce230 + hob960 with50 end allowances. Sahara Stone uppers:600 drainer +405 pantry +960 hood; plain charcoal lowers; VATTI V997 body896 ×360 ×421. Quoted2134: site reconciliation required.'],
   ['Fridge enclosure','762 mm quoted','Phantom 37P309 vertical woodgrain to original ceiling; exact appliance clearances pending.'],
   ['Prep cabinet','1372 × 762 mm quoted','Cabinet1372 ×762; stone1382 ×782 mm. Two free-end corners: body R50 / stone R60;10 mm projection at three exposed edges, flush at fridge. 600 mm serving drawers +772 mm half-open appliance bay. Upper406 / divider18 / lower320 mm clear. Rice cooker stored below; oven model / ventilation unresolved. Sahara Stone 37P002.'],
-  ['Bedroom 2 storage','1440 × 600 mm target','Three main doors and separate loft, ceiling sealed; R40 exposed-end curve target, matching front finish. Approx. 360 mm original door-side wall stays clear for socket and switches. Facing cabinet: LEFT480 adjustable shelves / provisional1200 high fin space; RIGHT960 convertible hanging above ONE broad250 high drawer. No small drawer. Inside-door mirror on left. Chair must tuck for drawer access. Site dimensions pending.'],
+  ['Bedroom 2 storage','1440 × 600 mm target','Three main doors and separate loft, ceiling sealed; R40 exposed-end curve target, Sahara Stone on doors, exposed sides, curves and scribe. Approx. 360 mm original door-side wall stays clear for socket and switches. Facing cabinet: LEFT480 adjustable shelves / provisional1200 high fin space; RIGHT960 convertible hanging above ONE broad250 high drawer. No small drawer. Inside-door mirror on left. Chair must tuck for drawer access. Site dimensions pending.'],
   ['Bedroom 2 desk','1400 × 600 mm target','Faces the window; open below, dual 24-inch monitors on arms. Keep roughly 100 mm at the window in the source plan; chair tucks under desk for wardrobe access. Actual window swing, sockets and chair clearance to verify.'],
-  ['Bedroom 3 wardrobe','1829 mm quoted','Full height; four main doors; no niche; R40 exposed-end curve target in matching front finish. Three broad external drawers LEFT (350 /280 /220 high), double hanging RIGHT. Aligned hinged main / loft doors split at2260 require real upper-door / fan clearance check; open drawer leaves approx375 to modelled bed.'],
-  ['TV cabinet','2134 mm quoted','2134 ×360 ×320 low floor-standing graphite; three storage drawers and one ventilated equipment bay. Samsung The Frame Pro size / power route pending.'],
-  ['Shoe cabinet','610 mm quoted','610 ×380 ×2700 body floated120 above floor; adjustable shoe shelves and160 high direct-access key drawer. Private foyer recess; fixings / drawer price to confirm.']
+  ['Bedroom 3 wardrobe','1829 mm quoted','Full height; four main doors; no niche; R40 exposed-end curve target, doors, exposed sides and scribe all Sahara Stone. Three broad external drawers LEFT (350 /280 /220 high), double hanging RIGHT. Aligned hinged main / loft doors split at2260 require real upper-door / fan clearance check; open drawer leaves approx375 to modelled bed.'],
+  ['TV cabinet','2134 mm quoted','2134 ×360 ×320 low floor-standing plain charcoal grey matching kitchen lowers; three storage drawers and one ventilated equipment bay. Samsung The Frame Pro size / power route pending.'],
+  ['Shoe cabinet','610 mm quoted','Sahara Stone on all visible cabinet faces. 610 ×380 ×2700 body floated120 above floor; adjustable shoe shelves and160 high direct-access key drawer. Private foyer recess; fixings / drawer price to confirm.']
  ],
  yard:'Laundry at existing Bath 2-side water/drain; litter trays at dry end. Former kitchen louvre replaced by a closed-back niche opening into Yard, same finish as kitchen uppers; niche depth to site measure. Grey door frames and matching skirting follow actual-unit photos. PD door opens outward into Yard; retained partly open, no cat hole. Not a bifold door. No exhaust fan.',
  appliances:'VATTI V997 recirculating hood target; return-air kit pending. Induction hob independent. Combi oven not selected or approved for the reserved under-counter bay.',

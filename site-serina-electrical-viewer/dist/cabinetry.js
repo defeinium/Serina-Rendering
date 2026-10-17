@@ -1,9 +1,9 @@
-import {mapCabinetFinish} from './cabinet-finishes.js?v=20261017-cabinet-finishes-r1';
+import {mapCabinetFinish} from './cabinet-finishes.js?v=20261017-whole-home-cabinets-r1';
 import {freeEndProfile} from './prep-profile.js?v=20261016-prep-curve-r1';
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
-import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261017-cabinet-finishes-r1';
+import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261017-whole-home-cabinets-r1';
 
 export function createCabinetry({parent,mats,fridgeMat}){
  const root=new THREE.Group();root.name='Current coordinated cabinetry';parent.add(root);
@@ -173,10 +173,10 @@ export function createCabinetry({parent,mats,fridgeMat}){
   piece(r,'always','fridge model pending reference 650W',56,32,0,650,680,1850,mats.graphite);piece(r,'always','fridge freezer split',58,25,600,646,8,4,mats.black);
  }
  {const r=cabinet('tv','TV console 2134 low floor-standing',[2.797,8.687],-Math.PI/2),s=S.tv;
-  shell(r,0,2134,360,60,320,mats.graphite);piece(r,'shell','TV plinth',20,30,0,2094,300,60,mats.black);
-  for(let i=1;i<4;i++)piece(r,'shell','TV vertical divider',i*533.5-9,0,78,18,351,224,mats.graphite);
-  for(const i of [0,2,3])drawer(r,i*533.5+18,497.5,78,224,300,'TV storage '+i,mats.graphite,true);
-  door(r,533.5,533.5,60,302,mats.graphite,false);
+  shell(r,0,2134,360,60,320,mats.tvCabinet);piece(r,'shell','TV plinth',20,30,0,2094,300,60,mats.black);
+  for(let i=1;i<4;i++)piece(r,'shell','TV vertical divider',i*533.5-9,0,78,18,351,224,mats.tvCabinet);
+  for(const i of [0,2,3])drawer(r,i*533.5+18,497.5,78,224,300,'TV storage '+i,mats.tvCabinet,true);
+  door(r,533.5,533.5,60,302,mats.tvCabinet,false);
   for(let i=0;i<6;i++)piece(r,'fronts','TV equipment front ventilation slot',598,-1,100+i*23,405,6,5,mats.black);
   piece(r,'inside','TV 50mm accessible rear service zone',551.5,310,78,497.5,41,224,dark);
  }
