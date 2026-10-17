@@ -1,4 +1,5 @@
-import {createQuickControls} from './quick-controls.js?v=20261016-prep-curve-r1';
+import {createLightingState} from './lighting-state.js?v=20261017-viewer-ui-r1';
+import {createQuickControls} from './quick-controls.js?v=20261017-viewer-ui-r1';
 import * as THREE from 'three';
 import {createCabinetry} from './cabinetry.js?v=20261016-prep-curve-r1';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
@@ -11,11 +12,11 @@ import {createTileReflection} from './floor-reflection.js?v=20261013-r13';
 import {LIGHT_COLOUR, roomViewingMatrix} from './light-colour.js?v=20261013-r13';
 import {createWindowDaylight} from './window-daylight.js?v=20261016-prep-curve-r1';
 
-let quickControls=null;
+let quickControls=null,lightingSession=null;
 RectAreaLightUniformsLib.init();
 
 const TYPES={light:{label:'Light point',color:0xffd166},fan:{label:'Fan point',color:0x6aa9ff},socket:{label:'Socket / power',color:0x56d68b},data:{label:'TV / fibre',color:0xb18cff},fixed:{label:'Air-con / water heater',color:0x4dd7e7},proposed:{label:'Proposed',color:0xff835c}};
-const ROOMS=['全屋','玄关','客厅','餐厅','厨房','Yard','走道','主人房','B2','B3','Bath 1','Bath 2','AC Ledge'];
+const ROOMS=['全屋','玄关','厨房','餐厅','客厅','走道','主人房','B2','B3','Bath 1','Bath 2','Yard','AC Ledge'];
 const ROOM_LABELS={'全屋':'Whole home','玄关':'Entry','客厅':'Living room','餐厅':'Dining','厨房':'Kitchen','Yard':'Yard','走道':'Hall','主人房':'Master bedroom','B2':'Bedroom 2','B3':'Bedroom 3','Bath 1':'Bath 1','Bath 2':'Bath 2','AC Ledge':'AC ledge'};
 const points=SOURCE_REGISTER.map(([id,room,ex,ey,type,title])=>{
  const [x,y]=sourceModel(id);
@@ -309,21 +310,19 @@ function buildInterior(){
  // Living: standalone King Living 1978 planning geometry and a single table.
  sofa();
  // A low oval table keeps clear of the chaise and still leaves the TV-side aisle.
- const coffeeTop=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,.048,48),mats.black);
- coffeeTop.name='1000 by 600 black coffee-table top, product pending';coffeeTop.scale.set(.60,1,1.00);coffeeTop.position.set(1.92,.365,-7.05);coffeeTop.castShadow=true;interior.add(coffeeTop);
- box('coffee table slim central pedestal',1.92,7.05,.035,.18,.42,.305,mats.black,.04);
- box('coffee table recessed oval foot',1.92,7.05,.018,.46,.66,.026,mats.black,.08);
+ const walnut=new THREE.MeshStandardMaterial({map:greyAshTexture(),color:0x8e7865,roughness:.65});
+ const coffeeTop=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,.028,80),walnut);
+ coffeeTop.name='900 by 500 smoked walnut oval coffee-table top, product pending';coffeeTop.scale.set(.50,1,.90);coffeeTop.position.set(1.92,.336,-7.05);coffeeTop.castShadow=true;coffeeTop.receiveShadow=true;interior.add(coffeeTop);
+ for(const dy of [-.28,.28])for(const dx of [-.145,.145])box('coffee table fine black leg',1.92+dx,7.05+dy,.018,.022,.022,.304,mats.metal,.006);
  box('Samsung The Frame Pro provisional 65 inch bezel',3.12,7.62,.68155,.050,1.4568,.8369,mats.black,.008);
  const art=new THREE.Mesh(new THREE.PlaneGeometry(1.4188,.7989),new THREE.MeshStandardMaterial({map:frameArtTexture(),roughness:.96}));art.name='The Frame Pro Art Mode size pending';art.rotation.y=-Math.PI/2;art.position.set(3.088,1.10,-7.62);interior.add(art);
  // Dining: bench sits beside the Bath 2 wall; table and two chairs face it.
  // Bench against the Bath 2 finished face. Pendant offset is horizontal only.
  const [tx,ty]=DINING.centre;const diningStart=interior.children.length;
- box('dining table 1600 travertine top',tx,ty,.71,.80,1.60,.055,travertineMat,.09);
- for(const y of [ty-.51,ty+.51]){
-  box('dining table sculpted black blade pedestal',tx,y,.035,.34,.075,.665,mats.metal,.018);
-  box('dining table black pedestal foot',tx,y,.018,.53,.24,.035,mats.metal,.015);
-  box('dining table underside support',tx,y,.675,.55,.13,.035,mats.metal,.012);
- }
+ box('dining table 1600 travertine slim micro-rounded top',tx,ty,.741,.80,1.60,.024,travertineMat,.009);
+ for(const x of [tx-.355,tx+.355])for(const y of [ty-.755,ty+.755])box('dining table black square corner leg',x,y,.018,.045,.045,.723,mats.metal,.003);
+ for(const x of [tx-.355,tx+.355])box('dining table black long apron',x,ty,.659,.036,1.51,.082,mats.metal,.003);
+ for(const y of [ty-.755,ty+.755])box('dining table black end apron',tx,y,.659,.71,.036,.082,mats.metal,.003);
  box('dining bench light greige upholstered cushion',DINING.benchX,ty,.43,.43,1.55,.095,mats.linen,.048);
  box('dining bench black inset underframe',DINING.benchX,ty,.385,.34,1.44,.040,mats.metal,.014);
  for(const y of [ty-.61,ty+.61])for(const x of [DINING.benchX-.16,DINING.benchX+.16])box('dining bench slim black leg',x,y,.02,.025,.025,.39,mats.metal,.006);
@@ -652,43 +651,61 @@ function syncLights(){
 const COMMON_LIGHT_ROOMS=new Set(['玄关','客厅','餐厅','厨房','走道']);
 const lightScopeFor=room=>COMMON_LIGHT_ROOMS.has(room)||room==='全屋'?'common':room;
 const inLightScope=(c,scope)=>scope==='common'?COMMON_LIGHT_ROOMS.has(c.room):c.room===scope;
+const LIGHT_ORDER=['F-L1','K-L2','K-LED','D-L1','L-L2','L-L1','L-FLOOR','H1','H2','M-L2','B2-F','B3-L1','B3-L2','B1-DL','B1-SP','B2B-DL','B2B-SP','Y-L1'];
+const LIGHT_LABELS={'F-L1':'Entry · ceiling','K-L2':'Kitchen · ceiling','K-LED':'Kitchen · sink strip','D-L1':'Dining · pendant','L-L2':'Living · dining-side ceiling','L-L1':'Living · window-side ceiling','L-FLOOR':'Living · floor lamp','H1':'Hall · light 1','H2':'Hall · light 2','M-L2':'Ceiling light','B2-F':'Ceiling light','B3-L1':'Ceiling light 1','B3-L2':'Ceiling light 2','B1-DL':'Shower · downlight','B1-SP':'Mirror · spotlight','B2B-DL':'Shower · downlight','B2B-SP':'Mirror · spotlight','Y-L1':'Yard · ceiling'};
+function syncLightingUI(){
+ if(!lightingSession)return;
+ const cs=lightCircuits.filter(c=>inLightScope(c,lightRoomSelect.value)),n=cs.filter(c=>c.on).length;
+ document.querySelector('#dockLightCount').textContent=n;
+ document.querySelector('#lightCount').textContent=`${n} / ${cs.length} on`;
+ document.querySelector('#lightSceneCaption').textContent=(lightRoomSelect.selectedOptions[0]?.textContent||'Common area')+' · '+(daylight?'DAYLIGHT':'NIGHT');
+ document.querySelectorAll('[data-environment]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.environment==='day')===daylight)));
+ document.querySelector('#sceneMemoryHint').textContent=n?`${daylight?'Day':'Night'} settings remembered · ${n} light${n===1?'':'s'} on`:`${daylight?'Natural daylight only':'All lights off'} · tap Main lights to illuminate`;
+ document.querySelector('#undoLighting').disabled=!lightingSession.canUndo;
+ document.querySelector('.lighting-footer span').textContent=lightingSession.persistent?'Saved on this device':'Remembered for this visit';
+ document.querySelector('#lightsMain').disabled=!cs.length;document.querySelector('#lightsAllOn').disabled=!cs.length||n===cs.length;document.querySelector('#lightsAllOff').disabled=n===0;
+ document.querySelector('#lightPanelToggle').setAttribute('aria-label',`Lighting · ${n} of ${cs.length} on`);
+}
+function editLights(fn,scope=lightRoomSelect.value){lightingSession.edit(fn,scope);syncLights();renderLightSwitches()}
+function setDaylight(on){if(!lightingSession||!lightingSession.change(on,lightRoomSelect.value))return;daylight=on;const u=new URL(location.href);u.searchParams.set('daylight',on?'1':'0');history.replaceState(null,'',u);syncLights();syncEnvironment();renderLightSwitches()}
+
 function renderLightSwitches(){
- quickControls?.sync();
+ const focusedLight=document.activeElement?.dataset?.lightId;
+ quickControls?.sync();syncLightingUI();
  const quick=document.querySelector('#quickLightSwitches'),more=document.querySelector('#lightSwitches');
  quick.replaceChildren();more.replaceChildren();
  const selected=document.querySelector('#lightRoomSelect').value||'common';
  const common=selected==='common';
  document.querySelector('#temperatureCompare').hidden=!common;
  document.querySelector('#lightPanel').classList.toggle('common-lights',common);
- document.querySelector('#lightsAllOn').textContent=common?'Area on':'Room on';document.querySelector('#lightsAllOff').textContent=common?'Area off':'Room off';
- const circuits=lightCircuits.filter(c=>inLightScope(c,selected)&&circuitActive(c));
+ document.querySelector('#lightsAllOn').textContent='All on';document.querySelector('#lightsAllOff').textContent='All off';
+ const circuits=lightCircuits.filter(c=>inLightScope(c,selected)&&circuitActive(c)).sort((a,b)=>LIGHT_ORDER.indexOf(a.id)-LIGHT_ORDER.indexOf(b.id));
  const makeRow=(c,compact)=>{
   const row=document.createElement('div');row.className='light-row'+(compact?' compact':'');
   const toggle=document.createElement('button');toggle.type='button';toggle.className='light-switch'+(c.on?' on':'');toggle.setAttribute('aria-pressed',String(c.on));
-  const label=document.createElement('span');label.className='fixture-name';label.textContent=c.name;
+  const label=document.createElement('span');label.className='fixture-name';label.textContent=LIGHT_LABELS[c.id]||c.name;toggle.dataset.lightId=c.id;toggle.setAttribute('aria-label',label.textContent);
   const state=document.createElement('span');state.className='light-state';state.textContent=c.on?'ON':'OFF';
-  toggle.append(label,state);toggle.onclick=()=>{c.on=!c.on;syncLights();renderLightSwitches()};
-  const pin=document.createElement('button');pin.type='button';pin.className='light-pin'+(quickLightIds.has(c.id)?' pinned':'');pin.textContent=quickLightIds.has(c.id)?'★':'☆';pin.setAttribute('aria-label',`${quickLightIds.has(c.id)?'Remove':'Add'} ${c.name} ${quickLightIds.has(c.id)?'from':'to'} quick controls`);pin.setAttribute('aria-pressed',String(quickLightIds.has(c.id)));
-  pin.onclick=()=>{quickLightIds.has(c.id)?quickLightIds.delete(c.id):quickLightIds.add(c.id);try{localStorage.setItem(QUICK_LIGHTS_KEY,JSON.stringify([...quickLightIds]))}catch{}renderLightSwitches()};
-  row.append(toggle);if(!common)row.append(pin);
+  toggle.append(label,state);toggle.onclick=()=>editLights(()=>{c.on=!c.on});
+  row.append(toggle);
   if(!compact){const meta=fixtureMeta(c),detail=document.createElement('small');detail.className='fixture-meta';detail.textContent=`${c.id} · ${meta?.size||'Size pending'} · ${meta?`X ${Math.round(meta.x*1000)} / Y ${Math.round(meta.y*1000)} mm`:'Position to measure'}`;row.append(detail)}
   return row;
  };
- for(const c of circuits)(common||quickLightIds.has(c.id)?quick:more).append(makeRow(c,common||quickLightIds.has(c.id)));
+ for(const c of circuits)quick.append(makeRow(c,true));
  if(!quick.children.length){const empty=document.createElement('p');empty.className='light-empty';empty.textContent=circuits.length?'Pin a light from More below.':'No lighting circuit in this space.';quick.append(empty)}
  if(!more.children.length){const empty=document.createElement('p');empty.className='light-empty';empty.textContent='All room lights are in quick controls.';more.append(empty)}
+ if(focusedLight)quick.querySelector(`[data-light-id="${focusedLight}"]`)?.focus({preventScroll:true});
 }
-const QUICK_LIGHTS_KEY='serina-quick-lights-current-20261012-r2';
-const DEFAULT_QUICK_LIGHTS=FIXTURES.map(f=>f.id);
-let savedQuickLights;try{savedQuickLights=JSON.parse(localStorage.getItem(QUICK_LIGHTS_KEY))}catch{}
-const quickLightIds=new Set(Array.isArray(savedQuickLights)?savedQuickLights.map(id=>id==='B2-TRACK'?'B2-F':id):DEFAULT_QUICK_LIGHTS);
 const lightPanel=document.querySelector('#lightPanel'),lightPanelToggle=document.querySelector('#lightPanelToggle');
-function setLightPanelOpen(open){lightPanel.hidden=!open;lightPanelToggle.setAttribute('aria-expanded',String(open));if(open){quickControls?.close();closeDrawer();renderLightSwitches()}}
+function setLightPanelOpen(open){document.querySelector('#app').classList.toggle('lighting-open',open);document.querySelector('#movementPad').hidden=true;document.querySelector('#movementToggle').setAttribute('aria-expanded','false');document.querySelector('#viewerMore').open=false;lightPanel.hidden=!open;lightPanelToggle.setAttribute('aria-expanded',String(open));if(open){quickControls?.close();closeDrawer();renderLightSwitches()}}
 lightPanelToggle.onclick=()=>setLightPanelOpen(lightPanel.hidden);
 document.querySelector('#lightPanelClose').onclick=()=>setLightPanelOpen(false);
-document.querySelector('#lightsAllOn').onclick=()=>{lightCircuits.filter(c=>circuitActive(c)&&inLightScope(c,lightRoomSelect.value)).forEach(c=>c.on=true);syncLights();renderLightSwitches()};
-document.querySelector('#lightsAllOff').onclick=()=>{lightCircuits.filter(c=>circuitActive(c)&&inLightScope(c,lightRoomSelect.value)).forEach(c=>c.on=false);syncLights();renderLightSwitches()};
-for(const [id,on] of [['houseLightsOn',true],['houseLightsOff',false]])document.querySelector('#'+id).onclick=()=>{lightCircuits.forEach(c=>c.on=on);syncLights();renderLightSwitches()};
+document.querySelector('#lightsAllOn').onclick=()=>editLights(cs=>cs.filter(c=>inLightScope(c,lightRoomSelect.value)).forEach(c=>c.on=true));
+document.querySelector('#lightsAllOff').onclick=()=>editLights(cs=>cs.filter(c=>inLightScope(c,lightRoomSelect.value)).forEach(c=>c.on=false));
+document.querySelector('#lightsMain').onclick=()=>editLights(cs=>cs.filter(c=>inLightScope(c,lightRoomSelect.value)).forEach(c=>c.on=!['strip','floorLamp'].includes(c.kind)));
+document.querySelector('#restoreLighting').onclick=()=>{lightingSession.defaults(lightRoomSelect.value);syncLights();renderLightSwitches()};
+document.querySelector('#undoLighting').onclick=()=>{const previous=lightingSession.revert();if(previous===null)return;daylight=previous;const u=new URL(location.href);u.searchParams.set('daylight',daylight?'1':'0');history.replaceState(null,'',u);syncLights();syncEnvironment();renderLightSwitches()};
+for(const [id,on] of [['houseLightsOn',true],['houseLightsOff',false]])document.querySelector('#'+id).onclick=()=>editLights(cs=>cs.forEach(c=>c.on=on),'all');
+document.querySelectorAll('[data-environment]').forEach(b=>b.onclick=()=>{if(!inside)indoorPlace(({'主人房':'master','B2':'b2','B3':'b3','厨房':'kitchen','玄关':'entry','Bath 1':'bath1','Bath 2':'bath2','Yard':'yard'}[activeRoom])||'common');setDaylight(b.dataset.environment==='day')});
 for(const p of points){if(['socket','data','fixed'].includes(p.type))p.status='Plan indication · verify on site'}
 for(const p of points){const geo=new THREE.SphereGeometry(p.type==='fan'?.105:.085,20,20); const mat=new THREE.MeshStandardMaterial({color:p.status==='Unused'?0x87978c:TYPES[p.type].color,emissive:p.status==='Unused'?0x87978c:TYPES[p.type].color,emissiveIntensity:p.status==='Unused'?.08:.65,roughness:.65}); const m=new THREE.Mesh(geo,mat); m.position.set(...p.pos); m.userData=p; markerGroup.add(m); markerMeshes.push(m); const ring=new THREE.Mesh(new THREE.RingGeometry(.12,.15,32),new THREE.MeshBasicMaterial({color:TYPES[p.type].color,transparent:true,opacity:.48,side:THREE.DoubleSide})); ring.rotation.x=-Math.PI/2; ring.position.copy(m.position); ring.position.y-=.002; markerGroup.add(ring); m.userData.ring=ring;}
 let activeRoom='全屋';
@@ -730,18 +747,19 @@ function renderPointRegister(){
 }
 renderPointRegister();
 const panel=document.querySelector('.panel'),panelToggle=document.querySelector('#panelToggle'),scrim=document.querySelector('#drawerScrim');
-let currentTab='layout';
+let currentTab='layout';panel.inert=true;
 function openDrawer(tab='layout'){
+ document.querySelector('#viewerMore').open=false;
  quickControls?.close();
  setLightPanelOpen(false);
- currentTab=tab;panel.classList.remove('collapsed');panel.setAttribute('aria-hidden','false');scrim.hidden=false;
+ currentTab=tab;panel.inert=false;panel.classList.remove('collapsed');panel.setAttribute('aria-hidden','false');scrim.hidden=false;
  document.querySelector('#drawerTitle').textContent={layout:'Layout',points:'Electrical points',measure:'Room dimensions'}[tab];
  document.querySelectorAll('.drawer-tabs button').forEach(b=>{const selected=b.dataset.tab===tab;b.classList.toggle('active',selected);b.setAttribute('aria-selected',String(selected))});
  document.querySelectorAll('.tab-pane').forEach(p=>p.hidden=p.id!==`tab-${tab}`);
  panelToggle.setAttribute('aria-expanded','true');
  if(tab==='measure')renderMeasurements();if(tab==='points')renderPointRegister();
 }
-function closeDrawer(){panel.classList.add('collapsed');panel.setAttribute('aria-hidden','true');scrim.hidden=true;panelToggle.setAttribute('aria-expanded','false')}
+function closeDrawer(){panel.inert=true;panel.classList.add('collapsed');panel.setAttribute('aria-hidden','true');scrim.hidden=true;panelToggle.setAttribute('aria-expanded','false')}
 panelToggle.onclick=()=>panel.classList.contains('collapsed')?openDrawer('points'):closeDrawer();
 document.querySelector('#collapse').onclick=closeDrawer;scrim.onclick=closeDrawer;
 document.querySelectorAll('.drawer-tabs button').forEach(b=>b.onclick=()=>openDrawer(b.dataset.tab));
@@ -749,7 +767,7 @@ let inside=false,daylight=false,interiorMode='walk',wideView=false;
 let lookPointer=null;
 const heldNavigation=new Set();
 function syncEnvironment(){
- quickControls?.sync();
+ quickControls?.sync();syncLightingUI();
  tileReflection.invalidate();tileReflection.surface.visible=inside&&interiorMode!=='overview'&&['common','foyer','entry','living','dining','kitchen','prep','hall'].includes(currentInsideRoom);
  viewingWhiteBalance.value.identity();
  document.querySelector('#daylightToggle').textContent=daylight?'Daylight on':'Night mode';
@@ -810,6 +828,8 @@ function syncEnvironment(){
 }
 const insideRoomSelect=document.querySelector('#insideRoom');
 let currentInsideRoom='common';
+const rememberedViews=new Map();
+function rememberView(){if(inside&&interiorMode==='walk'&&Number.isFinite(camera.position.x))rememberedViews.set(currentInsideRoom,{eye:camera.position.toArray(),look:controls.target.toArray(),wide:wideView})}
 // Each preset is a standing eye-height camera and an in-room movement envelope.
 // The movement envelopes keep the arrow controls from walking through walls.
 const roomPresets={
@@ -930,7 +950,11 @@ function overviewWalls(on){overviewFinishWalls.visible=on;for(const [mat,state] 
 function updateCameraUI(){
  quickControls?.sync();
  document.querySelector('#overviewView').setAttribute('aria-pressed',String(inside&&interiorMode==='overview'));
- document.querySelector('#wideView').setAttribute('aria-pressed',String(wideView));document.querySelector('#wideView').disabled=interiorMode==='overview';
+ document.querySelector('#insideView').classList.toggle('active',inside&&interiorMode!=='overview');
+ document.querySelector('#movementToggle').hidden=interiorMode==='overview';
+ document.querySelector('#app').classList.toggle('overview-view',inside&&interiorMode==='overview');
+ document.querySelector('#movementPad').hidden=interiorMode==='overview'||document.querySelector('#movementToggle').getAttribute('aria-expanded')!=='true';
+ document.querySelector('#wideView').setAttribute('aria-pressed',String(wideView));document.querySelector('#wideView').disabled=!inside||interiorMode==='overview';
  document.querySelector('#walktools').classList.toggle('overview-mode',interiorMode==='overview');
  document.querySelectorAll('[data-walk],[data-look]').forEach(b=>b.disabled=interiorMode==='overview');
  document.querySelector('.walk-hint').textContent=interiorMode==='overview'?isMobile?'Drag to orbit · two fingers to move / zoom':'Drag to orbit · right-drag to move · scroll to zoom':'Drag to look · arrows or WASD to move';
@@ -946,7 +970,7 @@ function resetView(){
  heldNavigation.clear();lookPointer=null;
  if(!inside){focusRoom(activeRoom);return}
  if(interiorMode==='overview'){overviewCamera();return}
- const p=roomPresets[currentInsideRoom];pointWalkingCamera(p.eye,[...p.look,p.lookHeight??1.44]);
+ rememberedViews.delete(currentInsideRoom);const p=roomPresets[currentInsideRoom];pointWalkingCamera(p.eye,[...p.look,p.lookHeight??1.44]);
 }
 function overviewCamera(){
  // Drain any pending pan/rotation momentum before restoring the fit pose.
@@ -964,29 +988,29 @@ function overviewCamera(){
  controls.minDistance=distance*.65;controls.maxDistance=distance*1.85;controls.update();controls.enableDamping=true;
 }
 function setOverview(on){
- if(!inside)setInside(true);interiorMode=on?'overview':'walk';heldNavigation.clear();lookPointer=null;indoorCeiling.visible=!on;ground.visible=!on;overviewWalls(on);
+ if(!inside)setInside(true);if(on)rememberView();interiorMode=on?'overview':'walk';heldNavigation.clear();lookPointer=null;indoorCeiling.visible=!on;ground.visible=!on;overviewWalls(on);
  if(on){activeRoom='全屋';roomSelect.value=drawerRoomSelect.value='全屋';insideRoomSelect.value='overview';lightRoomSelect.value='common';applyFilters();renderLightSwitches();overviewCamera();}else indoorPlace(currentInsideRoom);updateCameraUI();syncLights();
 }
 function setInside(on){
- const wasInside=inside;inside=on;heldNavigation.clear();lookPointer=null;interiorMode='walk';ground.visible=true;overviewWalls(false);
+ const wasInside=inside;if(wasInside&&!on)rememberView();inside=on;heldNavigation.clear();lookPointer=null;interiorMode='walk';ground.visible=true;overviewWalls(false);
  document.querySelector('#app').classList.toggle('inside-mode',on);indoorCeiling.visible=on;document.querySelector('#insideView').classList.toggle('active',on);document.querySelector('#planView').classList.toggle('active',!on);document.querySelector('#walktools').hidden=!on;
  if(on){if(!wasInside){currentInsideRoom='common';insideRoomSelect.value='common'}indoorPlace(currentInsideRoom);}
  else{controls.enabled=true;controls.enableDamping=true;controls.enableRotate=true;controls.enablePan=true;controls.enableZoom=true;controls.minDistance=.4;controls.maxDistance=32;controls.minPolarAngle=0;controls.maxPolarAngle=Math.PI*.68;camera.clearViewOffset();camera.fov=32;camera.updateProjectionMatrix();focusRoom(activeRoom);}
  updateCameraUI();syncLights();syncEnvironment();
 }
-document.querySelector('#daylightToggle').onclick=()=>{daylight=!daylight;syncEnvironment()};
+document.querySelector('#daylightToggle').onclick=()=>setDaylight(!daylight);
 function setCommonTemperature(kelvin){
- if(![3000,3500,4000].includes(kelvin))return;commonKelvin=kelvin;
+ if(![3000,3500,4000].includes(kelvin))return;commonKelvin=kelvin;try{localStorage.setItem('serina-common-cct',String(kelvin))}catch{}
  document.querySelectorAll('[data-cct]').forEach(b=>{const selected=Number(b.dataset.cct)===kelvin;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected))});
  const url=new URL(location.href);url.searchParams.set('cct',kelvin);history.replaceState(null,'',url);syncLights();
 }
 document.querySelectorAll('[data-cct]').forEach(b=>b.onclick=()=>setCommonTemperature(Number(b.dataset.cct)));
 function indoorPlace(place){
- if(!inside)setInside(true);const p=roomPresets[place];if(!p)return;
+ const p=roomPresets[place];if(!p)return;if(inside&&interiorMode==='walk'&&place!==currentInsideRoom)rememberView();if(!inside)setInside(true);
  interiorMode='walk';currentInsideRoom=place;insideRoomSelect.value=place;indoorCeiling.visible=true;ground.visible=true;overviewWalls(false);heldNavigation.clear();lookPointer=null;
  const matchingRoom={'common':'客厅','entry':'玄关','foyer':'玄关','living':'客厅','dining':'餐厅','kitchen':'厨房','prep':'厨房','yard':'Yard','ledge':'AC Ledge','hall':'走道','master':'主人房','b2':'B2','b3':'B3','bath1':'Bath 1','bath2':'Bath 2'}[place];
- if(matchingRoom){activeRoom=matchingRoom;roomSelect.value=drawerRoomSelect.value=matchingRoom;lightRoomSelect.value=lightScopeFor(matchingRoom);applyFilters();renderPointRegister();renderMeasurements();renderLightSwitches()}
- pointWalkingCamera(p.eye,[...p.look,p.lookHeight??1.44]);updateCameraUI();syncLights();
+ if(matchingRoom){activeRoom=matchingRoom;roomSelect.value=drawerRoomSelect.value=matchingRoom;lightRoomSelect.value=lightScopeFor(matchingRoom);lightingSession?.visit(lightRoomSelect.value);applyFilters();renderPointRegister();renderMeasurements();renderLightSwitches()}
+ const saved=rememberedViews.get(place);if(saved){wideView=saved.wide;pointWalkingCamera([saved.eye[0],-saved.eye[2]],[saved.look[0],-saved.look[2],saved.look[1]])}else pointWalkingCamera(p.eye,[...p.look,p.lookHeight??1.44]);updateCameraUI();syncLights();
 }
 insideRoomSelect.onchange=()=>insideRoomSelect.value==='overview'?setOverview(true):indoorPlace(insideRoomSelect.value);
 function walkInside(dir,step=.25){
@@ -1026,11 +1050,14 @@ function updateNavigation(dt){
  // Reassert the owned standing pose after any browser/input event.
  camera.position.y=1.57;camera.lookAt(controls.target);camera.updateMatrixWorld();
 }
-document.querySelector('#insideView').onclick=()=>setInside(true);
+document.querySelector('#insideView').onclick=()=>indoorPlace(({'全屋':'common','玄关':'entry','客厅':'living','餐厅':'dining','厨房':'kitchen','Yard':'yard','走道':'hall','主人房':'master','B2':'b2','B3':'b3','Bath 1':'bath1','Bath 2':'bath2','AC Ledge':'ledge'}[activeRoom])||'common');
 document.querySelector('#planView').onclick=()=>setInside(false);
 document.querySelector('#homeView').onclick=()=>{setInside(false);selectRoom('全屋')};document.querySelector('#furnitureToggle').addEventListener('click',e=>{interior.visible=!interior.visible;tileReflection.invalidate();e.currentTarget.classList.toggle('active',interior.visible)});document.querySelector('#livingView').onclick=()=>{setInside(false);selectRoom('客厅')};document.querySelector('#kitchenView').addEventListener('click',()=>{setInside(false);selectRoom('厨房')});document.querySelector('#topView').onclick=()=>{setInside(false);focusRoom(activeRoom)};
 let faded=false;document.querySelector('#cutaway').onclick=e=>{faded=!faded;tileReflection.invalidate();e.currentTarget.classList.toggle('active',faded);if(model)model.traverse(o=>{if(o.isMesh&&/wall|shell/i.test(o.name)){o.material.transparent=faded;o.material.opacity=faded?.48:1;o.material.depthWrite=!faded}})};
 document.querySelector('#schemeQuick').onclick=()=>openDrawer('layout');
+document.querySelector('#movementToggle').onclick=e=>{if(!lightPanel.hidden)setLightPanelOpen(false);const on=e.currentTarget.getAttribute('aria-expanded')!=='true';e.currentTarget.setAttribute('aria-expanded',String(on));document.querySelector('#movementPad').hidden=!on;heldNavigation.clear()};
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!lightPanel.hidden){setLightPanelOpen(false);lightPanelToggle.focus();e.stopImmediatePropagation()}else if(!panel.classList.contains('collapsed')){closeDrawer();document.querySelector('#schemeQuick').focus();e.stopImmediatePropagation()}else if(document.querySelector('#viewerMore').open){document.querySelector('#viewerMore').open=false;e.stopImmediatePropagation()}},true);
+document.addEventListener('pointerdown',e=>{const menu=document.querySelector('#viewerMore');if(menu.open&&!menu.contains(e.target))menu.open=false});
 const controlbar=document.querySelector('.controlbar');
 new ResizeObserver(()=>document.documentElement.style.setProperty('--controls-height',Math.ceil(controlbar.getBoundingClientRect().height)+'px')).observe(controlbar);
 const initialParams=new URLSearchParams(location.search);
@@ -1051,10 +1078,11 @@ for(const mat of viewingMaterials){
  mat.customProgramCacheKey=()=> 'serina-bounded-room-colour-v10';mat.needsUpdate=true;
 }
 daylight=initialParams.get('daylight')!=='0';
-// Start in natural daylight with every electric circuit off. Explicit night links retain their lit preview.
-for(const circuit of lightCircuits)circuit.on=!daylight;
+// Scene defaults are seeded after the URL's initial room has been selected.
+for(const circuit of lightCircuits)circuit.on=false;
 renderLightSwitches();
-commonKelvin=[3000,3500,4000].includes(Number(initialParams.get('cct')))?Number(initialParams.get('cct')):3500;
+let storedKelvin;try{storedKelvin=Number(localStorage.getItem('serina-common-cct'))}catch{}
+commonKelvin=[3000,3500,4000].includes(Number(initialParams.get('cct')))?Number(initialParams.get('cct')):[3000,3500,4000].includes(storedKelvin)?storedKelvin:3500;
 document.querySelectorAll('[data-cct]').forEach(b=>{const on=Number(b.dataset.cct)===commonKelvin;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
 function setCabinetsOpen(open){
  cabinetry.setOpen(open);quickControls?.sync();for(const button of document.querySelectorAll('[data-cabinet-interiors]')){button.setAttribute('aria-pressed',String(open));button.classList.toggle('active',open);}
@@ -1073,17 +1101,20 @@ const pending=document.createElement('p');pending.className='note';pending.textC
 syncLights();syncEnvironment();
 wideView=initialParams.get('wide')==='1'||(isMobile&&!initialParams.has('wide')&&['b2inside','b2cabinet'].includes(initialParams.get('view')));
 if(initialParams.get('compare')==='1'){roomPresets.b2.eye=[5.86,8.45];roomPresets.b2.look=[4.30,6.80];roomPresets.b2.lookHeight=1.40;}
-const initialView=initialParams.get('view');
+const initialView=initialParams.get('view')||'inside';
 if(initialView==='inside')setInside(true);
 const initialPlaces={tv:'living',sofa:'living',dining:'dining',b2inside:'b2',b2cabinet:'b2',b3inside:'b3',b3cabinet:'b3',masterinside:'master',shoe:'foyer',b2:'b2',yard:'yard',kitchen:'kitchen',prep:'prep'};
 if(initialPlaces[initialView])indoorPlace(initialPlaces[initialView]);
 if(initialView==='overview')setOverview(true);
+let sceneStorage;try{sceneStorage=localStorage}catch{}
+lightingSession=createLightingState({circuits:lightCircuits,inScope:inLightScope,storage:sceneStorage});lightingSession.start(daylight,lightRoomSelect.value);syncLights();renderLightSwitches();
 quickControls=createQuickControls({
- state:()=>({inside,overview:inside&&interiorMode==='overview',place:inside?currentInsideRoom:({'全屋':'common','玄关':'entry','客厅':'living','餐厅':'dining','厨房':'kitchen','Yard':'yard','走道':'hall','主人房':'master','B2':'b2','B3':'b3','Bath 1':'bath1','Bath 2':'bath2','AC Ledge':'ledge'}[activeRoom]),label:inside?(insideRoomSelect.selectedOptions[0]?.textContent||'Common area'):(ROOM_LABELS[activeRoom]||activeRoom),lightScope:lightRoomSelect.value,lightLabel:lightRoomSelect.selectedOptions[0]?.textContent||'Common area',daylight,cabinets:cabinetry.snapshot().open,dimensions:measureOn}),
+ state:()=>({inside,overview:inside&&interiorMode==='overview',place:inside?currentInsideRoom:({'全屋':'common','玄关':'entry','客厅':'living','餐厅':'dining','厨房':'kitchen','Yard':'yard','走道':'hall','主人房':'master','B2':'b2','B3':'b3','Bath 1':'bath1','Bath 2':'bath2','AC Ledge':'ledge'}[activeRoom]),label:inside?(insideRoomSelect.selectedOptions[0]?.textContent||'Common area'):(ROOM_LABELS[activeRoom]||activeRoom),lightingOpen:!lightPanel.hidden,lightScope:lightRoomSelect.value,lightLabel:lightRoomSelect.selectedOptions[0]?.textContent||'Common area',daylight,cabinets:cabinetry.snapshot().open,dimensions:measureOn}),
  beforeOpen:()=>{closeDrawer();setLightPanelOpen(false);heldNavigation.clear();lookPointer=null},
- place:key=>{if(inside)indoorPlace(key);else{const rooms={common:'全屋',living:'客厅',dining:'餐厅',kitchen:'厨房',prep:'厨房',entry:'玄关',foyer:'玄关',yard:'Yard',ledge:'AC Ledge',hall:'走道',master:'主人房',b2:'B2',b3:'B3',bath1:'Bath 1',bath2:'Bath 2'};selectRoom(rooms[key])}},
+ openLights:()=>setLightPanelOpen(true),
+ place:key=>{if(inside){if(interiorMode==='walk'&&currentInsideRoom===key)resetView();else indoorPlace(key)}else{const rooms={common:'全屋',living:'客厅',dining:'餐厅',kitchen:'厨房',prep:'厨房',entry:'玄关',foyer:'玄关',yard:'Yard',ledge:'AC Ledge',hall:'走道',master:'主人房',b2:'B2',b3:'B3',bath1:'Bath 1',bath2:'Bath 2'};selectRoom(rooms[key])}},
  action:action=>{
-  if(action==='day'||action==='night'){daylight=action==='day';syncEnvironment()}
+  if(action==='day'||action==='night')setDaylight(action==='day');
   else if(action==='plan')setInside(false);
   else if(action==='inside'){if(inside&&interiorMode==='overview')setOverview(false);else if(!inside){const key={'全屋':'common','玄关':'entry','客厅':'living','餐厅':'dining','厨房':'kitchen','Yard':'yard','走道':'hall','主人房':'master','B2':'b2','B3':'b3','Bath 1':'bath1','Bath 2':'bath2','AC Ledge':'ledge'}[activeRoom]||'common';indoorPlace(key)}}
   else if(action==='overview')setOverview(true);
@@ -1091,7 +1122,7 @@ quickControls=createQuickControls({
   else if(action==='dimensions')setMeasurementOverlay(!measureOn);
   else if(action==='reset')resetView();
   else if(action==='lights')setLightPanelOpen(true);
-  else if(action==='lights-on'||action==='lights-off'){for(const c of lightCircuits)if(inLightScope(c,lightRoomSelect.value))c.on=action==='lights-on';syncLights();renderLightSwitches()}
+  else if(action==='lights-on'||action==='lights-off')editLights(cs=>cs.filter(c=>inLightScope(c,lightRoomSelect.value)).forEach(c=>c.on=action==='lights-on'));
  }
 });
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();if(inside&&interiorMode==='overview')overviewCamera();else if(!inside)focusRoom(activeRoom)}addEventListener('resize',resize);resize();
@@ -1106,4 +1137,4 @@ function animate(now){requestAnimationFrame(animate);const dt=Math.min(.05,Math.
   frameCount=0;frameWindowStart=now}}
 requestAnimationFrame(animate);
 
-window.serinaViewer={snapshot:()=>({revision:AGREED_SCOPE.revision,cabinetry:cabinetry.snapshot(),inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),yardNiche,finishes:{kitchenLower:'#'+mats.cabinet.color.getHexString(THREE.SRGBColorSpace),kitchenUpper:'#'+mats.lightCab.color.getHexString(THREE.SRGBColorSpace)},floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{commonKelvin,electricPreviewScale:electricPreviewScale(),localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),viewingIlluminantRGB,adaptationDegree,exposure:renderer.toneMappingExposure,bounceBudget,bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,diameter:c.diameter,thickness:c.thickness,product:c.product,ratedLumensKelvin:c.ratedLumensKelvin,bodyBounds:(()=>{const b=new THREE.Box3().setFromObject(c.group.children[0]);return b.getSize(new THREE.Vector3()).toArray()})(),lumens:c.lumens,watts:c.watts,status:c.status,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({type:l.type,visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,bedroom2:BEDROOM2,standingCirculators:[{...BEDROOM2.circulator,visible:interior.getObjectByName(BEDROOM2.circulator.name)?.visible}],scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setCabinetsOpen:setCabinetsOpen,setAllLights:on=>{for(const c of lightCircuits)c.on=on;syncLights();renderLightSwitches();},stand:indoorPlace};
+window.serinaViewer={snapshot:()=>({uiRevision:'2026-10-17-viewer-ui-r1',revision:AGREED_SCOPE.revision,cabinetry:cabinetry.snapshot(),inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,wide:wideView,fov:camera.fov,bounds:roomPresets[currentInsideRoom].bounds,blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),yardNiche,finishes:{kitchenLower:'#'+mats.cabinet.color.getHexString(THREE.SRGBColorSpace),kitchenUpper:'#'+mats.lightCab.color.getHexString(THREE.SRGBColorSpace)},floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{commonKelvin,electricPreviewScale:electricPreviewScale(),localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),viewingIlluminantRGB,adaptationDegree,exposure:renderer.toneMappingExposure,bounceBudget,bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,diameter:c.diameter,thickness:c.thickness,product:c.product,ratedLumensKelvin:c.ratedLumensKelvin,bodyBounds:(()=>{const b=new THREE.Box3().setFromObject(c.group.children[0]);return b.getSize(new THREE.Vector3()).toArray()})(),lumens:c.lumens,watts:c.watts,status:c.status,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({type:l.type,visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,bedroom2:BEDROOM2,standingCirculators:[{...BEDROOM2.circulator,visible:interior.getObjectByName(BEDROOM2.circulator.name)?.visible}],scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setCabinetsOpen:setCabinetsOpen,setAllLights:on=>editLights(cs=>cs.forEach(c=>c.on=on),'all'),stand:indoorPlace};

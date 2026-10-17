@@ -4,7 +4,7 @@ export function createQuickControls(api){
  const root=document.querySelector('#quickDrawer'),panel=root.querySelector('aside'),grip=document.querySelector('#quickGrip');
  const openers=[grip,...document.querySelectorAll('[data-open-quick]')];
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
- let opened=false,x=0,target=0,velocity=0,frame=0,last=0,drag=null,swallowedClick=false,returnFocus=grip;
+ let opened=false,x=0,target=0,velocity=0,frame=0,last=0,drag=null,swallowedClick=false,returnFocus=grip,resumeLighting=false;
  const closedX=()=>-root.offsetWidth-12;
  x=target=closedX();
  function paint(){root.style.transform=`translate3d(${x}px,0,0)`}
@@ -17,6 +17,7 @@ export function createQuickControls(api){
  }
  function animate(){cancelAnimationFrame(frame);if(reduced.matches){x=target;velocity=0;frame=0;paint();return}last=performance.now();frame=requestAnimationFrame(tick)}
  function setOpen(on,{keyboard=false,source=grip}={}){
+  if(on&&!opened)resumeLighting=!!api.state().lightingOpen;
   opened=on;target=on?0:closedX();panel.inert=!on;panel.setAttribute('aria-hidden',String(!on));
   root.classList.toggle('is-open',on);openers.forEach(b=>b.setAttribute('aria-expanded',String(on)));
   grip.setAttribute('aria-label',on?'Close quick controls':'Open quick controls');
@@ -50,9 +51,9 @@ export function createQuickControls(api){
  // Ignore movement shortcuts while using a control, even when the drawer is non-modal.
  root.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.stopPropagation()});
  const roomHost=root.querySelector('#quickSpaces');
- const spaces=[['common','Common area'],['kitchen','Kitchen'],['master','Master bedroom'],['b2','Bedroom 2'],['b3','Bedroom 3'],['hall','Hall'],['bath1','Bath 1'],['bath2','Bath 2']];
- const viewpoints=[['living','Living'],['dining','Dining'],['prep','Prep counter'],['entry','Entry'],['foyer','Outer foyer'],['yard','Yard'],['ledge','AC ledge']];
- function choosePlace(key){api.place(key);sync();if(matchMedia('(max-width:720px)').matches)setOpen(false)}
+ const spaces=[['common','Common area'],['entry','Entry'],['kitchen','Kitchen'],['dining','Dining'],['living','Living room'],['hall','Hall'],['master','Master bedroom'],['b2','Bedroom 2'],['b3','Bedroom 3'],['bath1','Bath 1'],['bath2','Bath 2'],['yard','Yard']];
+ const viewpoints=[['prep','Prep counter'],['foyer','Outer foyer'],['ledge','AC ledge']];
+ function choosePlace(key){const lighting=resumeLighting||!!returnFocus.closest('#lightPanel');api.place(key);sync();if(lighting||matchMedia('(max-width:720px)').matches)setOpen(false);if(lighting)api.openLights()}
  for(const [key,label]of spaces){const b=document.createElement('button');b.type='button';b.dataset.quickPlace=key;b.textContent=label;b.onclick=()=>choosePlace(key);roomHost.append(b)}
  for(const [key,label]of viewpoints){const b=document.createElement('button');b.type='button';b.dataset.quickPlace=key;b.textContent=label;b.onclick=()=>choosePlace(key);root.querySelector('#quickViewpoints').append(b)}
  for(const b of root.querySelectorAll('[data-quick-action]'))b.onclick=()=>{api.action(b.dataset.quickAction);sync()};
@@ -62,7 +63,7 @@ export function createQuickControls(api){
   document.querySelector('#quickLightingSpace').textContent=s.lightLabel;
   document.querySelector('#quickDetailsSpace').textContent=s.label;
   root.querySelector('#quickCurrent').textContent=name;
-  root.querySelector('#quickTemperature').hidden=s.lightScope!=='common';
+  const temperature=root.querySelector('#quickTemperature');if(temperature)temperature.hidden=s.lightScope!=='common';
   root.querySelectorAll('[data-quick-place]').forEach(b=>b.setAttribute('aria-pressed',String(!s.overview&&b.dataset.quickPlace===s.place)));
   const pressed={day:s.daylight,night:!s.daylight,plan:!s.inside,inside:s.inside&&!s.overview,overview:s.overview,cabinets:s.cabinets,dimensions:s.dimensions};
   root.querySelectorAll('[data-quick-action]').forEach(b=>{if(b.dataset.quickAction in pressed)b.setAttribute('aria-pressed',String(pressed[b.dataset.quickAction]))});
