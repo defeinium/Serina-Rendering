@@ -27,6 +27,7 @@ export function createQuickControls(api){
   else if(panel.contains(document.activeElement))(returnFocus.getClientRects().length?returnFocus:grip).focus({preventScroll:true});
   animate();
   if(restoreLights){resumeLighting=false;api.openLights()}
+  api.panelChanged?.(opened);
  }
  for(const b of openers)b.addEventListener('click',e=>{if(swallowedClick){swallowedClick=false;return}setOpen(!opened,{keyboard:e.detail===0,source:b})});
  root.querySelector('[data-quick-close]').onclick=()=>setOpen(false);

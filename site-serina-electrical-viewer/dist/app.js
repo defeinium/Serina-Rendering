@@ -1,7 +1,7 @@
 import {CABINET_FINISHES,createCabinetFinishes} from './cabinet-finishes.js?v=20261017-whole-home-cabinets-r1';
-import {createVersionInfo} from './version-info.js?v=20261017-whole-home-cabinets-r1';
+import {createVersionInfo} from './version-info.js?v=20261017-touch-movement-r1';
 import {createLightingState} from './lighting-state.js?v=20261017-viewer-ui-r1';
-import {createQuickControls} from './quick-controls.js?v=20261017-side-controls-r2';
+import {createQuickControls} from './quick-controls.js?v=20261017-touch-movement-r1';
 import * as THREE from 'three';
 import {createCabinetry} from './cabinetry.js?v=20261017-whole-home-cabinets-r1';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
@@ -700,7 +700,7 @@ function renderLightSwitches(){
  if(focusedLight)quick.querySelector(`[data-light-id="${focusedLight}"]`)?.focus({preventScroll:true});
 }
 const lightPanel=document.querySelector('#lightPanel'),lightPanelToggle=document.querySelector('#lightPanelToggle');
-function setLightPanelOpen(open){document.querySelector('#app').classList.toggle('lighting-open',open);document.querySelector('#movementPad').hidden=true;document.querySelector('#movementToggle').setAttribute('aria-expanded','false');document.querySelector('#viewerMore').open=false;lightPanel.hidden=!open;lightPanelToggle.setAttribute('aria-expanded',String(open));if(open){quickControls?.close();closeDrawer();renderLightSwitches()}syncLightingUI()}
+function setLightPanelOpen(open){document.querySelector('#app').classList.toggle('lighting-open',open);document.querySelector('#movementPad').hidden=true;document.querySelector('#movementToggle').setAttribute('aria-expanded','false');document.querySelector('#viewerMore').open=false;lightPanel.hidden=!open;lightPanelToggle.setAttribute('aria-expanded',String(open));if(open){quickControls?.close();closeDrawer();renderLightSwitches()}syncLightingUI();syncTouchMovement()}
 lightPanelToggle.onclick=()=>setLightPanelOpen(lightPanel.hidden);
 document.querySelector('#lightPanelClose').onclick=()=>setLightPanelOpen(false);
 document.querySelector('#lightsAllOn').onclick=()=>editLights(cs=>cs.filter(c=>inLightScope(c,lightRoomSelect.value)).forEach(c=>c.on=true));
@@ -769,7 +769,29 @@ document.querySelector('#collapse').onclick=closeDrawer;scrim.onclick=closeDrawe
 document.querySelectorAll('.drawer-tabs button').forEach(b=>b.onclick=()=>openDrawer(b.dataset.tab));
 let inside=false,daylight=false,interiorMode='walk',wideView=false;
 let lookPointer=null;
-const heldNavigation=new Set();
+const heldNavigation=new Set(),navigationSources=new Map(),cancelledNavigationPointers=new Set();
+const touchWalkPad=document.querySelector('#touchWalkPad'),touchOverviewHint=document.querySelector('#touchOverviewHint');
+const touchWalkMedia=matchMedia('(max-width:720px), (pointer:coarse)');
+function navigationInput(source,action){
+ if(action)navigationSources.set(source,action);else navigationSources.delete(source);
+ heldNavigation.clear();for(const value of navigationSources.values())heldNavigation.add(value);
+ for(const b of document.querySelectorAll('[data-walk],[data-look]'))b.classList.toggle('is-held',heldNavigation.has(b.dataset.walk||'look-'+b.dataset.look));
+}
+function clearNavigation(){
+ const pointers=[...navigationSources.keys()].filter(k=>k.startsWith('pointer:')).map(k=>Number(k.slice(8)));
+ for(const id of pointers){cancelledNavigationPointers.add(id);setTimeout(()=>cancelledNavigationPointers.delete(id),1500);}
+ navigationSources.clear();heldNavigation.clear();
+ for(const b of document.querySelectorAll('[data-walk],[data-look]')){b.classList.remove('is-held');for(const id of pointers)if(b.hasPointerCapture(id))b.releasePointerCapture(id);}
+}
+function syncTouchMovement(){
+ const available=inside&&touchWalkMedia.matches&&!document.hidden&&lightPanel.hidden&&!document.querySelector('#quickDrawer').classList.contains('is-open')&&!document.querySelector('#versionInfo')?.open;
+ const visible=available&&interiorMode==='walk';touchWalkPad.hidden=!visible;touchOverviewHint.hidden=!(available&&interiorMode==='overview');if(!visible)clearNavigation();
+}
+// Cancel compatibility clicks from fingers whose held control was hidden by a panel.
+document.addEventListener('pointerdown',e=>cancelledNavigationPointers.delete(e.pointerId),true);
+document.addEventListener('click',e=>{if(cancelledNavigationPointers.has(e.pointerId)){cancelledNavigationPointers.delete(e.pointerId);e.preventDefault();e.stopImmediatePropagation();}},true);
+touchWalkMedia.addEventListener('change',()=>{clearNavigation();syncTouchMovement();});
+document.addEventListener('toggle',e=>{if(e.target.id==='versionInfo')syncTouchMovement();},true);
 function syncEnvironment(){
  quickControls?.sync();syncLightingUI();
  tileReflection.invalidate();tileReflection.surface.visible=inside&&interiorMode!=='overview'&&['common','foyer','entry','living','dining','kitchen','prep','hall'].includes(currentInsideRoom);
@@ -970,6 +992,7 @@ function updateCameraUI(){
  document.querySelector('#walktools').classList.toggle('overview-mode',interiorMode==='overview');
  document.querySelectorAll('[data-walk],[data-look]').forEach(b=>b.disabled=interiorMode==='overview');
  document.querySelector('.walk-hint').textContent=interiorMode==='overview'?isMobile?'Drag to orbit · two fingers to move / zoom':'Drag to orbit · right-drag to move · scroll to zoom':'Drag to look · arrows or WASD to move';
+ syncTouchMovement();
  document.querySelector('#cameraSpaceLabel').textContent=interiorMode==='overview'?'View':'Space';
  document.querySelector('.hint').textContent=inside?(interiorMode==='overview'?'Overview · right-drag / two fingers to move · Reset to fit':'Drag to look · scroll stays in the room · Reset restores view'):'Drag to orbit · pinch or scroll to zoom · tap points for details';
 }
@@ -980,7 +1003,7 @@ function pointWalkingCamera(eye,look){
 }
 function resetView(){
  walkedPublicLocation=null;
- heldNavigation.clear();lookPointer=null;
+ clearNavigation();lookPointer=null;
  if(!inside){focusRoom(activeRoom);return}
  if(interiorMode==='overview'){overviewCamera();return}
  rememberedViews.delete(currentInsideRoom);const p=roomPresets[currentInsideRoom];pointWalkingCamera(p.eye,[...p.look,p.lookHeight??1.44]);
@@ -1001,11 +1024,11 @@ function overviewCamera(){
  controls.minDistance=distance*.65;controls.maxDistance=distance*1.85;controls.update();controls.enableDamping=true;
 }
 function setOverview(on){
- if(!inside)setInside(true);if(on)rememberView();interiorMode=on?'overview':'walk';heldNavigation.clear();lookPointer=null;indoorCeiling.visible=!on;ground.visible=!on;overviewWalls(on);
+ if(!inside)setInside(true);if(on)rememberView();interiorMode=on?'overview':'walk';clearNavigation();lookPointer=null;indoorCeiling.visible=!on;ground.visible=!on;overviewWalls(on);
  if(on){activeRoom='全屋';roomSelect.value=drawerRoomSelect.value='全屋';insideRoomSelect.value='overview';lightRoomSelect.value='all';ensureOverviewLights();applyFilters();renderLightSwitches();overviewCamera();}else indoorPlace(currentInsideRoom);updateCameraUI();syncLights();
 }
 function setInside(on){
- const wasInside=inside;if(wasInside&&!on)rememberView();inside=on;heldNavigation.clear();lookPointer=null;interiorMode='walk';ground.visible=true;overviewWalls(false);
+ const wasInside=inside;if(wasInside&&!on)rememberView();inside=on;clearNavigation();lookPointer=null;interiorMode='walk';ground.visible=true;overviewWalls(false);
  document.querySelector('#app').classList.toggle('inside-mode',on);indoorCeiling.visible=on;document.querySelector('#insideView').classList.toggle('active',on);document.querySelector('#planView').classList.toggle('active',!on);document.querySelector('#walktools').hidden=!on;
  if(on){if(!wasInside){currentInsideRoom='common';insideRoomSelect.value='common'}indoorPlace(currentInsideRoom);}
  else{controls.enabled=true;controls.enableDamping=true;controls.enableRotate=true;controls.enablePan=true;controls.enableZoom=true;controls.minDistance=.4;controls.maxDistance=32;controls.minPolarAngle=0;controls.maxPolarAngle=Math.PI*.68;camera.clearViewOffset();camera.fov=32;camera.updateProjectionMatrix();focusRoom(activeRoom);}
@@ -1020,7 +1043,7 @@ function setCommonTemperature(kelvin){
 document.querySelectorAll('[data-cct]').forEach(b=>b.onclick=()=>setCommonTemperature(Number(b.dataset.cct)));
 function indoorPlace(place){
  const p=roomPresets[place];if(!p)return;if(inside&&interiorMode==='walk'&&place!==currentInsideRoom)rememberView();if(!inside)setInside(true);
- walkedPublicLocation=null;interiorMode='walk';currentInsideRoom=place;insideRoomSelect.value=place;indoorCeiling.visible=true;ground.visible=true;overviewWalls(false);heldNavigation.clear();lookPointer=null;
+ walkedPublicLocation=null;interiorMode='walk';currentInsideRoom=place;insideRoomSelect.value=place;indoorCeiling.visible=true;ground.visible=true;overviewWalls(false);clearNavigation();lookPointer=null;
  const matchingRoom={'common':'客厅','entry':'玄关','foyer':'玄关','living':'客厅','dining':'餐厅','kitchen':'厨房','prep':'厨房','yard':'Yard','ledge':'AC Ledge','hall':'走道','master':'主人房','b2':'B2','b3':'B3','bath1':'Bath 1','bath2':'Bath 2'}[place];
  if(matchingRoom){activeRoom=matchingRoom;roomSelect.value=drawerRoomSelect.value=matchingRoom;lightRoomSelect.value=lightScopeFor(matchingRoom);lightingSession?.visit(lightRoomSelect.value);applyFilters();renderPointRegister();renderMeasurements();renderLightSwitches()}
  const saved=rememberedViews.get(place);if(saved){if(connectedPublicPlaces.has(place))walkedPublicLocation=publicLocationAt(saved.eye[0],-saved.eye[2]);wideView=saved.wide;pointWalkingCamera([saved.eye[0],-saved.eye[2]],[saved.look[0],-saved.look[2],saved.look[1]])}else pointWalkingCamera(p.eye,[...p.look,p.lookHeight??1.44]);updateCameraUI();syncLights();
@@ -1035,7 +1058,7 @@ function lookInside(dx,dy=0){
  yaw-=dx*.003;pitch=THREE.MathUtils.clamp(pitch-dy*.0025,-1.15,1.20);const c=Math.cos(pitch);controls.target.copy(camera.position).add(new THREE.Vector3(Math.sin(yaw)*c,Math.sin(pitch),-Math.cos(yaw)*c).multiplyScalar(2));camera.lookAt(controls.target);
 }
 canvas.addEventListener('pointerdown',event=>{
- if(!inside||interiorMode!=='walk'||!event.isPrimary||(event.pointerType==='mouse'&&event.button!==0))return;
+ if(!inside||interiorMode!=='walk'||lookPointer||(event.pointerType==='mouse'&&event.button!==0))return;
  lookPointer={id:event.pointerId,x:event.clientX,y:event.clientY};canvas.setPointerCapture(event.pointerId);
 });
 canvas.addEventListener('pointermove',event=>{if(!lookPointer||lookPointer.id!==event.pointerId||!inside||interiorMode!=='walk')return;lookInside(event.clientX-lookPointer.x,event.clientY-lookPointer.y);lookPointer.x=event.clientX;lookPointer.y=event.clientY});
@@ -1048,15 +1071,20 @@ document.querySelector('#wideView').onclick=()=>{wideView=!wideView;camera.fov=w
 document.querySelectorAll('[data-place]').forEach(b=>b.onclick=()=>indoorPlace(b.dataset.place));
 for(const button of document.querySelectorAll('[data-walk],[data-look]')){
  const key=button.dataset.walk||'look-'+button.dataset.look;
- button.addEventListener('pointerdown',e=>{if(!inside||interiorMode!=='walk')return;e.preventDefault();if(button.dataset.walk)walkInside(key,.12);else lookInside(key==='look-left'?30:-30);heldNavigation.add(key);button.setPointerCapture(e.pointerId);});
- const stop=()=>heldNavigation.delete(key);button.addEventListener('pointerup',stop);button.addEventListener('pointercancel',stop);button.addEventListener('lostpointercapture',stop);
- // Keyboard/assistive activation remains a single small step.
- button.addEventListener('click',e=>{if(e.detail===0){if(button.dataset.walk)walkInside(key);else lookInside(key==='look-left'?60:-60)}});
+ button.addEventListener('pointerdown',e=>{
+  if(!inside||interiorMode!=='walk'||button.disabled||(e.pointerType==='mouse'&&e.button!==0))return;
+  e.preventDefault();if(button.dataset.walk)walkInside(key,.12);else lookInside(key==='look-left'?30:-30);
+  navigationInput('pointer:'+e.pointerId,key);button.setPointerCapture(e.pointerId);
+ });
+ const stop=e=>navigationInput('pointer:'+e.pointerId,null);
+ button.addEventListener('pointerup',stop);button.addEventListener('pointercancel',stop);button.addEventListener('lostpointercapture',stop);
+ // Assistive and keyboard activation takes one step; touch already ran on pointerdown.
+ button.addEventListener('click',e=>{if(e.detail===0&&inside&&interiorMode==='walk'){if(button.dataset.walk)walkInside(key);else lookInside(key==='look-left'?60:-60);}});
 }
 const keyActions={w:'forward',s:'back',a:'left',d:'right',ArrowUp:'forward',ArrowDown:'back',ArrowLeft:'left',ArrowRight:'right',q:'look-left',e:'look-right'};
-addEventListener('keydown',e=>{if(e.target.closest?.('button,a,select,input,textarea,[contenteditable]')||!inside||interiorMode!=='walk')return;const action=keyActions[e.key];if(action){e.preventDefault();heldNavigation.add(action)}if(e.key==='Escape')resetView()});
-addEventListener('keyup',e=>heldNavigation.delete(keyActions[e.key]));
-addEventListener('blur',()=>{heldNavigation.clear();lookPointer=null});document.addEventListener('visibilitychange',()=>{if(document.hidden){heldNavigation.clear();lookPointer=null}});
+addEventListener('keydown',e=>{if(e.target.closest?.('button,a,select,input,textarea,[contenteditable]')||!inside||interiorMode!=='walk')return;const action=keyActions[e.key]||keyActions[e.key.toLowerCase()];if(action){e.preventDefault();navigationInput('keyboard:'+(e.code||e.key),action);}if(e.key==='Escape')resetView();});
+addEventListener('keyup',e=>navigationInput('keyboard:'+(e.code||e.key),null));
+addEventListener('blur',()=>{clearNavigation();lookPointer=null;});document.addEventListener('visibilitychange',()=>{if(document.hidden){clearNavigation();lookPointer=null;}syncTouchMovement();});
 function updateNavigation(dt){
  if(!inside||interiorMode!=='walk')return;
  for(const action of heldNavigation){if(action.startsWith('look-'))lookInside((action==='look-left'?1:-1)*dt*240);else walkInside(action,dt*.80)}
@@ -1068,7 +1096,7 @@ document.querySelector('#planView').onclick=()=>setInside(false);
 document.querySelector('#homeView').onclick=()=>{setInside(false);selectRoom('全屋')};document.querySelector('#furnitureToggle').addEventListener('click',e=>{interior.visible=!interior.visible;tileReflection.invalidate();e.currentTarget.classList.toggle('active',interior.visible)});document.querySelector('#livingView').onclick=()=>{setInside(false);selectRoom('客厅')};document.querySelector('#kitchenView').addEventListener('click',()=>{setInside(false);selectRoom('厨房')});document.querySelector('#topView').onclick=()=>{setInside(false);focusRoom(activeRoom)};
 let faded=false;document.querySelector('#cutaway').onclick=e=>{faded=!faded;tileReflection.invalidate();e.currentTarget.classList.toggle('active',faded);if(model)model.traverse(o=>{if(o.isMesh&&/wall|shell/i.test(o.name)){o.material.transparent=faded;o.material.opacity=faded?.48:1;o.material.depthWrite=!faded}})};
 document.querySelector('#schemeQuick').onclick=()=>openDrawer('layout');
-document.querySelector('#movementToggle').onclick=e=>{if(!lightPanel.hidden)setLightPanelOpen(false);const on=e.currentTarget.getAttribute('aria-expanded')!=='true';e.currentTarget.setAttribute('aria-expanded',String(on));document.querySelector('#movementPad').hidden=!on;heldNavigation.clear()};
+document.querySelector('#movementToggle').onclick=e=>{if(!lightPanel.hidden)setLightPanelOpen(false);const on=e.currentTarget.getAttribute('aria-expanded')!=='true';e.currentTarget.setAttribute('aria-expanded',String(on));document.querySelector('#movementPad').hidden=!on;clearNavigation()};
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!lightPanel.hidden){setLightPanelOpen(false);lightPanelToggle.focus();e.stopImmediatePropagation()}else if(!panel.classList.contains('collapsed')){closeDrawer();document.querySelector('#schemeQuick').focus();e.stopImmediatePropagation()}else if(document.querySelector('#viewerMore').open){document.querySelector('#viewerMore').open=false;e.stopImmediatePropagation()}},true);
 document.addEventListener('pointerdown',e=>{const menu=document.querySelector('#viewerMore');if(menu.open&&!menu.contains(e.target))menu.open=false});
 const controlbar=document.querySelector('.controlbar');
@@ -1123,7 +1151,8 @@ let sceneStorage;try{sceneStorage=localStorage}catch{}
 lightingSession=createLightingState({circuits:lightCircuits,inScope:inLightScope,storage:sceneStorage});lightingSession.start(daylight,lightRoomSelect.value==='all'?'common':lightRoomSelect.value);ensureOverviewLights();syncLights();renderLightSwitches();
 quickControls=createQuickControls({
  state:()=>({inside,location:walkedPublicLocation||currentInsideRoom,overview:inside&&interiorMode==='overview',place:inside?currentInsideRoom:({'全屋':'common','玄关':'entry','客厅':'living','餐厅':'dining','厨房':'kitchen','Yard':'yard','走道':'hall','主人房':'master','B2':'b2','B3':'b3','Bath 1':'bath1','Bath 2':'bath2','AC Ledge':'ledge'}[activeRoom]),label:inside?(walkedPublicLocation?({entry:'Entry',living:'Living room',dining:'Dining',kitchen:'Kitchen',hall:'Hall'}[walkedPublicLocation]):(insideRoomSelect.selectedOptions[0]?.textContent||'Common area')):(ROOM_LABELS[activeRoom]||activeRoom),lightingOpen:!lightPanel.hidden,lightScope:lightRoomSelect.value,lightLabel:lightRoomSelect.selectedOptions[0]?.textContent||'Common area',daylight,cabinets:cabinetry.snapshot().open,dimensions:measureOn}),
- beforeOpen:()=>{closeDrawer();setLightPanelOpen(false);heldNavigation.clear();lookPointer=null},
+ beforeOpen:()=>{closeDrawer();setLightPanelOpen(false);clearNavigation();lookPointer=null},
+ panelChanged:()=>syncTouchMovement(),
  openLights:()=>setLightPanelOpen(true),
  place:key=>{if(inside){if(interiorMode==='walk'&&currentInsideRoom===key)resetView();else indoorPlace(key)}else{const rooms={common:'全屋',living:'客厅',dining:'餐厅',kitchen:'厨房',prep:'厨房',entry:'玄关',foyer:'玄关',yard:'Yard',ledge:'AC Ledge',hall:'走道',master:'主人房',b2:'B2',b3:'B3',bath1:'Bath 1',bath2:'Bath 2'};selectRoom(rooms[key])}},
  action:action=>{
@@ -1151,4 +1180,4 @@ function animate(now){requestAnimationFrame(animate);const dt=Math.min(.05,Math.
   frameCount=0;frameWindowStart=now}}
 requestAnimationFrame(animate);
 
-window.serinaViewer={snapshot:()=>({version:releaseInfo.version,uiRevision:'2026-10-17-whole-home-cabinets-r1',revision:AGREED_SCOPE.revision,cabinetry:cabinetry.snapshot(),inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,location:walkedPublicLocation||currentInsideRoom,wide:wideView,fov:camera.fov,bounds:navigationBounds(),regions:navigationRegions(),blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),yardNiche,finishes:{specification:CABINET_FINISHES,fridgeColour:'#'+cabinetFinishes.phantom.color.getHexString(THREE.SRGBColorSpace),fridgeTextured:!!cabinetFinishes.phantom.map,lightTextured:!!cabinetFinishes.sahara.map,kitchenLower:'#'+mats.cabinet.color.getHexString(THREE.SRGBColorSpace),kitchenUpper:'#'+cabinetFinishes.sahara.color.getHexString(THREE.SRGBColorSpace)},floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{scope:lightRoomSelect.value,poolRooms:[...new Set([...areaPool,...spotPool].filter(l=>l.intensity>0).map(l=>l.userData.room))],commonKelvin,electricPreviewScale:electricPreviewScale(),localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),viewingIlluminantRGB,adaptationDegree,exposure:renderer.toneMappingExposure,bounceBudget,bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,diameter:c.diameter,thickness:c.thickness,product:c.product,ratedLumensKelvin:c.ratedLumensKelvin,bodyBounds:(()=>{const b=new THREE.Box3().setFromObject(c.group.children[0]);return b.getSize(new THREE.Vector3()).toArray()})(),lumens:c.lumens,watts:c.watts,status:c.status,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({type:l.type,visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,bedroom2:BEDROOM2,standingCirculators:[{...BEDROOM2.circulator,visible:interior.getObjectByName(BEDROOM2.circulator.name)?.visible}],scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setCabinetsOpen:setCabinetsOpen,setAllLights:on=>editLights(cs=>cs.forEach(c=>c.on=on),'all'),stand:indoorPlace};
+window.serinaViewer={snapshot:()=>({version:releaseInfo.version,uiRevision:'2026-10-17-touch-movement-r1',revision:AGREED_SCOPE.revision,cabinetry:cabinetry.snapshot(),inside,daylight,room:activeRoom,navigation:{mode:interiorMode,place:currentInsideRoom,location:walkedPublicLocation||currentInsideRoom,wide:wideView,touchControlsVisible:!touchWalkPad.hidden,heldActions:[...heldNavigation],fov:camera.fov,bounds:navigationBounds(),regions:navigationRegions(),blocked:blockedAt(camera.position.x,-camera.position.z),orbitEnabled:controls.enabled,panEnabled:controls.enablePan,direction:camera.getWorldDirection(new THREE.Vector3()).toArray(),aspect:camera.aspect,viewOffset:camera.view?.enabled||false},airConditioners:AIR_CONDITIONERS.map(a=>{const g=scene.getObjectByName(a.name+' indoor unit');return {...a,position:g.position.toArray(),visible:g.visible}}),overviewWalls:{visible:overviewFinishWalls.visible,colour:overviewWallMat.color.getHexString(),height:1.10,count:overviewFinishWalls.children.length},hallCeiling:{...HALL_CEILING,visible:indoorCeiling.visible},retainedCeilings:indoorCeiling.children.filter(m=>/retained|lowered|drop/i.test(m.name)).map(m=>({name:m.name,height:m.position.y})),yardNiche,finishes:{specification:CABINET_FINISHES,fridgeColour:'#'+cabinetFinishes.phantom.color.getHexString(THREE.SRGBColorSpace),fridgeTextured:!!cabinetFinishes.phantom.map,lightTextured:!!cabinetFinishes.sahara.map,kitchenLower:'#'+mats.cabinet.color.getHexString(THREE.SRGBColorSpace),kitchenUpper:'#'+cabinetFinishes.sahara.color.getHexString(THREE.SRGBColorSpace)},floor:{bedrooms:'Warm pale oak, photo reference inspection pages 12/16/18',base:'#b6a083',reflection:tileReflection.snapshot()},paint:{name:AGREED_SCOPE.wallPaint,baseSRGB:"#"+wallPaintMaterial.color.getHexString(THREE.SRGBColorSpace),baseLinear:wallPaintMaterial.color.toArray(),source:"Jotun official Malaysia interior colour swatch, checked 13 Oct 2026"},windows:{strength:windowDaylight.strength.value,portals:windowDaylight.windows,skyVisible:windowDaylight.group.visible,fabricEmissions:[...daylightFabrics.keys()].map(m=>m.emissiveIntensity)},trims:{colour:doorTrimMat.color.getHexString(),skirtingCount:skirtingPieces.length,height:75,depth:12,sharedWithDoorFrames:skirtingPieces.every(m=>m.material===doorTrimMat)},upholstery:{sofa:"King Living 1978 · Fortitude Linen reference",base:"#e0ddd6",materialTint:mats.linen.color.getHexString(),textureAppliedOnce:true},lighting:{scope:lightRoomSelect.value,poolRooms:[...new Set([...areaPool,...spotPool].filter(l=>l.intensity>0).map(l=>l.userData.room))],commonKelvin,electricPreviewScale:electricPreviewScale(),localBounce:windowDaylight.bounceColours.value.map(v=>v.toArray()),areas:areaPool.map(l=>l.intensity),spots:spotPool.map(l=>({intensity:l.intensity,position:l.position.toArray(),target:l.target.position.toArray()})),bounce:reflectedLight.intensity,daylightFill:hemi.intensity,colour:LIGHT_COLOUR,sourceLinearRGB:LIGHT_COLOUR.variants[String(commonKelvin)].linearRGB,displayLinearRGB:temperatureColours[commonKelvin].toArray(),viewingIlluminantRGB,adaptationDegree,exposure:renderer.toneMappingExposure,bounceBudget,bounceSourceCount:windowDaylight.bounceSourceCount.value,bounceLinearRGB:reflectedLight.color.toArray(),toneMapping:renderer.toneMapping,viewingWhiteBalance:viewingWhiteBalance.value.toArray()},door:(()=>{const d=scene.getObjectByName('PD yard door outward opening single leaf no cat hole');const b=new THREE.Box3().setFromObject(d);return {direction:'outward to yard',foldJoints:d.children.filter(m=>m.isGroup).length,hinge:[d.position.x,-d.position.z],angle:d.rotation.y*180/Math.PI,bounds:{min:b.min.toArray(),max:b.max.toArray()}}})(),camera:[camera.position.x,camera.position.y,camera.position.z],look:[controls.target.x,controls.target.y,controls.target.z],frameRate:document.querySelector('#fpsBadge').textContent,renderDpr,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,sourcePoints:points.filter(p=>p.sourcePixel).map(p=>({id:p.id,pixel:p.sourcePixel,pos:p.pos})),fixtures:lightCircuits.map(c=>({id:c.id,room:c.room,kind:c.kind,diameter:c.diameter,thickness:c.thickness,product:c.product,ratedLumensKelvin:c.ratedLumensKelvin,bodyBounds:(()=>{const b=new THREE.Box3().setFromObject(c.group.children[0]);return b.getSize(new THREE.Vector3()).toArray()})(),lumens:c.lumens,watts:c.watts,status:c.status,installed:c.installed,centre:c.centre,on:c.on,physicalVisible:c.group.visible,feed:c.feed||c.id,route:c.route,heads:c.heads,aims:c.aims,lights:c.lights.map(l=>({type:l.type,visible:l.visible,intensity:l.intensity}))})),fans:fanGroups.map(g=>({name:g.name,...g.userData,x:g.position.x,y:-g.position.z})),dining:DINING,bedroom2:BEDROOM2,standingCirculators:[{...BEDROOM2.circulator,visible:interior.getObjectByName(BEDROOM2.circulator.name)?.visible}],scope:AGREED_SCOPE,meshes:interior.children.map(m=>({name:m.name,x:m.position.x,y:-m.position.z,height:m.position.y}))}),setCabinetsOpen:setCabinetsOpen,setAllLights:on=>editLights(cs=>cs.forEach(c=>c.on=on),'all'),stand:indoorPlace};

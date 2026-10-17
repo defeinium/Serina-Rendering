@@ -7,7 +7,7 @@
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
-  <link rel="stylesheet" href="viewer-ui.css?v=20261017-side-controls-r2" />
+  <link rel="stylesheet" href="viewer-ui.css?v=20261017-touch-movement-r1" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -96,6 +96,16 @@
       <button type="button" class="quick-space-button" data-open-quick aria-controls="quickControls" aria-expanded="false" aria-label="Show spaces"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg><span>Spaces</span></button>
       <button id="lightPanelToggle" type="button" aria-expanded="false" aria-controls="lightPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 15c-5-5-2-11 4-11s9 6 4 11l-1 3H9zM9 21h6M9 18h6"/></svg><span>Lights</span><span id="dockLightCount" class="count-dot" hidden>0</span></button>
     </nav>
+    <p id="touchOverviewHint" class="touch-overview-hint" hidden><span>Drag to rotate</span><span>Two fingers to move / zoom</span></p>
+    <nav id="touchWalkPad" class="touch-walk-pad" aria-label="Move around the room" hidden>
+      <div class="touch-walk-grid">
+        <button type="button" data-walk="forward" aria-label="Move forward"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+        <button type="button" data-walk="left" aria-label="Move left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+        <button type="button" data-walk="back" aria-label="Move back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
+        <button type="button" data-walk="right" aria-label="Move right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+      <p>Hold to move<span>Drag screen to look</span></p>
+    </nav>
     <div class="controlbar" aria-label="Viewer controls">
     <nav class="dock" aria-label="Main viewer controls">
       <div class="view-actions" role="group" aria-label="View options"><button id="overviewView" type="button" aria-pressed="false">Whole-home view</button><button id="wideView" type="button" aria-pressed="false">Wide-angle view</button><button id="cabinetViewToggle" type="button" data-cabinet-interiors aria-pressed="false" aria-label="Show cabinet interiors">Cabinet interiors</button></div>
@@ -115,6 +125,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=20261017-whole-home-cabinets-r1"></script>
+  <script type="module" src="app.js?v=20261017-touch-movement-r1"></script>
 </body>
 </html>

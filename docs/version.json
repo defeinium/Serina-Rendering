@@ -1,8 +1,17 @@
 {
-  "version": "2026.10.17.6",
-  "revision": "20261017-whole-home-cabinets-r1",
+  "version": "2026.10.17.7",
+  "revision": "20261017-touch-movement-r1",
   "date": "2026-10-17",
   "releases": [
+    {
+      "version": "2026.10.17.7",
+      "date": "17 Oct 2026",
+      "notes": [
+        "Visible touch movement arrows in room views: hold to move, release to stop.",
+        "Move with one finger while dragging the scene with another to look around.",
+        "Movement controls hide behind open panels and in whole-home view; existing collision limits retained."
+      ]
+    },
     {
       "version": "2026.10.17.6",
       "date": "17 Oct 2026",
