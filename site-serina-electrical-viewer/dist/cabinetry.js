@@ -1,10 +1,11 @@
+import {mapCabinetFinish} from './cabinet-finishes.js?v=20261017-cabinet-finishes-r1';
 import {freeEndProfile} from './prep-profile.js?v=20261016-prep-curve-r1';
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
-import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261017-side-controls-r2';
+import {CABINETS as S,CABINET_REVISION} from './cabinet-data.js?v=20261017-cabinet-finishes-r1';
 
-export function createCabinetry({parent,mats,greyAshMat}){
+export function createCabinetry({parent,mats,fridgeMat}){
  const root=new THREE.Group();root.name='Current coordinated cabinetry';parent.add(root);
  const records=[],f=new THREE.MeshStandardMaterial({color:0xd8d9d0,roughness:.9});
  const rack=new THREE.MeshStandardMaterial({color:0xb2bcb8,metalness:.65,roughness:.38});
@@ -15,7 +16,7 @@ export function createCabinetry({parent,mats,greyAshMat}){
  // Box geometry is batched per material, cabinet and visibility state. No new lights.
  function cabinet(id,label,origin,rotation){const group=new THREE.Group();group.name=label;group.position.set(origin[0],0,-origin[1]);group.rotation.y=rotation;root.add(group);const groups={};for(const key of ['shell','fronts','inside','always']){const g=new THREE.Group();g.name=label+' '+key;group.add(g);groups[key]=g;}const rec={id,label,group,groups,spec:S[id],pieces:[],drawers:[]};records.push(rec);return rec;}
  function piece(r,state,name,x,d,z,w,depth,h,material=f){
-  const mesh=new THREE.Mesh(r.id==='b3'&&name==='left side'?new RoundedBoxGeometry(w/1000,h/1000,depth/1000,3,.008):new THREE.BoxGeometry(w/1000,h/1000,depth/1000),material);mesh.name=name;mesh.position.set((x+w/2)/1000,(z+h/2)/1000,-(d+depth/2)/1000);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.cabinetPart=true;r.groups[state].add(mesh);r.pieces.push({name,state,box:[x,d,z,w,depth,h],finish:material.color.getHexString(THREE.SRGBColorSpace)});return mesh;
+  const mesh=new THREE.Mesh(r.id==='b3'&&name==='left side'?new RoundedBoxGeometry(w/1000,h/1000,depth/1000,3,.008):new THREE.BoxGeometry(w/1000,h/1000,depth/1000),material);mesh.name=name;mesh.position.set((x+w/2)/1000,(z+h/2)/1000,-(d+depth/2)/1000);mapCabinetFinish(mesh,material,mesh.position.toArray());mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.cabinetPart=true;r.groups[state].add(mesh);r.pieces.push({name,state,box:[x,d,z,w,depth,h],finish:material.color.getHexString(THREE.SRGBColorSpace)});return mesh;
  }
  function shell(r,x,w,depth,bottom,top,mat=f){piece(r,'shell','left side',x,0,bottom,18,depth,top-bottom,mat);piece(r,'shell','right side',x+w-18,0,bottom,18,depth,top-bottom,mat);piece(r,'shell','back',x+18,depth-9,bottom,w-36,9,top-bottom,mat);piece(r,'shell','bottom',x+18,0,bottom,w-36,depth-9,18,mat);piece(r,'shell','top',x+18,0,top-18,w-36,depth-9,18,mat);}
  function shelf(r,x,w,z,depth,mat=f){piece(r,'inside','adjustable / fixed shelf',x,50,z-18,w,depth-59,18,mat);}
@@ -148,16 +149,16 @@ export function createCabinetry({parent,mats,greyAshMat}){
   piece(r,'inside','LG ATOM-U reference envelope',110,150,118,170,410,420,mats.ceramic);
  }
  {const r=cabinet('prep','Preparation base 1372 half-open',[1.820,1.758],0),s=S.prep;
-  shell(r,0,600,753,100,880,mats.islandCabinet);shell(r,600,772,753,100,880,greyAshMat);
-  // The dining-facing rear is one warm-grey finish; woodgrain belongs inside the appliance recess.
+  shell(r,0,600,753,100,880,mats.islandCabinet);shell(r,600,772,753,100,880,mats.islandCabinet);
+  // Sahara Stone continues on the prep rear and appliance lining; Phantom is fridge-only.
   for(const mesh of [...r.groups.shell.children])if(mesh.name==='back'){mesh.removeFromParent();mesh.geometry.dispose();}
   r.pieces=r.pieces.filter(p=>p.name!=='back');
   piece(r,'shell','continuous light warm-grey dining-facing rear panel',50,753,100,1322,9,780,mats.islandCabinet);
-  piece(r,'shell','appliance recess inner wood lining',618,744,118,736,9,744,greyAshMat);
+  piece(r,'shell','appliance recess Sahara Stone lining',618,744,118,736,9,744,mats.islandCabinet);
   prepProfilePart(r,'prep rounded recessed plinth',{x0:20,d0:45,x1:1352,d1:745,radius:30},0,100,mats.graphite);
   prepCurve(r,s);
   let z=100;for(const [height,label]of [[350,'prep containers'],[270,'prep plates / bowls'],[160,'prep cutlery']]){drawer(r,18,564,z,height,450,label,mats.islandCabinet,true,{x:52,width:546});z+=height;}
-  piece(r,'shell','appliance bay removable divider',618,0,438,736,753,18,greyAshMat);
+  piece(r,'shell','appliance bay removable divider',618,0,438,736,753,18,mats.islandCabinet);
   piece(r,'inside','oven position marker shelf (empty)',618,20,456,736,713,4,f);
   // Closed cooker only, parked in lower bay. No appliance is shown operating.
   const cooker=new THREE.Mesh(new THREE.CylinderGeometry(.15,.145,.25,28),mats.ceramic);cooker.name='Stored rice cooker illustrative 300W x300H';cooker.position.set(.815,.268,-.23);cooker.castShadow=true;cooker.receiveShadow=true;cooker.userData.cabinetPart=true;r.groups.always.add(cooker);
@@ -165,10 +166,10 @@ export function createCabinetry({parent,mats,greyAshMat}){
   piece(r,'always','stored cooker closed lid',670,70,393,290,320,25,mats.ceramic);
  }
  {const r=cabinet('fridge','Fridge 762 full-height surround',[3.192,1.758],0),s=S.fridge;
-  shell(r,0,762,762,0,2820,greyAshMat);scribe(r,762,762,2820,greyAshMat);
+  shell(r,0,762,762,0,2820,fridgeMat);scribe(r,762,762,2820,fridgeMat);
   // Keep bottom clear for the fridge; remove its generic floor panel.
   const floor=r.groups.shell.children.find(m=>m.name==='bottom');if(floor){floor.removeFromParent();r.pieces=r.pieces.filter(p=>p.name!=='bottom');}
-  shelf(r,18,726,2000,762,greyAshMat);door(r,0,381,2000,2820,greyAshMat,false);door(r,381,381,2000,2820,greyAshMat,false);
+  shelf(r,18,726,2000,762,fridgeMat);door(r,0,381,2000,2820,fridgeMat,false);door(r,381,381,2000,2820,fridgeMat,false);
   piece(r,'always','fridge model pending reference 650W',56,32,0,650,680,1850,mats.graphite);piece(r,'always','fridge freezer split',58,25,600,646,8,4,mats.black);
  }
  {const r=cabinet('tv','TV console 2134 low floor-standing',[2.797,8.687],-Math.PI/2),s=S.tv;

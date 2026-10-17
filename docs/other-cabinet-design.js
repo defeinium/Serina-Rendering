@@ -1,7 +1,7 @@
-import {CABINETS as CABINET_SPECS,CABINET_REVISION} from './cabinet-data.js?v=20261016-prep-curve-r1';
-import {BEDROOM2,DESIGN_REVISION} from './agreed-design.js?v=20261016-prep-curve-r1';
+import {CABINETS as CABINET_SPECS,CABINET_REVISION} from './cabinet-data.js?v=20261017-cabinet-finishes-r1';
+import {BEDROOM2,DESIGN_REVISION} from './agreed-design.js?v=20261017-cabinet-finishes-r1';
 const $=s=>document.querySelector(s), esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;'), N=v=>Math.round(v*10)/10;
-const C={ink:'#34453d',line:'#78857b',dim:'#a7613d',ref:'#88938c',front:'#c5c5c1',shoe:'#d2d3ce',inside:'#f1f3eb',wood:'#c1c4b9',drawer:'#dae3d5',graphite:'#4c5357',blue:'#c2d5d0'};
+const C={ink:'#34453d',line:'#78857b',dim:'#a7613d',ref:'#88938c',front:'#c7c3b7',shoe:'#c7c3b7',inside:'#f1f3eb',wood:'#c1c4b9',drawer:'#dae3d5',graphite:'#4c5357',blue:'#c2d5d0'};
 const state={cabinet:'all',view:'front',part:null};
 const D={
  b2:{name:'Bedroom 2 multipurpose cabinet',code:'W-01',width:Math.round(BEDROOM2.wardrobe.width*1000),depth:600,height:2850,bodyTop:2820,plinth:100,split:2260,doors:3,endRadius:CABINET_SPECS.b2.exposedEndRadius,modules:CABINET_SPECS.b2.modules,note:'1440 mm three-door cabinet · convertible hanging + one drawer',parts:['b2-hang','b2-drawer','b2-shelves','b2-mirror','b2-loft'],drawer:[100,350],drawerRunner:450,drawerSide:'under right two-door hanging bay when facing cabinet',check:'Facing the cabinet: LEFT 480 mm adjustable shelves / fin compartment, RIGHT 960 mm hanging bay with ONE broad bottom drawer. No small drawer in the shelf column. Keep the 360 mm entry-side services wall clear. Pull both hanging doors open and tuck the chair before using the broad drawer. The room view distinguishes the working chair from a proposed tucked position; actual chair / hinges remain to verify.'},

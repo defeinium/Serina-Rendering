@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-16-prep-curve-r1';
+export const DESIGN_REVISION = '2026-10-17-cabinet-finishes-r1';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
@@ -106,12 +106,12 @@ export const AGREED_SCOPE = {
  bedroomFloor:'Retain actual warm pale oak bedroom floors; inspection-photo colour approximation.',
  ceilingPaint:'Matt white · repaint scope to confirm',
  windowTreatments:'Living: full-height double fabric curtain, white sheer + grey-greige drape, exposed rail. Bedroom 2: linen-look dimout roller blind, softly translucent rather than blackout; physical fabric sample pending. Master: full-wall double curtain; no curtain boxes.',
- kitchen:'Grey woodgrain fridge; light non-yellow warm-grey prep and uppers; neutral charcoal-grey lowers.',
+ kitchen:'Phantom 37P309 vertical woodgrain on fridge surround ONLY; Sahara Stone 37P002 light cabinetry; plain charcoal-grey kitchen lowers retained. Photo-based finish preview.',
  excluded:['New flat ceilings','Curtain boxes','Window / sofa cove strips','Wardrobe lighting','Yard exhaust fan','Hood coring / external ducting'],
  cabinetry:[
   ['Kitchen package','2134 mm quoted','2065 mm source target: sink775 + sauce230 + hob960 with50 end allowances. Upper600 drainer +405 pantry +960 hood; VATTI V997 body896 ×360 ×421. Quoted2134: site reconciliation required.'],
-  ['Fridge enclosure','762 mm quoted','Grey woodgrain to original ceiling; exact appliance clearances pending.'],
-  ['Prep cabinet','1372 × 762 mm quoted','Cabinet1372 ×762; stone1382 ×782 mm. Two free-end corners: body R50 / stone R60;10 mm projection at three exposed edges, flush at fridge. 600 mm serving drawers +772 mm half-open appliance bay. Upper406 / divider18 / lower320 mm clear. Rice cooker stored below; oven model / ventilation unresolved. Light warm grey.'],
+  ['Fridge enclosure','762 mm quoted','Phantom 37P309 vertical woodgrain to original ceiling; exact appliance clearances pending.'],
+  ['Prep cabinet','1372 × 762 mm quoted','Cabinet1372 ×762; stone1382 ×782 mm. Two free-end corners: body R50 / stone R60;10 mm projection at three exposed edges, flush at fridge. 600 mm serving drawers +772 mm half-open appliance bay. Upper406 / divider18 / lower320 mm clear. Rice cooker stored below; oven model / ventilation unresolved. Sahara Stone 37P002.'],
   ['Bedroom 2 storage','1440 × 600 mm target','Three main doors and separate loft, ceiling sealed; R40 exposed-end curve target, matching front finish. Approx. 360 mm original door-side wall stays clear for socket and switches. Facing cabinet: LEFT480 adjustable shelves / provisional1200 high fin space; RIGHT960 convertible hanging above ONE broad250 high drawer. No small drawer. Inside-door mirror on left. Chair must tuck for drawer access. Site dimensions pending.'],
   ['Bedroom 2 desk','1400 × 600 mm target','Faces the window; open below, dual 24-inch monitors on arms. Keep roughly 100 mm at the window in the source plan; chair tucks under desk for wardrobe access. Actual window swing, sockets and chair clearance to verify.'],
   ['Bedroom 3 wardrobe','1829 mm quoted','Full height; four main doors; no niche; R40 exposed-end curve target in matching front finish. Three broad external drawers LEFT (350 /280 /220 high), double hanging RIGHT. Aligned hinged main / loft doors split at2260 require real upper-door / fan clearance check; open drawer leaves approx375 to modelled bed.'],

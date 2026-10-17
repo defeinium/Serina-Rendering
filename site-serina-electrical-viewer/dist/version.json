@@ -1,8 +1,17 @@
 {
-  "version": "2026.10.17.4",
-  "revision": "20261017-side-controls-r2",
+  "version": "2026.10.17.5",
+  "revision": "20261017-cabinet-finishes-r1",
   "date": "2026-10-17",
   "releases": [
+    {
+      "version": "2026.10.17.5",
+      "date": "17 Oct 2026",
+      "notes": [
+        "Sahara Stone 37P002 on light cabinetry.",
+        "Phantom 37P309 vertical woodgrain on the fridge surround only; kitchen lower cabinets retain plain charcoal grey.",
+        "Photo-based colour and texture preview; physical samples remain the final reference."
+      ]
+    },
     {
       "version": "2026.10.17.4",
       "date": "17 Oct 2026",
