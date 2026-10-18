@@ -1,7 +1,7 @@
 // Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-17-retained-louvre-r1';
+export const DESIGN_REVISION = '2026-10-18-lighting-final-r1';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
@@ -29,9 +29,9 @@ export const SOURCE_REGISTER = [
  ['K-L2','厨房',625,1144,'light','Kitchen original light supply'],
  ['Y-L1','Yard',812,1144,'light','Yard existing light point'],
  ['H-L1','走道',817,666,'light','Hall original lighting supply'],
- ['M-L1','主人房',1156,365,'light','Master unused window-side light point'],
- ['M-FAN','主人房',1156,468,'fan','Master unused fan point'],
- ['M-L2','主人房',1156,570,'light','Master dimmable ceiling-light point'],
+ ['M-L1','主人房',1156,365,'light','Master window-side light point'],
+ ['M-FAN','主人房',1156,468,'fan','Master original fan provision, reused for main ceiling light'],
+ ['M-L2','主人房',1156,570,'light','Master spare sleeping-area light point'],
  ['M-L3','主人房',1155,666,'light','Master unused entrance light point'],
  ['B2-L1','B2',827,362,'light','Bedroom 2 window-side light point'],
  ['B2-F','B2',827,468,'fan','Bedroom 2 original fan hook'],
@@ -80,17 +80,26 @@ export const FANS = [
 const pointFixture=(id,room,name,kind,extra={})=>({id,room,name,kind,centre:sourceModel(id),installed:true,status:'Position at original supply',...extra});
 const lf=registeredSource(491,365),kl=registeredSource(625,1144),hy=registeredSource(817,666)[1];
 const livingYeelight={diameter:.30,thickness:.028,watts:21,lumens:1600,ratedLumensKelvin:4000,product:'Yeelight Ultra Slim 300C · YLXDD-0033',size:'Ø300 ×28 mm local-listed envelope; 21 W; 1600 lm at4000 K; tunable2700–6500 K',status:'Original living light point retained; white diffuse ceiling light, Apple HomeKit; final fixing and fan clearance checked on site'};
+// One adjustable surface-mounted head at each original window-side supply.
+// Geometry / beam / output below are preview assumptions, not a selected SKU.
+const windowSpot=(id,room,name,aim)=>pointFixture(id,room,name,'adjustableSpot',{
+ diameter:.08,thickness:.14,watts:7,aim,beamAngle:Math.PI/5,previewPower:70,
+ size:'White surface-mounted adjustable spotlight; 7 W target; illustrative Ø80 mm head /140 mm overall drop /36° half-peak beam, soft field falloff. Product, output, dimming and final aiming pending',
+ status:'Original window-side light point retained; surface mount, adjustable tilt, 36° beam aimed toward the curtain / roller blind. Final product and on-site aiming pending'
+});
 export const FIXTURES = [
  pointFixture('F-L1','玄关','Entry ceiling light','ceiling',{diameter:.34}),
- pointFixture('L-L1','客厅','Living Yeelight 300C · window side','ceiling',{...livingYeelight}),
+ windowSpot('L-L1','客厅','Living window-side adjustable spotlight',[1.6065,8.83,1.70]),
  pointFixture('L-L2','客厅','Living Yeelight 300C · dining side','ceiling',{...livingYeelight}),
  pointFixture('D-L1','餐厅','Dining pendant','pendant',{centre:DINING.centre,diameter:.46,status:'Horizontal offset to table centre · adaptor/model pending',size:'Illustrative Ø 460 mm; final fixture not selected'}),
- pointFixture('K-L2','厨房','Kitchen diffuse ceiling light','ceiling',{diameter:.38,lumens:[1800,2400],watts:[20,24],size:'White opal diffuser; diameter300–400 mm target, model380 mm; 1800–2400 lm; approx20–24 W, verify product efficacy',status:'At original kitchen light supply; broad ambient light between worktops; retain separate sink task strip'}),
+ pointFixture('K-L2','厨房','Kitchen diffuse ceiling light','ceiling',{diameter:.38,lumens:[1800,2400],watts:[20,24],size:'White opal diffuser; Ø300–400 mm target, illustrative380 mm;1800–2400 lm; approx20–24 W, final model pending',status:'Original kitchen light point retained; uniform soft ambient light between worktops, separate sink task strip retained. No three-head spotlight'}),
  ...[['H1',465],['H2',586]].map(([id,x])=>({id,room:'走道',name:'Hall light '+id.slice(1),kind:'recessed',centre:planToModel(x,hy,'走道'),diameter:.12,installed:true,status:'Two aligned centres in existing plaster · set-out pending',feed:'H-L1'})),
- pointFixture('M-L2','主人房','Master dimmable ceiling light','ceiling',{diameter:.47}),
- pointFixture('B2-F','B2','Bedroom 2 dimmable ceiling light','ceiling',{diameter:.43,lumens:[2400,3000],watts:[24,36],size:'White opal diffuser; diameter400–450 mm target, model430 mm; 2400–3000 lm; approx24–36 W; dimmable, tunable3000–4000 K, use3500 K',status:'Centred at original fan provision; electrician to verify lighting-compatible supply, control and mounting. No ceiling fan. Original window-side and wardrobe-side light points unused; desk task lamp purchased separately if needed'}),
- pointFixture('B3-L1','B3','Bedroom 3 ceiling light 1','ceiling',{diameter:.30}),
- pointFixture('B3-L2','B3','Bedroom 3 ceiling light 2','ceiling',{diameter:.30}),
+ windowSpot('M-L1','主人房','Master window-side adjustable spotlight',[7.9643,8.85,1.70]),
+ pointFixture('M-FAN','主人房','Master main ceiling light at original fan provision','ceiling',{diameter:.47,status:'Original fan provision reused for dimmable diffuse ceiling light; no fan. Electrician must verify supply, mounting and lighting-compatible control. Fan / sleeping-light gangs interpreted from drawing, site switching test pending'}),
+ windowSpot('B2-L1','B2','Bedroom 2 window-side adjustable spotlight',[4.7722,8.88,1.70]),
+ pointFixture('B2-F','B2','Bedroom 2 dimmable ceiling light','ceiling',{diameter:.43,lumens:[2400,3000],watts:[24,36],size:'White opal diffuser; diameter400–450 mm target, model430 mm; 2400–3000 lm; approx24–36 W; dimmable, tunable3000–4000 K, use3500 K',status:'Centred at original fan provision; electrician to verify lighting-compatible supply, control and mounting. No ceiling fan. Window-side supply has a separate adjustable spotlight; wardrobe-side light point unused. Desk task lamp if needed'}),
+ pointFixture('B3-L1','B3','Bedroom 3 wide diffuse surface downlight','surfaceDownlight',{diameter:.16,thickness:.085,lumens:[1200,1500],size:'Single white surface-mounted wide diffuse downlight;1200–1500 lm target; broad60–90° distribution; Ra≥90. IllustrativeØ160 ×85 mm, actual product pending',status:'Original left light point retained; soft general light for changing / entry area. No multi-head fitting; fan and opened-door clearances to confirm with actual fitting'}),
+ pointFixture('B3-L2','B3','Bedroom 3 adjustable wardrobe downlight','adjustableSpot',{diameter:.10,thickness:.14,beamAngle:70*Math.PI/180,previewPower:190,aim:[7.25,4.50,1.35],lumens:[1200,1500],size:'Single white surface-mounted adjustable wide soft downlight;60–90° beam target, model70°;1200–1500 lm target; Ra≥90. IllustrativeØ100 mm, product and actual output pending',status:'Original right light point in front of wardrobe retained; gently aimed at cabinet face, not guaranteed to illuminate every internal shelf. Check open loft-door clearance and seated-eye glare on site'}),
  ...[['Bath 1','B1',835,838],['Bath 2','B2B',463,463]].flatMap(([room,prefix,sx,mx])=>[
   {id:prefix+'-DL',room,name:room+' shower downlight',kind:'recessed',centre:planToModel(sx,690,room),diameter:.12,installed:true,status:'Existing plaster · new hole · final cut-out pending',feed:prefix+'-L'},
   {id:prefix+'-SP',room,name:room+' mirror spotlight',kind:'mirrorSpot',centre:planToModel(mx,570,room),aim:planToModel(prefix==='B1'?873:433,568,room),diameter:.09,installed:true,status:'Offset mirror task light · aim and cut-out pending',feed:prefix+'-L'}
@@ -100,7 +109,7 @@ export const FIXTURES = [
  {id:'Y-L1',room:'Yard',name:'Yard retained light',kind:'ceiling',centre:sourceModel('Y-L1'),diameter:.26,installed:false,status:'Existing fitting retained · replacement not in installation count'}
 ];
 export const AGREED_SCOPE = {
- revision:DESIGN_REVISION,lightingAssemblies:15,fans:2,standingCirculators:1,
+ revision:DESIGN_REVISION,lightingAssemblies:FIXTURES.filter(f=>f.installed).length,fans:2,standingCirculators:1,
  ceiling:'Original room slabs retained. Existing lowered hall plaster with closed entrance fascia; bathroom plaster retained. Heights require site measurement.',
  wallPaint:'Jotun 1928 Summer Snow · physical sample pending',
  bedroomFloor:'Retain actual warm pale oak bedroom floors; inspection-photo colour approximation.',
@@ -121,7 +130,8 @@ export const AGREED_SCOPE = {
  ],
  yard:'Laundry at existing Bath 2-side water/drain; litter trays at dry end. Retain original grey-frame kitchen-to-yard glass louvre; cancel the window niche cabinet. Grey door frames and matching skirting follow actual-unit photos. PD door opens outward into Yard; retained partly open, no cat hole. Not a bifold door. No exhaust fan.',
  appliances:'VATTI V997 recirculating hood target; return-air kit pending. Induction hob independent. Combi oven not selected or approved for the reserved under-counter bay.',
- pending:['Living / Bedroom 3 fan models and manufacturer clearances','Bedroom 2 ceiling light at original fan provision: verify usable supply, control and mounting; standing circulator placement','Dining pendant/adaptor and measured horizontal offset','Fixture sizes, heads, wattage and bathroom cut-outs','Cabinet shop drawings and board/stone samples','Final window-treatment purchase','All as-built dimensions']
+ switching:'Individual app toggles are fixture previews, not an as-built switch diagram. Living window spotlight and main light likely share one gang; a non-smart spotlight stays on whenever that gang is powered. Master main uses original fan provision, window spotlight uses original light group; independent operation pending site test. Other master light points unused.',
+ pending:['Master fan provision reused for main light: electrician to confirm supply, mounting, control and independent switching','Living / Bedroom 3 fan models and manufacturer clearances','Bedroom 2 ceiling light at original fan provision: verify usable supply, control and mounting; standing circulator placement','Dining pendant/adaptor and measured horizontal offset','Fixture sizes, heads, wattage and bathroom cut-outs','Cabinet shop drawings and board/stone samples','Final window-treatment purchase','All as-built dimensions']
 };
 export const fixtureMeta = c => {
  const f=FIXTURES.find(f=>f.id===c.id);if(!f)return null;

@@ -1,8 +1,19 @@
 {
-  "version": "2026.10.17.8",
-  "revision": "20261017-retained-louvre-r1",
-  "date": "2026-10-17",
+  "version": "2026.10.18.1",
+  "revision": "20261018-lighting-final-r1",
+  "date": "2026-10-18",
   "releases": [
+    {
+      "version": "2026.10.18.1",
+      "date": "18 Oct 2026",
+      "notes": [
+        "Kitchen restored to one diffuse ceiling light; sink strip retained.",
+        "Master main ceiling light at original fan provision; window spotlight retained; two spare light points covered.",
+        "Bedroom 3: left wide diffuse surface downlight, right adjustable wide wardrobe downlight; existing fan retained.",
+        "Living / Bedroom 2 / Master window spotlights:7 W target,36\u00b0 soft beam toward curtains or roller blind.",
+        "Switch grouping remains drawing-derived; individual fixture toggles are previews. Day/night memory retained."
+      ]
+    },
     {
       "version": "2026.10.17.8",
       "date": "17 Oct 2026",

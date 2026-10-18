@@ -137,51 +137,53 @@ const ceiling=[['F-L1',396,1144],['L-L1',491,365],['L-FAN',491,468,'fan'],['L-L2
 // Contractor-facing names; source codes remain in the tap details only.
 const pointLabels={
  'F-L1':{label:['Entry','ceiling light'],dx:14,dy:-16},
- 'L-L1':{label:['Yeelight 300C','window side'],dx:0,dy:26},
+ 'L-L1':{label:['Adjustable spotlight','window side'],dx:0,dy:26},
  'L-FAN':{label:['Ceiling fan'],dx:17,dy:3},
  'L-L2':{label:['Yeelight 300C','dining side'],dx:14,dy:5},
  'D-L1':{label:['Existing','supply'],dx:-15,dy:-13},
  'K-L2':{label:['Kitchen','ceiling light'],dx:16,dy:0},
  'Y-L1':{label:['Existing','light point'],dx:0,dy:-21},
  'H-L1':{label:['Existing supply'],dx:0,dy:23},
- 'M-L1':{label:['Unused light point'],dx:0,dy:25},
- 'M-FAN':{label:['Unused fan point'],dx:0,dy:25},
- 'M-L2':{label:['Dimmable','ceiling light'],dx:14,dy:4},
+ 'M-L1':{label:['Adjustable spotlight'],dx:0,dy:25},
+ 'M-FAN':{label:['Main ceiling light'],dx:0,dy:25},
+ 'M-L2':{label:['Unused','light point'],dx:14,dy:4},
  'M-L3':{label:['Unused light point'],dx:0,dy:24},
- 'B2-L1':{label:['Unused','light point'],dx:0,dy:23},
+ 'B2-L1':{label:['Adjustable','spotlight'],dx:0,dy:23},
  'B2-F':{label:['Dimmable','ceiling light'],dx:19,dy:-8},
  'B2-L2':{label:['Unused','light point'],dx:14,dy:2},
  'B3-F':{label:['Ceiling fan'],dx:0,dy:29},
- 'B3-L1':{label:['Ceiling','light 1'],dx:0,dy:23},
- 'B3-L2':{label:['Ceiling','light 2'],dx:0,dy:23},
+ 'B3-L1':{label:['Wide diffuse','downlight'],dx:0,dy:23},
+ 'B3-L2':{label:['Adjustable','wardrobe light'],dx:0,dy:23},
  'B1-L':{label:['Existing supply'],dx:0,dy:-13},
  'B2B-L':{label:['Existing supply'],dx:0,dy:-13}
 };
 const decisions={
  'F-L1':['Entry light','Confirmed',{'Type':'Diffuse ceiling light','Position':'Existing point'},'Inside the main door.'],
- 'L-L1':['Living Yeelight 300C · window side','Confirmed',{'Type':'Diffuse smart ceiling light','Size':'Ø300 ×28 mm','Rating':'21 W /1600 lm at4000 K','Position':'Original light point'},'White Yeelight Ultra Slim 300C. Keep the existing supply centre.'],
+ 'L-L1':['Living window-side adjustable spotlight','Product pending',{'Type':'Surface-mounted adjustable spotlight','Position':'Original window-side light point'},'36° beam aimed toward the living curtain; final fitting and tilt to confirm on site.'],
  'L-FAN':['Living fan','Size target',{'Diameter':'48 in / ~1220 mm','Position':'Existing hook target'},'Exact fan model, blade height and clearances to both ceiling lights require site confirmation.'],
- 'L-L2':['Living Yeelight 300C · dining side','Confirmed',{'Type':'Diffuse smart ceiling light','Size':'Ø300 ×28 mm','Rating':'21 W /1600 lm at4000 K','Position':'Original light point'},'Second matching Yeelight Ultra Slim 300C. Keep the existing supply centre.'],
+ 'L-L2':['Living Yeelight 300C · dining side','Confirmed',{'Type':'Diffuse smart ceiling light','Size':'Ø300 ×28 mm','Rating':'21 W /1600 lm at4000 K','Position':'Original light point'},'Yeelight Ultra Slim 300C main light; window-side fitting is an adjustable spotlight. Keep the existing supply centre.'],
  'D-L1':['Dining pendant feed','Confirmed / offset TBC',{'Type':'Pendant + offset adaptor','Move':'Horizontal → table centre'},'Keep the bench against Bath 2 wall. Measure the horizontal offset on site; the old 620 mm model distance is not approved.'],
- 'K-L2':['Kitchen ceiling light','Confirmed / product pending',{'Type':'Thin white opal ceiling light','Position':'Original kitchen light point','Output target':'1800–2400 lm; approx20–24 W','Diameter target':'300–400 mm'},'Broad diffuse ambient light. Keep the separate sink task strip; verify actual product output and coverage.'],
+ 'K-L2':['Kitchen ceiling light','Product pending',{'Type':'White opal diffuse ceiling light','Position':'Original kitchen supply','Output target':'1800–2400 lm; approx20–24 W','Diameter target':'300–400 mm'},'Soft general light; retain separate sink strip and hood light. Three-head fitting cancelled.'],
  'H-L1':['Hall lighting feed','Confirmed / set-out TBC',{'Install':'2 matching diffuse lights','Ceiling':'Existing plaster retained'},'Reuse the existing feed and loop the second light. Centres and cut-outs to confirm; no new plaster ceiling.'],
- 'M-L2':['Master ceiling light','Confirmed',{'Type':'Dimmable diffuse ceiling light','Position':'Existing M-L2','Fan':'None'},'Other master ceiling points remain unused and safely covered. No curtain box.'],
- 'B2-L1':['Bedroom 2 window-side light point','Unused',{'Action':'Retain and safely cover'},'Replaced by one diffuse ceiling light at the original central fan provision.'],
+ 'M-L2':['Master spare sleeping-area light point','Unused',{'Action':'Safely terminate and cover'},'Main ceiling light is at original fan provision. Window-side light point has a separate spotlight.'],
+ 'M-FAN':['Master main ceiling light at original fan provision','Electrical check pending',{'Type':'Dimmable diffuse ceiling light','Position':'Original fan provision','Fan':'None'},'Electrician to verify supply, mounting and lighting-compatible control. Independent main / window switching is a drawing interpretation until site-tested.'],
+ 'M-L1':['Master window-side adjustable spotlight','Product pending',{'Type':'Surface-mounted adjustable spotlight','Position':'Original window-side light point'},'36° beam aimed toward the master curtain. Main ceiling light retained; final tilt to confirm on site.'],
+ 'B2-L1':['Bedroom 2 window-side adjustable spotlight','Product pending',{'Type':'Surface-mounted adjustable spotlight','Position':'Original window-side light point'},'36° beam aimed toward the roller blind, not the desk. Main ceiling light retained; final tilt to confirm on site.'],
  'B2-L2':['Bedroom 2 wardrobe-side light point','Unused',{'Action':'Safely terminate and retain access'},'The proposed wardrobe occupies this point. No second ceiling light is planned here.'],
  'B2-F':['Bedroom 2 ceiling light at original fan provision','Electrical check pending',{'Type':'Thin white opal dimmable ceiling light','Output target':'2400–3000 lm; approx24–36 W','Diameter target':'400–450 mm','Colour':'Tunable3000–4000 K; use3500 K'},'Original fan location retained as the fitting centre. Electrician must confirm lighting-compatible supply, control and mounting; no ceiling fan. Separate desk task light if needed.'],
- 'B3-L1':['B3 ceiling light 1','Confirmed',{'Type':'Diffuse ceiling light','Position':'Existing B3-L1'},'Match B3-L2. Exact diameter/output TBC.'],
- 'B3-L2':['B3 ceiling light 2','Confirmed',{'Type':'Diffuse ceiling light','Position':'Existing B3-L2'},'Match B3-L1. Exact diameter/output TBC.'],
+ 'B3-L1':['Bedroom 3 wide diffuse downlight','Product pending',{'Type':'Single surface-mounted soft wide downlight','Position':'Original left light point','Beam target':'60–90°','Output target':'1200–1500 lm; Ra≥90'},'General changing / entry-area light. Verify actual fitting dimensions and output.'],
+ 'B3-L2':['Bedroom 3 adjustable wardrobe downlight','Product pending',{'Type':'Single surface-mounted wide adjustable downlight','Position':'Original right light point','Beam target':'60–90°; model70°','Output target':'1200–1500 lm; Ra≥90'},'Aim gently toward wardrobe; avoid blade path and check open loft doors. Not a guarantee of lighting all internal shelves.'],
  'B3-F':['B3 fan','Proposed size',{'Diameter':'33 in / ~838 mm','Position':'Existing hook target'},'Source centre corrected. No forced relocation is shown; model, height and opened wardrobe doors still require checking.'],
  'B1-L':['Bath 1 original feed','Existing feed',{'Action':'Feed 2 proposed lights'},'One shower downlight + one offset mirror-task spotlight. Original symbol is NOT a third light.'],
  'B2B-L':['Bath 2 original feed','Existing feed',{'Action':'Feed 2 proposed lights'},'One shower downlight + one offset mirror-task spotlight. Original symbol is NOT a third light.'],
  'Y-L1':['Yard light feed','Fitting TBC',{'Action':'Confirm retained light'},'Not included in the latest owner installation count. Do not silently add a new fitting.']
 };
-const unused=new Set(['M-L1','M-L3','M-FAN','B2-L1','B2-L2','B1-L','B2B-L','H-L1','Y-L1']);
+const unused=new Set(['M-L2','M-L3','B2-L2','B1-L','B2B-L','H-L1','Y-L1']);
 for(const [id,ex,ey,type] of ceiling){
  const [x,y]=source(ex,ey),a=decisions[id]||[type==='fan'?'Unused master fan point':'Unused master light point','Unused',{'Action':'Safely cap / cover'},'Retain access.'];
  add(id,...a,x,y);
  const l=pointLabels[id]||{label:['Unused light point'],dx:0,dy:24};
- const m=marker(groups.lighting,id,x,y,id==='B2-F'?'light':type||'light',unused.has(id)?colours.unused:colours.source,unused.has(id),l.dx,l.dy,l.label);
+ const m=marker(groups.lighting,id,x,y,['B2-F','M-FAN'].includes(id)?'light':type||'light',unused.has(id)?colours.unused:colours.source,unused.has(id),l.dx,l.dy,l.label);
  m.dataset.sourceX=ex;m.dataset.sourceY=ey;m.dataset.cx=x;m.dataset.cy=y;
 }
 function studyLine(points, parent=groups.lighting){return path(parent,points,{stroke:colours.proposed,'stroke-width':3,'stroke-dasharray':'6 4','stroke-linecap':'round'});}
@@ -235,7 +237,7 @@ const ledgeLabel=text(groups.labels,603,852,['AIR-CONDITIONER','LEDGE'],'room-la
 
 
 function fullTerms(s){
- const references={'F-L1':'original entry light point','L-L1':'original living window-side light point','L-L2':'original living ceiling-light point','D-L1':'original dining light point','K-L2':'original kitchen light point','H-L1':'original hallway light supply','M-L2':'original master light point','B2-F':'original bedroom 2 fan provision','B2-L1':'first original bedroom 2 light point','B2-L2':'second original bedroom 2 light point','B3-L1':'bedroom 3 ceiling light 1','B3-L2':'bedroom 3 ceiling light 2'};
+ const references={'F-L1':'original entry light point','L-L1':'original living window-side light point','L-L2':'original living ceiling-light point','D-L1':'original dining light point','K-L2':'original kitchen light point','H-L1':'original hallway light supply','M-FAN':'original master fan provision, reused for ceiling light','B2-F':'original bedroom 2 fan provision','B2-L1':'first original bedroom 2 light point','B2-L2':'second original bedroom 2 light point','B3-L1':'bedroom 3 ceiling light 1','B3-L2':'bedroom 3 ceiling light 2'};
  return String(s).replace(/F-L1|L-L[12]|D-L1|K-L2|H-L1|M-L2|B2-F|B2-L[12]|B3-L[12]/g,m=>references[m]).replace(/\bTBC\b/g,'to confirm').replace(/\bB2\b/g,'Bedroom 2').replace(/\bB3\b/g,'Bedroom 3').replace(/\bBath ([12])\b/g,'Bathroom $1').replace(/\bL-track\b/g,'L-shaped track').replace(/\bLED\b/g,'light strip').replace(/\bWC\b/g,'toilet').replace(/\bAC\b/g,'air-conditioner').replace(/\bin\s*\//g,'inches /');
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
