@@ -1,14 +1,14 @@
-// Latest accepted scope, 12 October 2026. Sizes are quote/visual targets,
+// Current viewer scope, 19 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-18-lighting-final-r1';
+export const DESIGN_REVISION = '2026-10-19-b2-jazz-preview-r2';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
  entry:{doorStart:5.135,doorEnd:5.935,solidWall:1.80,clearWall:.36},
  services:{socket:{centre:[4.96,6.448],height:.30,offsetFromFrame:.175},lightSwitch:{centre:[4.875,6.448],height:1.20,offsetFromFrame:.260},acSwitch:{centre:[4.965,6.448],height:1.20,offsetFromFrame:.170},leftSocket:{centre:[3.345,8.80],height:.30},status:'Drawing-scaled estimates; faceplate offsets not measured on site'},
  desk:{length:1.40,depth:.60,centre:[4.135,8.55],chairCentre:[4.135,8.03],faces:"window",windowGap:.10},
- circulator:{name:'Bedroom 2 standing circulator',model:'Xiaomi Smart Standing Air Circulation Fan · BPLDS11DM reference',size:[.326,.310,.886],centre:[5.005,7.51],aim:[4.135,8.03],power:'Existing entry-wall socket',status:'Plug-in floor fan; pulled forward beside the cabinet end, placement adjustable; keep cabinet doors and room entry clear',source:'https://www.mi.com/my/product/xiaomi-smart-standing-air-circulation-fan/specs/'}
+ circulator:{enabled:false,name:'Bedroom 2 standing circulator',model:'Xiaomi Smart Standing Air Circulation Fan · BPLDS11DM reference',size:[.326,.310,.886],centre:[5.005,7.51],aim:[4.135,8.03],power:'Existing entry-wall socket',status:'Previous alternative hidden while the owner compares the Jazz16LED ceiling-fan-light size preview',source:'https://www.mi.com/my/product/xiaomi-smart-standing-air-circulation-fan/specs/'}
 };
 // Four developer fan-coil feeds around the hall. Indoor units face INTO their
 // own rooms. Bodies are illustrative envelopes, not selected product sizes.
@@ -31,8 +31,8 @@ export const SOURCE_REGISTER = [
  ['H-L1','走道',817,666,'light','Hall original lighting supply'],
  ['M-L1','主人房',1156,365,'light','Master window-side light point'],
  ['M-FAN','主人房',1156,468,'fan','Master original fan provision, reused for main ceiling light'],
- ['M-L2','主人房',1156,570,'light','Master spare sleeping-area light point'],
- ['M-L3','主人房',1155,666,'light','Master unused entrance light point'],
+ ['M-L2','主人房',1156,570,'light','Master sleeping-area wall spotlight'],
+ ['M-L3','主人房',1155,666,'light','Master entrance-side wall spotlight'],
  ['B2-L1','B2',827,362,'light','Bedroom 2 window-side light point'],
  ['B2-F','B2',827,468,'fan','Bedroom 2 original fan hook'],
  ['B2-L2','B2',827,560,'light','Bedroom 2 door-side light point'],
@@ -64,6 +64,7 @@ export function planToModel(x,y,room){
 export const sourceModel = id => {
  const row=SOURCE_REGISTER.find(p=>p[0]===id);
  if(row[1]==='B2')return [3.335+(row[2]-674)/305*2.865,8.96-(row[3]-327)/270*2.517];
+ if(row[1]==='B3')return [4.865+(row[2]-832)/312*2.865,5.14-(row[3]-720)/275*2.45];
  return planToModel(...registeredSource(row[2],row[3]),row[1]);
 };
 const mmPerPixel=3060/(397-159),benchFront=397-430/mmPerPixel,tableEast=benchFront-75/mmPerPixel;
@@ -74,8 +75,9 @@ export const DINING = {
 };
 const b2Front=435-600/2517*(435-233);
 export const FANS = [
- {id:'L-FAN',room:'客厅',label:'Living ceiling fan',diameter:1.2192,centre:sourceModel('L-FAN'),status:'48-inch target · exact model pending'},
- {id:'B3-F',room:'B3',label:'Bedroom 3 ceiling fan',diameter:.8382,centre:sourceModel('B3-F'),status:'33-inch target · fixing and clearances pending'}
+ {id:'L-FAN',room:'客厅',label:'Living ceiling fan · 52-inch size preview',diameter:1.3208,centre:sourceModel('L-FAN'),status:'52-inch planning target; exact model and manufacturer clearances not approved'},
+ {id:'B2-F',room:'B2',label:'Bedroom 2 Rezo Jazz16LED · size preview only',product:'Rezo Jazz16LED',kind:'fanLight',diameter:.406,drop:.410,rotorDrop:.350,lightId:'B2-F',centre:[3.335+2.865/2,8.96-2.517/2],status:'SIZE PREVIEW ONLY: catalogue Ø406 mm and approx410 mm total drop. Internal part proportions and rotor plane are illustrative; tilt / oscillation envelopes and open loft-door clearances NOT approved. Manufacturer installation manual / site dimensions pending',source:'https://rezo.com.my/products/jazz16led/'},
+ {id:'B3-F',room:'B3',label:'Bedroom 3 ceiling fan · 33-inch size preview only',diameter:.8382,centre:sourceModel('B3-F'),status:'Owner retained 33-inch SIZE PREVIEW ONLY, 19 October; not a purchase approval. Original window-offset provision retained; opened loft-door and manufacturer clearances unresolved'}
 ];
 const pointFixture=(id,room,name,kind,extra={})=>({id,room,name,kind,centre:sourceModel(id),installed:true,status:'Position at original supply',...extra});
 const lf=registeredSource(491,365),kl=registeredSource(625,1144),hy=registeredSource(817,666)[1];
@@ -87,6 +89,16 @@ const windowSpot=(id,room,name,aim)=>pointFixture(id,room,name,'adjustableSpot',
  size:'White surface-mounted adjustable spotlight; 7 W target; illustrative Ø80 mm head /140 mm overall drop /36° half-peak beam, soft field falloff. Product, output, dimming and final aiming pending',
  status:'Original window-side light point retained; surface mount, adjustable tilt, 36° beam aimed toward the curtain / roller blind. Final product and on-site aiming pending'
 });
+// Existing central light points aim at the plain right wall, away from the
+// pillow/headboard on the left. The illustrated heads need about 50° tilt:
+// product articulation must be checked; no new ceiling point is invented.
+const masterWallSpot=(id,name)=>{
+ const [x,y]=sourceModel(id);
+ return {...windowSpot(id,'主人房',name,[9.40,y,1.55]),status:'Original '+(id==='M-L2'?'sleeping-area':'entrance-side')+' light point retained; 36° soft beam aimed at the plain right wall, away from the pillow wall. Final product, aiming and tilt range pending'};
+};
+const masterAmbient=(f,level)=>({...f,dimmable:true,previewLevel:level,
+ size:f.size+'; dimmable driver required; low-output ambience preview only, not measured dimming / lux',
+ status:f.status+'; select articulation supporting the displayed wall aim; avoid bed / eye glare'});
 export const FIXTURES = [
  pointFixture('F-L1','玄关','Entry ceiling light','ceiling',{diameter:.34}),
  windowSpot('L-L1','客厅','Living window-side adjustable spotlight',[1.6065,8.83,1.70]),
@@ -94,12 +106,14 @@ export const FIXTURES = [
  pointFixture('D-L1','餐厅','Dining pendant','pendant',{centre:DINING.centre,diameter:.46,status:'Horizontal offset to table centre · adaptor/model pending',size:'Illustrative Ø 460 mm; final fixture not selected'}),
  pointFixture('K-L2','厨房','Kitchen diffuse ceiling light','ceiling',{diameter:.38,lumens:[1800,2400],watts:[20,24],size:'White opal diffuser; Ø300–400 mm target, illustrative380 mm;1800–2400 lm; approx20–24 W, final model pending',status:'Original kitchen light point retained; uniform soft ambient light between worktops, separate sink task strip retained. No three-head spotlight'}),
  ...[['H1',465],['H2',586]].map(([id,x])=>({id,room:'走道',name:'Hall light '+id.slice(1),kind:'recessed',centre:planToModel(x,hy,'走道'),diameter:.12,installed:true,status:'Two aligned centres in existing plaster · set-out pending',feed:'H-L1'})),
- windowSpot('M-L1','主人房','Master window-side adjustable spotlight',[7.9643,8.85,1.70]),
- pointFixture('M-FAN','主人房','Master main ceiling light at original fan provision','ceiling',{diameter:.47,status:'Original fan provision reused for dimmable diffuse ceiling light; no fan. Electrician must verify supply, mounting and lighting-compatible control. Fan / sleeping-light gangs interpreted from drawing, site switching test pending'}),
+ masterAmbient(windowSpot('M-L1','主人房','Master window-side adjustable spotlight',[7.9643,8.85,1.70]),.35),
+ pointFixture('M-FAN','主人房','Master Yeelight 300C at original fan provision','ceiling',{...livingYeelight,dimmable:true,nightDefault:false,status:'Original fan provision reused for Yeelight 300C diffuse main light; no fan. Default night preview uses the three low-output spots with the main light off; explicit saved selections retained. Supply, fixing and separate switch groups require verification'}),
+ masterAmbient(masterWallSpot('M-L2','Master sleeping-area wall spotlight'),.25),
+ masterAmbient(masterWallSpot('M-L3','Master entrance-side wall spotlight'),.25),
  windowSpot('B2-L1','B2','Bedroom 2 window-side adjustable spotlight',[4.7722,8.88,1.70]),
- pointFixture('B2-F','B2','Bedroom 2 dimmable ceiling light','ceiling',{diameter:.43,lumens:[2400,3000],watts:[24,36],size:'White opal diffuser; diameter400–450 mm target, model430 mm; 2400–3000 lm; approx24–36 W; dimmable, tunable3000–4000 K, use3500 K',status:'Centred at original fan provision; electrician to verify lighting-compatible supply, control and mounting. No ceiling fan. Window-side supply has a separate adjustable spotlight; wardrobe-side light point unused. Desk task lamp if needed'}),
- pointFixture('B3-L1','B3','Bedroom 3 wide diffuse surface downlight','surfaceDownlight',{diameter:.16,thickness:.085,lumens:[1200,1500],size:'Single white surface-mounted wide diffuse downlight;1200–1500 lm target; broad60–90° distribution; Ra≥90. IllustrativeØ160 ×85 mm, actual product pending',status:'Original left light point retained; soft general light for changing / entry area. No multi-head fitting; fan and opened-door clearances to confirm with actual fitting'}),
- pointFixture('B3-L2','B3','Bedroom 3 adjustable wardrobe downlight','adjustableSpot',{diameter:.10,thickness:.14,beamAngle:70*Math.PI/180,previewPower:190,aim:[7.25,4.50,1.35],lumens:[1200,1500],size:'Single white surface-mounted adjustable wide soft downlight;60–90° beam target, model70°;1200–1500 lm target; Ra≥90. IllustrativeØ100 mm, product and actual output pending',status:'Original right light point in front of wardrobe retained; gently aimed at cabinet face, not guaranteed to illuminate every internal shelf. Check open loft-door clearance and seated-eye glare on site'}),
+ pointFixture('B2-F','B2','Bedroom 2 Rezo Jazz16LED · integrated light','fanLight',{centre:[3.335+2.865/2,8.96-2.517/2],diameter:.406,thickness:.410,product:'Rezo Jazz16LED',watts:10,previewPower:350,size:'Jazz16LED size preview: Ø406 mm; approx410 mm total drop;10 W three-colour LED;28 W DC motor. LED lumen output and dimming not confirmed; preview is not a lux calculation',status:'Owner-requested Jazz16LED SIZE PREVIEW ONLY at the owner-confirmed whole-room centre. Open loft-door clearance, rotor height, tilt / oscillation envelope and manufacturer mounting requirements remain unresolved. Previous standalone ceiling light / floor circulator removed from this preview; window-side7 W spotlight retained'}),
+ pointFixture('B3-L1','B3','Bedroom 3 wide diffuse surface downlight','surfaceDownlight',{diameter:.16,thickness:.085,watts:12,dimmable:true,lumens:[1200,1500],size:'12 W single white surface-mounted wide diffuse downlight;1200–1500 lm target; broad60–90° distribution; Ra≥90, dimmable preferred. IllustrativeØ160 ×85 mm, actual product pending',status:'Original left light point retained; soft general light for changing / entry area. No multi-head fitting; fan and opened-door clearances to confirm with actual fitting'}),
+ pointFixture('B3-L2','B3','Bedroom 3 adjustable wardrobe downlight','adjustableSpot',{diameter:.10,thickness:.14,watts:12,dimmable:true,beamAngle:70*Math.PI/180,previewPower:190,aim:[7.25,4.50,1.35],lumens:[1200,1500],size:'12 W single white surface-mounted adjustable wide soft downlight;60–90° beam target, model70°;1200–1500 lm target; Ra≥90, dimmable preferred. IllustrativeØ100 mm, product and actual output pending',status:'Original right light point in front of wardrobe retained; gently aimed at cabinet face, not guaranteed to illuminate every internal shelf. Check open loft-door clearance and seated-eye glare on site'}),
  ...[['Bath 1','B1',835,838],['Bath 2','B2B',463,463]].flatMap(([room,prefix,sx,mx])=>[
   {id:prefix+'-DL',room,name:room+' shower downlight',kind:'recessed',centre:planToModel(sx,690,room),diameter:.12,installed:true,status:'Existing plaster · new hole · final cut-out pending',feed:prefix+'-L'},
   {id:prefix+'-SP',room,name:room+' mirror spotlight',kind:'mirrorSpot',centre:planToModel(mx,570,room),aim:planToModel(prefix==='B1'?873:433,568,room),diameter:.09,installed:true,status:'Offset mirror task light · aim and cut-out pending',feed:prefix+'-L'}
@@ -109,7 +123,7 @@ export const FIXTURES = [
  {id:'Y-L1',room:'Yard',name:'Yard retained light',kind:'ceiling',centre:sourceModel('Y-L1'),diameter:.26,installed:false,status:'Existing fitting retained · replacement not in installation count'}
 ];
 export const AGREED_SCOPE = {
- revision:DESIGN_REVISION,lightingAssemblies:FIXTURES.filter(f=>f.installed).length,fans:2,standingCirculators:1,
+ revision:DESIGN_REVISION,lightingAssemblies:FIXTURES.filter(f=>f.installed).length,fans:FANS.length,standingCirculators:BEDROOM2.circulator.enabled?1:0,
  ceiling:'Original room slabs retained. Existing lowered hall plaster with closed entrance fascia; bathroom plaster retained. Heights require site measurement.',
  wallPaint:'Jotun 1928 Summer Snow · physical sample pending',
  bedroomFloor:'Retain actual warm pale oak bedroom floors; inspection-photo colour approximation.',
@@ -130,8 +144,8 @@ export const AGREED_SCOPE = {
  ],
  yard:'Laundry at existing Bath 2-side water/drain; litter trays at dry end. Retain original grey-frame kitchen-to-yard glass louvre; cancel the window niche cabinet. Grey door frames and matching skirting follow actual-unit photos. PD door opens outward into Yard; retained partly open, no cat hole. Not a bifold door. No exhaust fan.',
  appliances:'VATTI V997 recirculating hood target; return-air kit pending. Induction hob independent. Combi oven not selected or approved for the reserved under-counter bay.',
- switching:'Individual app toggles are fixture previews, not an as-built switch diagram. Living window spotlight and main light likely share one gang; a non-smart spotlight stays on whenever that gang is powered. Master main uses original fan provision, window spotlight uses original light group; independent operation pending site test. Other master light points unused.',
- pending:['Master fan provision reused for main light: electrician to confirm supply, mounting, control and independent switching','Living / Bedroom 3 fan models and manufacturer clearances','Bedroom 2 ceiling light at original fan provision: verify usable supply, control and mounting; standing circulator placement','Dining pendant/adaptor and measured horizontal offset','Fixture sizes, heads, wattage and bathroom cut-outs','Cabinet shop drawings and board/stone samples','Final window-treatment purchase','All as-built dimensions']
+ switching:'Individual app toggles are fixture previews, not an as-built switch diagram. Living window spotlight and main light likely share one gang; a non-smart spotlight stays on whenever that gang is powered. Master: main 300C at original fan provision plus three dimmable spotlights at original light points; the three-gang interpretation and actual grouping require site testing. Low-output spot previews do not promise driver dimming compatibility.',
+ pending:['Master 300C supply / fixing plus spotlight tilt, dimmable driver and actual switch grouping','Living52-inch, Bedroom3 33-inch and Bedroom2 Jazz16LED are SIZE PREVIEWS ONLY, not purchase / mounting approvals','Bedroom2 Jazz16LED: actual rotor height, tilt / oscillation, opened loft doors and manufacturer installation clearances unresolved','Dining pendant/adaptor and measured horizontal offset','Fixture sizes, heads, wattage and bathroom cut-outs','Cabinet shop drawings and board/stone samples','Final window-treatment purchase','All as-built dimensions']
 };
 export const fixtureMeta = c => {
  const f=FIXTURES.find(f=>f.id===c.id);if(!f)return null;
