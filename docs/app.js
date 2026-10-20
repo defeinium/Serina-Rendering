@@ -1,18 +1,18 @@
 import {CABINET_FINISHES,createCabinetFinishes} from './cabinet-finishes.js?v=20261017-whole-home-cabinets-r1';
-import {createVersionInfo} from './version-info.js?v=20261019-b2-jazz-preview-r2';
-import {createLightingState} from './lighting-state.js?v=20261019-b2-jazz-preview-r2';
+import {createVersionInfo} from './version-info.js?v=20261020-entry-downlight-r1';
+import {createLightingState} from './lighting-state.js?v=20261020-entry-downlight-r1';
 import {createQuickControls} from './quick-controls.js?v=20261017-touch-movement-r1';
 import * as THREE from 'three';
 import {createCabinetry} from './cabinetry.js?v=20261017-whole-home-cabinets-r1';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261019-b2-jazz-preview-r2';
-import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261019-b2-jazz-preview-r2';
+import {ROOM_SURVEY,ROOM_FEATURES,UNLOCATED_POINTS} from './planning-data.js?v=20261020-entry-downlight-r1';
+import {AGREED_SCOPE,BEDROOM2,SOURCE_REGISTER,registeredSource,planToModel,sourceModel,DINING,FANS,FIXTURES,fixtureMeta,AIR_CONDITIONERS,HALL_CEILING} from './agreed-design.js?v=20261020-entry-downlight-r1';
 
 import {createTileReflection} from './floor-reflection.js?v=20261013-r13';
 import {LIGHT_COLOUR, roomViewingMatrix} from './light-colour.js?v=20261013-r13';
-import {createWindowDaylight} from './window-daylight.js?v=20261019-b2-jazz-preview-r2';
+import {createWindowDaylight} from './window-daylight.js?v=20261020-entry-downlight-r1';
 
 let quickControls=null,lightingSession=null;
 for(const event of ['selectstart','contextmenu'])document.querySelector('#app').addEventListener(event,e=>{if(e.target.closest?.('button,summary,[role=button]'))e.preventDefault()});
@@ -603,7 +603,7 @@ for(const f of FIXTURES){
   if(f.kind==='surfaceDownlight'){const collar=disc(f.diameter*.43,.010,recessedCup);collar.position.set(x,roof-.004-depth,-y);c.group.add(collar)}
   const lens=new THREE.Mesh(new THREE.CircleGeometry(f.diameter*(f.kind==='surfaceDownlight'?.38:.45),32),diffuserOffMat);lens.rotation.x=Math.PI/2;lens.position.set(x,roof-.006-depth,-y);addLens(c,lens);
   areaLamp(c,x,y,roof-.014-depth,f.diameter*.90,f.diameter*.90,f.kind==='surfaceDownlight'?1050:f.room==='Yard'?550:f.diameter>.4?1100:850);
- }else if(f.kind==='adjustableSpot'||f.kind==='multiSpot'){
+ }else if(f.kind==='adjustableSpot'||f.kind==='adjustableDownlight'||f.kind==='multiSpot'){
   const multi=f.kind==='multiSpot';
   const canopy=disc(multi?.055:.047,.025,fixtureShellMat);canopy.position.set(x,roof-.0125,-y);c.group.add(canopy);
   if(multi){const bar=new THREE.Mesh(new THREE.BoxGeometry(f.barLength,.030,.040),fixtureShellMat);bar.position.set(x,roof-.036,-y);bar.name='Single three-head fitting · horizontal bar parallel to wet cabinets';c.group.add(bar)}
@@ -613,10 +613,11 @@ for(const f of FIXTURES){
    const direction=new THREE.Vector3(aim[0],aim[2],-aim[1]).sub(pivot).normalize();
    const joint=disc(.016,.050,fixtureShellMat);joint.position.set(p[0],roof-.048,-p[1]);c.group.add(joint);
    const head=new THREE.Group();head.name='Adjustable head '+(i+1)+' · aligned with beam';head.position.copy(pivot);head.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),direction);c.group.add(head);
-   const housing=disc(f.diameter/2,multi?.110:.090,fixtureShellMat);housing.position.y=-.025;housing.castShadow=true;head.add(housing);
-   const baffle=new THREE.Mesh(new THREE.CylinderGeometry(.031,.032,multi?.040:.020,32,1,true),recessedCup);baffle.position.y=multi?-.060:-.070;head.add(baffle);
-   const lens=new THREE.Mesh(new THREE.CircleGeometry(.025,32),diffuserOffMat);lens.rotation.x=Math.PI/2;lens.position.y=multi?-.042:-.073;head.add(lens);c.lenses.push(lens);
-   const emitter=pivot.clone().addScaledVector(direction,.086);
+   const housing=f.antiGlare?new THREE.Mesh(new THREE.CylinderGeometry(f.diameter/2,f.diameter/2,.130,32,1,true),fixtureShellMat):disc(f.diameter/2,multi?.110:.090,fixtureShellMat);housing.position.y=f.antiGlare?-.040:-.025;housing.castShadow=true;head.add(housing);
+   if(f.antiGlare){const rim=new THREE.Mesh(new THREE.RingGeometry(.032,f.diameter/2,32),fixtureShellMat);rim.rotation.x=Math.PI/2;rim.position.y=-.105;head.add(rim)}
+   const baffle=new THREE.Mesh(new THREE.CylinderGeometry(.031,.032,f.antiGlare?.042:multi?.040:.020,32,1,true),recessedCup);baffle.position.y=f.antiGlare?-.084:multi?-.060:-.070;head.add(baffle);
+   const lens=new THREE.Mesh(new THREE.CircleGeometry(.025,32),diffuserOffMat);lens.rotation.x=Math.PI/2;lens.position.y=f.antiGlare?-.064:multi?-.042:-.073;head.add(lens);c.lenses.push(lens);
+   const emitter=pivot.clone().addScaledVector(direction,f.antiGlare?.112:.086);
    const fieldHalf=f.beamAngle;
    const lamp=spotLamp(c,emitter.x,-emitter.z,emitter.y,...aim,f.previewPower,fieldHalf);
    lamp.penumbra=0;lamp.userData.surfaceSpot=true;
@@ -725,7 +726,7 @@ const lightScopeFor=room=>COMMON_LIGHT_ROOMS.has(room)||room==='全屋'?'common'
 const inLightScope=(c,scope)=>scope==='all'||(scope==='common'?COMMON_LIGHT_ROOMS.has(c.room):c.room===scope);
 function ensureOverviewLights(){if(lightingSession&&inside&&interiorMode==='overview'&&!daylight)for(const scope of new Set(lightCircuits.map(c=>lightScopeFor(c.room))))lightingSession.visit(scope)}
 const LIGHT_ORDER=['F-L1','K-L2','K-LED','D-L1','L-L2','L-L1','L-FLOOR','H1','H2','M-FAN','M-L1','M-L2','M-L3','B2-F','B2-L1','B3-L1','B3-L2','B1-DL','B1-SP','B2B-DL','B2B-SP','Y-L1'];
-const LIGHT_LABELS={'F-L1':'Entry · ceiling','K-L2':'Kitchen · ceiling','K-LED':'Kitchen · sink strip','D-L1':'Dining · pendant','L-L2':'Living · dining-side ceiling','L-L1':'Living · window spotlight','L-FLOOR':'Living · floor lamp','H1':'Hall · light 1','H2':'Hall · light 2','M-FAN':'Main · Yeelight 300C','M-L1':'Window · 7W curtain spotlight','M-L2':'Sleeping area · 7W wall spotlight','M-L3':'Entrance · 7W wall spotlight','B2-F':'Rezo Jazz16LED · 10W light','B2-L1':'Window · 7W spotlight','B3-L1':'General · 12W wide downlight','B3-L2':'Wardrobe · 12W adjustable downlight','B1-DL':'Shower · downlight','B1-SP':'Mirror · spotlight','B2B-DL':'Shower · downlight','B2B-SP':'Mirror · spotlight','Y-L1':'Yard · ceiling'};
+const LIGHT_LABELS={'F-L1':'Entry · adjustable anti-glare downlight','K-L2':'Kitchen · ceiling','K-LED':'Kitchen · sink strip','D-L1':'Dining · pendant','L-L2':'Living · dining-side ceiling','L-L1':'Living · window spotlight','L-FLOOR':'Living · floor lamp','H1':'Hall · light 1','H2':'Hall · light 2','M-FAN':'Main · Yeelight 300C','M-L1':'Window · 7W curtain spotlight','M-L2':'Sleeping area · 7W wall spotlight','M-L3':'Entrance · 7W wall spotlight','B2-F':'Rezo Jazz16LED · 10W light','B2-L1':'Window · 7W spotlight','B3-L1':'General · 12W wide downlight','B3-L2':'Wardrobe · 12W adjustable downlight','B1-DL':'Shower · downlight','B1-SP':'Mirror · spotlight','B2B-DL':'Shower · downlight','B2B-SP':'Mirror · spotlight','Y-L1':'Yard · ceiling'};
 function syncLightingUI(){
  if(!lightingSession)return;
  const cs=lightCircuits.filter(c=>inLightScope(c,lightRoomSelect.value)),n=cs.filter(c=>c.on).length;

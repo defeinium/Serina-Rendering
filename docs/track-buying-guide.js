@@ -1,4 +1,4 @@
-import {FIXTURES,FANS} from './agreed-design.js?v=20261019-b2-jazz-preview-r2';
+import {FIXTURES,FANS} from './agreed-design.js?v=20261020-entry-downlight-r1';
 const lights=FIXTURES.filter(f=>f.room==='客厅'&&f.kind==='ceiling'),fan=FANS.find(f=>f.id==='L-FAN');
 const x0=.17,y0=8.96,w=2.995,h=3.76,s=100,ox=90,oy=65;
 const p=([x,y])=>[ox+(x-x0)*s,oy+(y0-y)*s];
@@ -7,6 +7,6 @@ let svg=`<rect x="${ox}" y="${oy}" width="${w*s}" height="${h*s}" fill="#fafaf7"
 for(const [i,f] of lights.entries()){const [x,y]=p(f.centre);svg+=`<circle cx="${x}" cy="${y}" r="15" fill="white" stroke="#657b68" stroke-width="2"/><path d="M ${x-5} ${y}h10 M ${x} ${y-5}v10" stroke="#657b68"/><text x="${x+25}" y="${y+5}" fill="#344b3c">300C · ${i===0?'窗侧':'餐厅侧'}</text>`;const d=Math.round(Math.hypot(f.centre[0]-fan.centre[0],f.centre[1]-fan.centre[1])*1000);svg+=`<text x="${fx-10}" y="${(fy+y)/2}" text-anchor="end" font-size="12" fill="#69766c">中心距 ${d}</text>`;}
 svg+='<text x="240" y="480" text-anchor="middle" fill="#506253">↓ 餐厅 / 吊灯保留</text>';
 document.querySelector('#plan').innerHTML=`<svg viewBox="0 0 500 510" role="img" aria-label="客厅两个原灯位的Yeelight300C与原风扇位">${svg}</svg>`;
-const rows=[['玄关','原灯位柔光吸顶灯',1],['厨房','原灯位柔光吸顶灯＋洗手盆灯带','1＋1'],['餐厅','移位吊灯',1],['B2','原风扇位柔光吸顶灯',1],['主人房','原中间灯位可调光吸顶灯',1],['B3','两盏吸顶灯＋吊扇','2＋1'],['走廊','已购买',2],['两间厕所','已购买：每间2盏',4]];
+const rows=[['玄关','原灯位明装可调角度防眩筒灯',1],['厨房','原灯位柔光吸顶灯＋洗手盆灯带','1＋1'],['餐厅','移位吊灯',1],['B2','原风扇位柔光吸顶灯',1],['主人房','原中间灯位可调光吸顶灯',1],['B3','两盏明装筒灯（衣柜侧可调角度）＋吊扇尺寸示意','2＋1'],['走廊','已购买',2],['两间厕所','已购买：每间2盏',4]];
 document.querySelector('#remaining').innerHTML=rows.map(r=>'<tr>'+r.map(v=>`<td>${v}</td>`).join('')+'</tr>').join('');
 window.lightingGuide={living:lights.map(f=>({id:f.id,product:f.product,diameter:f.diameter,watts:f.watts,lumens:f.lumens})),trackRequired:false};

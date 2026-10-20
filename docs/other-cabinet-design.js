@@ -1,6 +1,6 @@
 import {CABINET_FINISHES} from './cabinet-palette.js?v=20261017-retained-louvre-r1';
 import {CABINETS as CABINET_SPECS,CABINET_REVISION} from './cabinet-data.js?v=20261017-whole-home-cabinets-r1';
-import {BEDROOM2,DESIGN_REVISION} from './agreed-design.js?v=20261019-b2-jazz-preview-r2';
+import {BEDROOM2,DESIGN_REVISION} from './agreed-design.js?v=20261020-entry-downlight-r1';
 const $=s=>document.querySelector(s), esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;'), N=v=>Math.round(v*10)/10;
 const C={ink:'#34453d',line:'#78857b',dim:'#a7613d',ref:'#88938c',front:CABINET_FINISHES.light.colour,shoe:CABINET_FINISHES.light.colour,inside:'#f1f3eb',wood:'#c1c4b9',drawer:'#dae3d5',graphite:CABINET_FINISHES.lower.colour,blue:'#c2d5d0'};
 const state={cabinet:'all',view:'front',part:null};

@@ -1,7 +1,7 @@
-// Current viewer scope, 19 October 2026. Sizes are quote/visual targets,
+// Current viewer scope, 20 October 2026. Sizes are quote/visual targets,
 // never surveyed drilling or fabrication dimensions. Shared by the viewer
 // and contractor brief; the approved source-based 2D drawing remains intact.
-export const DESIGN_REVISION = '2026-10-19-b2-jazz-preview-r2';
+export const DESIGN_REVISION = '2026-10-20-entry-downlight-r1';
 export const BEDROOM2 = {
  layout:'plain',
  wardrobe:{left:3.335,right:4.775,centreY:6.733,width:1.44,depth:.60,tallWidth:1.44,tallHeight:2.85,doors:3,loftBottom:2.26,mirror:'Inside left narrow door when facing cabinet; hardware to confirm'},
@@ -100,7 +100,12 @@ const masterAmbient=(f,level)=>({...f,dimmable:true,previewLevel:level,
  size:f.size+'; dimmable driver required; low-output ambience preview only, not measured dimming / lux',
  status:f.status+'; select articulation supporting the displayed wall aim; avoid bed / eye glare'});
 export const FIXTURES = [
- pointFixture('F-L1','玄关','Entry ceiling light','ceiling',{diameter:.34}),
+ pointFixture('F-L1','玄关','Entry surface-mounted adjustable anti-glare downlight','adjustableDownlight',{
+  diameter:.10,thickness:.17,antiGlare:true,beamAngle:Math.PI/3,previewPower:130,
+  aim:[sourceModel('F-L1')[0],sourceModel('F-L1')[1]+.35,.05],
+  size:'Surface-mounted adjustable anti-glare downlight. Illustrative Ø100 mm /170 mm drop /60° beam; model, wattage, lumens and beam not selected',
+  status:'Original entry light point retained; recessed light source and dark anti-glare baffle. Gentle downward aim into entry; final model and on-site aiming pending'
+ }),
  windowSpot('L-L1','客厅','Living window-side adjustable spotlight',[1.6065,8.83,1.70]),
  pointFixture('L-L2','客厅','Living Yeelight 300C · dining side','ceiling',{...livingYeelight}),
  pointFixture('D-L1','餐厅','Dining pendant','pendant',{centre:DINING.centre,diameter:.46,status:'Horizontal offset to table centre · adaptor/model pending',size:'Illustrative Ø 460 mm; final fixture not selected'}),
@@ -113,7 +118,7 @@ export const FIXTURES = [
  windowSpot('B2-L1','B2','Bedroom 2 window-side adjustable spotlight',[4.7722,8.88,1.70]),
  pointFixture('B2-F','B2','Bedroom 2 Rezo Jazz16LED · integrated light','fanLight',{centre:[3.335+2.865/2,8.96-2.517/2],diameter:.406,thickness:.410,product:'Rezo Jazz16LED',watts:10,previewPower:350,size:'Jazz16LED size preview: Ø406 mm; approx410 mm total drop;10 W three-colour LED;28 W DC motor. LED lumen output and dimming not confirmed; preview is not a lux calculation',status:'Owner-requested Jazz16LED SIZE PREVIEW ONLY at the owner-confirmed whole-room centre. Open loft-door clearance, rotor height, tilt / oscillation envelope and manufacturer mounting requirements remain unresolved. Previous standalone ceiling light / floor circulator removed from this preview; window-side7 W spotlight retained'}),
  pointFixture('B3-L1','B3','Bedroom 3 wide diffuse surface downlight','surfaceDownlight',{diameter:.16,thickness:.085,watts:12,dimmable:true,lumens:[1200,1500],size:'12 W single white surface-mounted wide diffuse downlight;1200–1500 lm target; broad60–90° distribution; Ra≥90, dimmable preferred. IllustrativeØ160 ×85 mm, actual product pending',status:'Original left light point retained; soft general light for changing / entry area. No multi-head fitting; fan and opened-door clearances to confirm with actual fitting'}),
- pointFixture('B3-L2','B3','Bedroom 3 adjustable wardrobe downlight','adjustableSpot',{diameter:.10,thickness:.14,watts:12,dimmable:true,beamAngle:70*Math.PI/180,previewPower:190,aim:[7.25,4.50,1.35],lumens:[1200,1500],size:'12 W single white surface-mounted adjustable wide soft downlight;60–90° beam target, model70°;1200–1500 lm target; Ra≥90, dimmable preferred. IllustrativeØ100 mm, product and actual output pending',status:'Original right light point in front of wardrobe retained; gently aimed at cabinet face, not guaranteed to illuminate every internal shelf. Check open loft-door clearance and seated-eye glare on site'}),
+ pointFixture('B3-L2','B3','Bedroom 3 surface-mounted adjustable wardrobe downlight','adjustableDownlight',{diameter:.10,thickness:.14,watts:12,dimmable:true,beamAngle:70*Math.PI/180,previewPower:190,aim:[7.25,4.50,1.35],lumens:[1200,1500],size:'12 W single white surface-mounted adjustable wide soft downlight;60–90° beam target, model70°;1200–1500 lm target; Ra≥90, dimmable preferred. IllustrativeØ100 mm, product and actual output pending',status:'Original right light point in front of wardrobe retained; gently aimed at cabinet face, not guaranteed to illuminate every internal shelf. Check open loft-door clearance and seated-eye glare on site'}),
  ...[['Bath 1','B1',835,838],['Bath 2','B2B',463,463]].flatMap(([room,prefix,sx,mx])=>[
   {id:prefix+'-DL',room,name:room+' shower downlight',kind:'recessed',centre:planToModel(sx,690,room),diameter:.12,installed:true,status:'Existing plaster · new hole · final cut-out pending',feed:prefix+'-L'},
   {id:prefix+'-SP',room,name:room+' mirror spotlight',kind:'mirrorSpot',centre:planToModel(mx,570,room),aim:planToModel(prefix==='B1'?873:433,568,room),diameter:.09,installed:true,status:'Offset mirror task light · aim and cut-out pending',feed:prefix+'-L'}
