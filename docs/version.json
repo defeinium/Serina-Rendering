@@ -1,8 +1,16 @@
 {
-  "version": "2026.10.20.1",
-  "revision": "20261020-entry-downlight-r1",
+  "version": "2026.10.20.2",
+  "revision": "20261020-cabinet-render-fix-r1",
   "date": "2026-10-20",
   "releases": [
+    {
+      "version": "2026.10.20.2",
+      "date": "20 Oct 2026",
+      "notes": [
+        "Fixed disappearing Sahara Stone cabinet surfaces caused by exceeding the browser fragment-texture limit.",
+        "All light sources remain available; shadow maps now use a bounded device-aware pool. Cabinet finishes and layouts retained."
+      ]
+    },
     {
       "version": "2026.10.20.1",
       "date": "20 Oct 2026",
