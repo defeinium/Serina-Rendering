@@ -303,3 +303,11 @@
 .touch-overview-hint{position:absolute;z-index:5;left:50%;bottom:calc(var(--controls-height,60px) + 24px + env(safe-area-inset-bottom));transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);margin:0;padding:8px 12px;border:1px solid var(--ui-line);border-radius:12px;background:var(--ui-bg);color:var(--ui-muted);font-size:10px;line-height:1.4;text-align:center;pointer-events:none}.touch-overview-hint[hidden]{display:none!important}
 
 .touch-overview-hint{left:12px;transform:none;max-width:calc(100vw - 138px)}.touch-overview-hint span{display:block}
+
+/* Canvas pointer focus must not draw a browser-blue frame over the room. */
+#scene:focus{outline:none} #scene:focus-visible{outline:1px solid #b9beb2;outline-offset:-2px}
+
+/* Local kitchen comparison lives in the existing Spaces drawer. */
+#app .kitchen-palette-control{margin:16px 0 0;padding:14px 4px 0;border-top:1px solid var(--ui-line)}
+#app .kitchen-palette-control label{display:block;color:var(--ui-text);font-size:13px;margin-bottom:8px}
+#app .kitchen-palette-control select{display:block;width:100%;min-height:42px;border:1px solid var(--ui-line);border-radius:10px;background:#eeeae0;color:#27332b;font:inherit;font-size:12px;padding:8px}

@@ -7,9 +7,9 @@
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
-  <link rel="stylesheet" href="viewer-ui.css?v=20261017-touch-movement-r1" />
-  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
-</head>
+  <link rel="stylesheet" href="viewer-ui.css?v=20261024-porcelain-r1" />
+
+<style>.panel,[data-open-details],#measureOverlay{display:none!important}#quickSpaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}#quickSpaces button{border:1px solid #b9c0b5;border-radius:12px;background:#edf0e8;color:#25302c;padding:12px;font:inherit}#quickSpaces button[aria-pressed=true]{background:#344b41;color:white}.version-info{font:11px system-ui;color:#d9dfd8;background:#1d2925dd;border-radius:8px;padding:7px}</style></head>
 <body>
   <main id="app">
     <canvas id="scene" aria-label="Interactive three-dimensional home plan"></canvas>
@@ -24,9 +24,11 @@
         <div class="quick-heading"><div><small id="quickCurrent">Whole home</small><h2>Your home</h2></div><button type="button" data-quick-close aria-label="Close quick controls">×</button></div>
         <div class="quick-scroll">
           <section><h3>Space</h3><div id="quickSpaces" class="quick-grid" aria-label="Spaces"></div></section>
+          <section class="kitchen-palette-control"><label for="kitchenPalette">厨房配色</label><select id="kitchenPalette"><option value="sahara">Sahara Stone 上柜 · Carbon Grey 下柜</option><option value="dune">Sahara Stone 上柜 · Dune Grey 下柜</option></select></section>
 
+          <section class="kitchen-palette-control"><label for="laundryFacing">洗烘机朝向</label><select id="laundryFacing"><option value="long">沿yard长向 · 推荐</option><option value="ledge">朝平台PD门 · 比较</option></select><small>叠放为布局示意，安装方式待确认。</small></section>
         </div>
-        <div class="quick-footer">The person marks your current space.</div>
+        <div class="quick-footer">Interactive3D preview. </div>
       </aside>
       <button id="quickGrip" class="quick-grip" type="button" aria-controls="quickControls" aria-expanded="false" aria-label="Open quick controls"><span class="quick-grip-lines" aria-hidden="true">⋮</span><span>Spaces</span><span aria-hidden="true">›</span></button>
     </div>
@@ -48,7 +50,7 @@
         <section><label>Current agreed design</label>
           <p id="ceilingNote" class="note"></p><div id="designFacts"></div>
         </section>
-        <section><label>Cabinet design</label><div class="viewtools"><button type="button" data-cabinet-interiors aria-pressed="false">Show interiors</button></div><p class="note" id="cabinetViewNote">Exterior view. Tap Interiors to inspect shelves, rails and drawer allocation.</p><a class="brief-panel-link" href="kitchen-cabinet-design.html#drawings">Kitchen cabinet drawings ↗</a><a class="brief-panel-link" href="other-cabinet-design.html#drawings">Wardrobes, TV &amp; shoe cabinet drawings ↗</a></section>
+        <section><label>Cabinet design</label><div class="viewtools"><button type="button" data-cabinet-interiors aria-pressed="false">Show interiors</button></div><p class="note" id="cabinetViewNote">Exterior view. Tap Interiors to inspect shelves, rails and drawer allocation.</p></section>
         <section><label>Camera and model</label>
           <div class="viewtools">
             <button id="homeView" type="button">Whole home</button>
@@ -59,7 +61,7 @@
             <button id="cutaway" type="button">Wall cutaway</button>
           </div>
         </section>
-        <section><a class="brief-panel-link" href="site-plan.html">Open current 2D lights &amp; fans drawing ↗</a><a class="brief-panel-link" href="contractor.html">Open current contractor brief ↗</a><a class="brief-panel-link" href="measure.html?v=20261016-prep-curve-r1">Open mobile site-measurement list ↗</a></section>
+        <section></section>
       </div>
 
       <div id="tab-points" class="tab-pane" hidden>
@@ -72,7 +74,7 @@
 
       <div id="tab-measure" class="tab-pane" hidden>
         <p class="source-note"><b>Approximate model dimensions only.</b> Corner coordinates and wall runs come from the current plan model. Amber labels mark fixture targets; coloured spheres mark existing points. Measure finished wall faces, openings and every point centre before ordering or building.</p>
-        <a class="brief-panel-link" href="measure.html?v=20261016-prep-curve-r1">Record actual dimensions on site ↗</a>
+
         <button id="measureToggle" type="button" class="measure-toggle" aria-pressed="false">Show dimensions on model</button>
         <div id="measurementContent"></div>
       </div>
@@ -82,13 +84,14 @@
     <aside id="lightPanel" class="light-panel" aria-label="Quick lighting controls" hidden>
       <div class="light-panel-head"><div><small id="lightSceneCaption">DAYLIGHT</small><strong>Lighting <span id="lightCount" class="light-count" aria-live="polite">0 on</span></strong></div><button id="lightPanelClose" type="button" aria-label="Close lighting controls">×</button></div>
       <div class="light-room-picker"><button type="button" data-open-quick aria-controls="quickControls" aria-expanded="false">Area · <span id="quickLightingSpace">Common area</span> ↗</button><select id="lightRoomSelect" aria-label="Select lighting area"></select></div>
-      <div class="lighting-presets" role="group" aria-label="Lights in this area"><button id="lightsMain" type="button">Main lights</button><button id="lightsAllOn" type="button">All on</button><button id="lightsAllOff" type="button">All off</button></div><p id="sceneMemoryHint" class="scene-memory-hint">Day starts with lights off. Changes are remembered.</p><button id="daylightToggle" type="button" hidden>Daylight</button>
+      <div class="lighting-presets" role="group" aria-label="Lights in this area"><button id="lightsMain" type="button">Main lights</button><button id="lightsAllOn" type="button">All on</button><button id="lightsAllOff" type="button">All off</button></div><div class="lighting-presets" id="eveningSceneRow" style="grid-template-columns:1fr"><button id="lightsEvening" type="button" aria-pressed="false">Evening ambience · living + dining</button></div><p id="sceneMemoryHint" class="scene-memory-hint">Day starts with lights off. Changes are remembered.</p><button id="daylightToggle" type="button" hidden>Daylight</button>
       <div id="temperatureCompare" class="temperature-compare" role="group" aria-label="Common-area colour temperature"><span>Light colour</span><button type="button" data-cct="3000" aria-pressed="false">3000K</button><button type="button" data-cct="3500" class="active" aria-pressed="true">3500K</button><button type="button" data-cct="4000" aria-pressed="false">4000K</button></div>
       <div id="quickLightSwitches" class="quick-light-switches" aria-label="Lights in this space"></div><div class="lighting-footer"><button id="undoLighting" type="button" disabled>↶ Undo</button><button id="restoreLighting" type="button">Reset scene</button><span>Saved on this device</span></div>
+      <div class="paint-reference" title="Jotun official website screen swatch #E5E2D8; independent of scene lighting"><span class="paint-reference-swatch" aria-hidden="true"></span><span>Jotun1928 Summer Snow<br><small>官方屏幕色样 · 场景灯光不改变此色样</small></span></div>
       <details id="moreLights" class="more-lights"><summary>All-room controls &amp; notes</summary>
         <div id="lightSwitches"></div>
         <div class="light-actions"><button id="houseLightsOn" type="button">All rooms on</button><button id="houseLightsOff" type="button">All rooms off</button></div>
-        <div class="paint-reference"><span class="paint-reference-swatch" aria-hidden="true"></span><span>Summer Snow 1928 · neutral swatch</span></div><p class="light-note">Compare common lights at 3000K, 3500K or 4000K. Bedrooms stay at 3500K. Day and night remember separate switch selections. Brightness and colours are a preview; confirm with your chosen fittings and finish samples.</p>
+        <p class="light-note">Compare common lights at 3000K, 3500K or 4000K. Bedrooms stay at 3500K. Day and night remember separate switch selections. Brightness and colours are a preview; confirm with your chosen fittings and finish samples.</p>
       </details>
     </aside>
 
@@ -125,6 +128,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="app.js?v=20261020-cabinet-render-fix-r1"></script>
+  <script type="module" src="viewer.js?v=20261025-3d-public-r1"></script>
 </body>
 </html>

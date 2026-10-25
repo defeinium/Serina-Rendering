@@ -212,3 +212,18 @@ button:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:720px){.quick-grip{width:44px;justify-content:center}.quick-grip-lines{display:none}}
 
 .quick-temperature{margin-top:6px}.quick-temperature[hidden]{display:none}
+/* Reversible public-floor comparison, independent of lighting controls. */
+#floorPicker{position:fixed;left:16px;top:240px;z-index:16;font:13px system-ui,sans-serif;color:#ecece5}
+#floorPicker summary{list-style:none;cursor:pointer;background:#202b27ed;border:1px solid #ffffff25;border-radius:18px;padding:13px 19px;text-align:center}#floorPicker summary::-webkit-details-marker{display:none}
+#floorPicker section{position:absolute;left:0;top:54px;width:min(300px,calc(100vw - 32px));padding:17px;background:#f3f2ec;color:#29342e;border:1px solid #bfc5bb;border-radius:16px;box-shadow:0 12px 35px #0004}
+#floorPicker strong{display:block;font-size:16px;margin-bottom:12px}#floorPicker .floor-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+#floorPicker button,#floorPicker select{font:inherit;cursor:pointer;padding:10px;border-radius:9px;border:1px solid #afb8ac;background:#fff;color:#29342e}#floorPicker button[aria-pressed=true]{background:#34483c;color:white;border-color:#34483c}#floorPicker select{display:block;width:100%;margin-top:6px}#floorPicker p{font-size:12px;line-height:1.5;color:#626b61}#floorPicker button:disabled,#floorPicker select:disabled{opacity:.5;cursor:wait}#floorPicker summary:focus-visible,#floorPicker button:focus-visible,#floorPicker select:focus-visible{outline:3px solid #92aa8a;outline-offset:3px}
+@media(max-height:650px){#floorPicker{top:218px}#floorPicker section{top:0;left:86px;width:min(300px,calc(100vw - 120px));max-height:calc(100vh - 240px);overflow:auto}}
+#floorPicker .floor-product{display:flex;align-items:center;gap:10px;margin-top:12px}
+#floorPicker .floor-product img{flex:0 0 64px;width:64px;height:64px;object-fit:cover;border:1px solid #d0d0c8;border-radius:8px}
+#floorPicker .floor-product b{display:block;font-size:12px;line-height:1.4}
+#floorPicker .floor-product small{display:block;margin-top:5px;font-size:11px;line-height:1.45;color:#626b61}
+#floorPicker #floorProductSource{font-size:12px;color:#345648;text-underline-offset:3px}
+#floorPicker section{max-height:calc(100dvh - 318px);overflow:auto;overscroll-behavior:contain}
+@media(max-height:650px){#floorPicker section{max-height:calc(100dvh - 240px)}}
+@media(min-width:700px) and (min-height:651px){#floorPicker section{left:86px;top:-140px;max-height:calc(100dvh - 120px)}}
