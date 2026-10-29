@@ -311,3 +311,6 @@
 #app .kitchen-palette-control{margin:16px 0 0;padding:14px 4px 0;border-top:1px solid var(--ui-line)}
 #app .kitchen-palette-control label{display:block;color:var(--ui-text);font-size:13px;margin-bottom:8px}
 #app .kitchen-palette-control select{display:block;width:100%;min-height:42px;border:1px solid var(--ui-line);border-radius:10px;background:#eeeae0;color:#27332b;font:inherit;font-size:12px;padding:8px}
+
+/* Keep the release control clear of the cabinet-interior action on all widths. */
+#versionInfo{bottom:158px}

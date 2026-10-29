@@ -7,9 +7,9 @@
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
-  <link rel="stylesheet" href="viewer-ui.css?v=20261024-porcelain-r1" />
-
-<style>.panel,[data-open-details],#measureOverlay{display:none!important}#quickSpaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}#quickSpaces button{border:1px solid #b9c0b5;border-radius:12px;background:#edf0e8;color:#25302c;padding:12px;font:inherit}#quickSpaces button[aria-pressed=true]{background:#344b41;color:white}.version-info{font:11px system-ui;color:#d9dfd8;background:#1d2925dd;border-radius:8px;padding:7px}</style></head>
+  <link rel="stylesheet" href="viewer-ui.css?v=20261029-cabinet-drawings-r5" />
+  
+<style>.panel,#measureOverlay,#viewerMore,#planView,[data-open-details]{display:none!important}.public-spaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}.public-spaces button{padding:12px;border:1px solid #888;border-radius:12px;background:#eef0e8;color:#25302c}.public-spaces button[aria-pressed=true]{background:#344b41;color:white}</style></head>
 <body>
   <main id="app">
     <canvas id="scene" aria-label="Interactive three-dimensional home plan"></canvas>
@@ -24,11 +24,15 @@
         <div class="quick-heading"><div><small id="quickCurrent">Whole home</small><h2>Your home</h2></div><button type="button" data-quick-close aria-label="Close quick controls">×</button></div>
         <div class="quick-scroll">
           <section><h3>Space</h3><div id="quickSpaces" class="quick-grid" aria-label="Spaces"></div></section>
-          <section class="kitchen-palette-control"><label for="kitchenPalette">厨房配色</label><select id="kitchenPalette"><option value="sahara">Sahara Stone 上柜 · Carbon Grey 下柜</option><option value="dune">Sahara Stone 上柜 · Dune Grey 下柜</option></select></section>
+          <section><h3>客厅香格里拉帘与射灯</h3><div class="viewtools"><button type="button" data-living-roller="wide">两窗香格里拉帘收起</button><button type="button" data-living-roller="narrow">单窗香格里拉帘收起</button></div><label for="livingSpotAim">射灯方向对比</label><select id="livingSpotAim"><option value="console">电视柜靠窗端 · 约30°</option><option value="window">原来照窗帘</option></select><button id="livingSpotStudy" type="button">夜间仅开这盏射灯试照</button></section>
+          <section class="kitchen-palette-control"><label for="kitchenPalette">厨房配色</label><select id="kitchenPalette"><option value="sahara">Sahara Stone 上柜 · Carbon Grey 下柜</option><option value="dune-study">Dune Grey 下柜 · 旧方案对比</option></select></section>
 
-          <section class="kitchen-palette-control"><label for="laundryFacing">洗烘机朝向</label><select id="laundryFacing"><option value="long">沿yard长向 · 推荐</option><option value="ledge">朝平台PD门 · 比较</option></select><small>叠放为布局示意，安装方式待确认。</small></section>
+          <section class="kitchen-palette-control"><label for="diningPalette">餐厅搭配</label><select id="diningPalette"><option value="balanced">NORDICA · 深灰布面 / 浅色框架</option><option value="original">原炭灰桌 · 浅色椅</option></select></section>
+          <section class="kitchen-palette-control"><label for="petCarpet">客厅拼接地毯</label><select id="petCarpet"><option value="on">铺地毯 · 灰米色</option><option value="off">不铺 · 看原地板</option></select></section>
+          <section class="kitchen-palette-control"><label>中岛储物 · 通用预留</label><button type="button" data-island-storage aria-pressed="false">中岛展开</button><div><button type="button" data-island-face="front">看厨房面</button><button type="button" data-island-face="rear">看餐厅面</button></div></section>
+          <section class="kitchen-palette-control"><label for="laundryFacing">洗烘机朝向</label><select id="laundryFacing"><option value="long">沿yard长向 · 对比</option><option value="ledge">朝平台门 · 侧边处理</option></select></section>
         </div>
-        <div class="quick-footer">Interactive3D preview. </div>
+        <div class="quick-footer">Interactive 3D preview</div>
       </aside>
       <button id="quickGrip" class="quick-grip" type="button" aria-controls="quickControls" aria-expanded="false" aria-label="Open quick controls"><span class="quick-grip-lines" aria-hidden="true">⋮</span><span>Spaces</span><span aria-hidden="true">›</span></button>
     </div>
@@ -36,7 +40,7 @@
     <div id="drawerScrim" class="drawer-scrim" hidden></div>
     <aside class="panel collapsed" aria-label="Planning details" aria-hidden="true">
       <div class="panel-head">
-        <div><small>PLANNING WORKSPACE</small><h1 id="drawerTitle">Layout</h1></div>
+        <div><h1 id="drawerTitle">Layout</h1></div>
         <button id="collapse" type="button" aria-label="Close details">×</button>
       </div>
       <nav class="drawer-tabs" aria-label="Planning categories">
@@ -65,16 +69,16 @@
       </div>
 
       <div id="tab-points" class="tab-pane" hidden>
-        <p class="source-note">Select a room. Marker positions are plan-model estimates; the developer drawing does not dimension horizontal offsets. Unlocated switches and disputed sockets appear in the register without invented markers.</p>
+        
         <section><label>Show markers on model</label><div id="typeFilters" class="toggles"></div></section>
-        <section id="detail" class="detail"><small>SELECT A MARKER OR LIST ITEM</small><h2>Point details</h2><p>Tap a coloured marker or a register row to inspect source, position and mounting height.</p></section>
+        <section id="detail" class="detail"><h2>Point details</h2><p>Tap a coloured marker or a register row to inspect source, position and mounting height.</p></section>
         <section><label id="pointListTitle">Point register</label><div id="pointRegister" class="register"></div></section>
         <section class="legend"><label>Legend</label><div><span class="dot light"></span>Light</div><div><span class="dot fan"></span>Fan</div><div><span class="dot socket"></span>Power</div><div><span class="dot data"></span>TV / fibre</div><div><span class="dot fixed"></span>Fixed service</div><div><span class="dot proposed"></span>Proposed</div></section>
       </div>
 
       <div id="tab-measure" class="tab-pane" hidden>
-        <p class="source-note"><b>Approximate model dimensions only.</b> Corner coordinates and wall runs come from the current plan model. Amber labels mark fixture targets; coloured spheres mark existing points. Measure finished wall faces, openings and every point centre before ordering or building.</p>
-
+        
+        
         <button id="measureToggle" type="button" class="measure-toggle" aria-pressed="false">Show dimensions on model</button>
         <div id="measurementContent"></div>
       </div>
@@ -87,11 +91,11 @@
       <div class="lighting-presets" role="group" aria-label="Lights in this area"><button id="lightsMain" type="button">Main lights</button><button id="lightsAllOn" type="button">All on</button><button id="lightsAllOff" type="button">All off</button></div><div class="lighting-presets" id="eveningSceneRow" style="grid-template-columns:1fr"><button id="lightsEvening" type="button" aria-pressed="false">Evening ambience · living + dining</button></div><p id="sceneMemoryHint" class="scene-memory-hint">Day starts with lights off. Changes are remembered.</p><button id="daylightToggle" type="button" hidden>Daylight</button>
       <div id="temperatureCompare" class="temperature-compare" role="group" aria-label="Common-area colour temperature"><span>Light colour</span><button type="button" data-cct="3000" aria-pressed="false">3000K</button><button type="button" data-cct="3500" class="active" aria-pressed="true">3500K</button><button type="button" data-cct="4000" aria-pressed="false">4000K</button></div>
       <div id="quickLightSwitches" class="quick-light-switches" aria-label="Lights in this space"></div><div class="lighting-footer"><button id="undoLighting" type="button" disabled>↶ Undo</button><button id="restoreLighting" type="button">Reset scene</button><span>Saved on this device</span></div>
-      <div class="paint-reference" title="Jotun official website screen swatch #E5E2D8; independent of scene lighting"><span class="paint-reference-swatch" aria-hidden="true"></span><span>Jotun1928 Summer Snow<br><small>官方屏幕色样 · 场景灯光不改变此色样</small></span></div>
+      <div class="paint-reference" title="Jotun official website screen swatch #E5E2D8; independent of scene lighting"><span class="paint-reference-swatch" aria-hidden="true"></span><span>Jotun1928 Summer Snow<br></span></div>
       <details id="moreLights" class="more-lights"><summary>All-room controls &amp; notes</summary>
         <div id="lightSwitches"></div>
         <div class="light-actions"><button id="houseLightsOn" type="button">All rooms on</button><button id="houseLightsOff" type="button">All rooms off</button></div>
-        <p class="light-note">Compare common lights at 3000K, 3500K or 4000K. Bedrooms stay at 3500K. Day and night remember separate switch selections. Brightness and colours are a preview; confirm with your chosen fittings and finish samples.</p>
+        
       </details>
     </aside>
 
@@ -111,7 +115,7 @@
     </nav>
     <div class="controlbar" aria-label="Viewer controls">
     <nav class="dock" aria-label="Main viewer controls">
-      <div class="view-actions" role="group" aria-label="View options"><button id="overviewView" type="button" aria-pressed="false">Whole-home view</button><button id="wideView" type="button" aria-pressed="false">Wide-angle view</button><button id="cabinetViewToggle" type="button" data-cabinet-interiors aria-pressed="false" aria-label="Show cabinet interiors">Cabinet interiors</button></div>
+      <div class="view-actions" role="group" aria-label="View options"><button id="overviewView" type="button" aria-pressed="false">Whole-home view</button><button id="wideView" type="button" aria-pressed="false">Wide-angle view</button><button type="button" data-island-storage aria-pressed="false">中岛展开</button><button type="button" data-living-roller="all">香格里拉帘收起</button><button id="cabinetViewToggle" type="button" data-cabinet-interiors aria-pressed="false" aria-label="Show cabinet interiors">Cabinet interiors</button></div>
       <div hidden><label class="room-label" for="roomSelect">Room</label><select id="roomSelect" aria-label="Select room"></select><label class="inside-room-picker"><span id="cameraSpaceLabel">Space</span> <select id="insideRoom" aria-label="Choose standing space">
         <option value="overview">Whole-home overview</option><option value="common">Common area</option><option value="foyer">Outer foyer / shoe cabinet</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
       </select></label><button id="planView" type="button">Plan</button><button id="insideView" type="button">Inside</button><details id="viewerMore" class="tools-menu"><summary>More</summary><div class="tools-popover"><button id="measureQuick" type="button">Dimensions</button><button id="panelToggle" type="button">Electrical points</button><button id="schemeQuick" type="button">Design &amp; drawings</button></div></details></div>
@@ -128,6 +132,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="viewer.js?v=20261027-nordica-r1"></script>
+  <script type="module" src="viewer.js?v=20261029-cabinet-drawings-r5"></script>
 </body>
 </html>
