@@ -7,7 +7,7 @@
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
-  <link rel="stylesheet" href="viewer-ui.css?v=20261029-lounge-lighting-r1" />
+  <link rel="stylesheet" href="viewer-ui.css?v=20261029-english-compact-r1" />
 
 <style>.panel,#measureOverlay,#viewerMore,#planView,[data-open-details]{display:none!important}.public-spaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}.public-spaces button{padding:12px;border:1px solid #888;border-radius:12px;background:#eef0e8;color:#25302c}.public-spaces button[aria-pressed=true]{background:#344b41;color:white}</style></head>
 <body>
@@ -24,14 +24,14 @@
         <div class="quick-heading"><div><small id="quickCurrent">Whole home</small><h2>Your home</h2></div><button type="button" data-quick-close aria-label="Close quick controls">×</button></div>
         <div class="quick-scroll">
           <section><h3>Space</h3><div id="quickSpaces" class="quick-grid" aria-label="Spaces"></div></section>
-          <section><h3>客厅香格里拉帘与射灯</h3><div class="viewtools"><button type="button" data-living-roller="wide">两窗香格里拉帘收起</button><button type="button" data-living-roller="narrow">单窗香格里拉帘收起</button></div><label for="livingSpotAim">射灯方向对比</label><select id="livingSpotAim"><option value="console">电视柜靠窗端 · 约30°</option><option value="window">原来照窗帘</option></select><button id="livingSpotStudy" type="button">夜间仅开这盏射灯试照</button></section>
-          <section class="kitchen-palette-control"><label for="kitchenPalette">厨房配色</label><select id="kitchenPalette"><option value="sahara">Sahara Stone 上柜 · Carbon Grey 下柜</option><option value="dune-study">Dune Grey 下柜 · 旧方案对比</option></select></section>
+          <section><h3>Living shades and spotlight</h3><div class="viewtools"><button type="button" data-living-roller="wide">Raise wide shade</button><button type="button" data-living-roller="narrow">Raise narrow shade</button></div><label for="livingSpotAim">Spotlight direction</label><select id="livingSpotAim"><option value="console">Window end of TV console · about 30°</option><option value="window">Aim at shades</option></select><button id="livingSpotStudy" type="button">Test this spotlight at night</button></section>
+          <section class="kitchen-palette-control"><label for="kitchenPalette">Kitchen finishes</label><select id="kitchenPalette"><option value="sahara">Sahara Stone uppers · Carbon Grey lowers</option><option value="dune-study">Dune Grey lowers · previous scheme</option></select></section>
 
-          <section class="kitchen-palette-control"><label for="diningPalette">餐厅搭配</label><select id="diningPalette"><option value="balanced">NORDICA · 深灰布面 / 浅色框架</option><option value="original">原炭灰桌 · 浅色椅</option></select></section>
-          <section class="kitchen-palette-control"><label for="decorStudy">软装搭配</label><select id="decorStudy"><option value="on">显示软装</option><option value="off">原有家具</option></select></section>
-          <section class="kitchen-palette-control"><label for="petCarpet">客厅拼接地毯</label><select id="petCarpet"><option value="on">铺地毯 · 灰米色</option><option value="off">不铺 · 看原地板</option></select></section>
-          <section class="kitchen-palette-control"><label>中岛储物 · 通用预留</label><button type="button" data-island-storage aria-pressed="false">中岛展开</button><div><button type="button" data-island-face="front">看厨房面</button><button type="button" data-island-face="rear">看餐厅面</button></div></section>
-          <section class="kitchen-palette-control"><label for="laundryFacing">洗烘机朝向</label><select id="laundryFacing"><option value="long">沿yard长向 · 对比</option><option value="ledge">朝平台门 · 侧边处理</option></select></section>
+          <section class="kitchen-palette-control"><label for="diningPalette">Dining finishes</label><select id="diningPalette"><option value="balanced">NORDICA · dark grey upholstery / light frames</option><option value="original">Original charcoal table · light chairs</option></select></section>
+          <section class="kitchen-palette-control"><label for="decorStudy">Furnishings</label><select id="decorStudy"><option value="on">Show furnishings</option><option value="off">Original furniture</option></select></section>
+          <section class="kitchen-palette-control"><label for="petCarpet">Living modular carpet</label><select id="petCarpet"><option value="on">Carpet · grey-beige</option><option value="off">No carpet · original flooring</option></select></section>
+          <section class="kitchen-palette-control"><label>Island storage · planning study</label><button type="button" data-island-storage aria-pressed="false">Extend trays</button><div><button type="button" data-island-face="front">Kitchen side</button><button type="button" data-island-face="rear">Dining side</button></div></section>
+          <section class="kitchen-palette-control"><label for="laundryFacing">Laundry orientation</label><select id="laundryFacing"><option value="long">Along yard · compare</option><option value="ledge">Face ledge door · side access</option></select></section>
         </div>
         <div class="quick-footer">Interactive 3D preview</div>
       </aside>
@@ -116,7 +116,7 @@
     </nav>
     <div class="controlbar" aria-label="Viewer controls">
     <nav class="dock" aria-label="Main viewer controls">
-      <div class="view-actions" role="group" aria-label="View options"><button id="overviewView" type="button" aria-pressed="false">Whole-home view</button><button id="wideView" type="button" aria-pressed="false">Wide-angle view</button><button type="button" data-island-storage aria-pressed="false">中岛展开</button><button type="button" data-living-roller="all">香格里拉帘收起</button><button id="cabinetViewToggle" type="button" data-cabinet-interiors aria-pressed="false" aria-label="Show cabinet interiors">Cabinet interiors</button></div>
+      <div class="view-actions" role="group" aria-label="View options"><button id="overviewView" type="button" aria-pressed="false">Overview</button><button id="wideView" type="button" aria-pressed="false">Wide</button><button type="button" data-island-storage aria-pressed="false">Extend trays</button><button type="button" data-living-roller="all">Raise shades</button><button id="cabinetViewToggle" type="button" data-cabinet-interiors aria-pressed="false" aria-label="Show cabinet interiors">Interiors</button></div>
       <div hidden><label class="room-label" for="roomSelect">Room</label><select id="roomSelect" aria-label="Select room"></select><label class="inside-room-picker"><span id="cameraSpaceLabel">Space</span> <select id="insideRoom" aria-label="Choose standing space">
         <option value="overview">Whole-home overview</option><option value="common">Common area</option><option value="foyer">Outer foyer / shoe cabinet</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
       </select></label><button id="planView" type="button">Plan</button><button id="insideView" type="button">Inside</button><details id="viewerMore" class="tools-menu"><summary>More</summary><div class="tools-popover"><button id="measureQuick" type="button">Dimensions</button><button id="panelToggle" type="button">Electrical points</button><button id="schemeQuick" type="button">Design &amp; drawings</button></div></details></div>
@@ -133,6 +133,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="viewer.js?v=20261029-lounge-lighting-r1"></script>
+  <script type="module" src="viewer.js?v=20261029-english-compact-r1"></script>
 </body>
 </html>

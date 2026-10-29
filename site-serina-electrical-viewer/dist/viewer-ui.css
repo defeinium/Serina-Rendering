@@ -314,3 +314,43 @@
 
 /* Keep the release control clear of the cabinet-interior action on all widths. */
 #versionInfo{bottom:158px}
+
+/* Compact viewer sizing: one shared rail and panel inset across breakpoints. */
+:root{--viewer-edge:12px;--viewer-rail:56px;--viewer-gap:8px;--viewer-top:72px;--viewer-panel-left:calc(var(--viewer-edge) + var(--viewer-rail) + var(--viewer-gap))}
+#app .topbar{left:16px;right:16px;top:max(12px,env(safe-area-inset-top))}
+#app .brand{gap:10px}#app .brand strong{font-size:14px;letter-spacing:.22em}#app .brand span{font-size:11px}
+.environment-bar{padding:3px;border-radius:13px}.environment-bar button{min-width:68px;min-height:38px;padding:0 10px;gap:5px;font-size:11px}.environment-bar button span{font-size:17px}
+.side-launchers{left:var(--viewer-edge);top:var(--viewer-top);width:var(--viewer-rail);gap:var(--viewer-gap)}
+.side-launchers>button{min-height:56px;padding:6px 2px;gap:4px;border-radius:12px;font-size:10px}.side-launchers>button svg{width:19px;height:19px}
+#floorPicker{left:var(--viewer-edge);top:calc(var(--viewer-top) + 128px);width:var(--viewer-rail);font-size:10px}
+#floorPicker summary{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 2px;border-radius:12px}
+#floorPicker section{left:calc(var(--viewer-rail) + var(--viewer-gap));top:calc(-128px);width:min(290px,calc(100vw - var(--viewer-panel-left) - 12px));max-height:calc(100dvh - var(--viewer-top) - var(--controls-height,56px) - 36px);padding:12px;border-radius:14px;box-sizing:border-box}
+#floorPicker strong{font-size:14px;margin-bottom:10px}#floorPicker .floor-modes{gap:6px;margin-bottom:10px}#floorPicker button,#floorPicker select{min-height:44px;padding:7px;font-size:11px}#floorPicker p{font-size:11px;margin-block:8px}
+#app .controlbar{width:max-content;max-width:calc(100vw - 20px);bottom:max(10px,env(safe-area-inset-bottom));padding:4px;border-radius:15px}
+#app .controlbar .view-actions{display:flex;gap:2px;width:auto;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+#app .controlbar .view-actions::-webkit-scrollbar{display:none}
+#app .controlbar .view-actions button{flex:0 0 auto;min-width:0;min-height:44px;height:44px;padding:0 12px;white-space:nowrap;font-size:11px;line-height:1;border-radius:11px}
+#app .quick-drawer,#app .light-panel,#app.inside-mode .light-panel{left:var(--viewer-panel-left);top:var(--viewer-top);width:min(294px,calc(100vw - var(--viewer-panel-left) - 12px));max-height:calc(100dvh - var(--viewer-top) - var(--controls-height,56px) - 36px)}
+#app .quick-surface{border-radius:16px}#app .quick-heading{padding:10px 12px 8px}#app .quick-heading h2{font-size:18px}#app .quick-heading button{min-width:44px;min-height:44px}
+#app .quick-scroll{padding:0 10px 10px}#app .quick-scroll section+section{margin-top:12px}#app .quick-surface .quick-grid button{min-height:44px;padding:8px;font-size:11px;border-radius:9px}
+#app .kitchen-palette-control{margin-top:10px;padding:10px 2px 0}#app .kitchen-palette-control label{font-size:12px;margin-bottom:6px}#app .kitchen-palette-control select{min-height:44px;font-size:11px;padding:7px}
+#app .light-panel,#app.inside-mode .light-panel{padding:12px;border-radius:16px}#app .light-panel-head{margin-bottom:8px}#app .light-panel-head strong{font-size:18px}#app .light-panel-head button{width:44px;height:44px;min-width:44px;min-height:44px}
+#app .light-room-picker>button,#app .lighting-presets button,#app .temperature-compare button,#app .lighting-footer button{min-height:44px}
+#app .lighting-presets{gap:5px}#app .lighting-presets button{font-size:10px;padding:5px}#app .temperature-compare{margin-bottom:8px;padding:7px}#app .light-row .light-switch{min-height:44px;padding:8px 4px}#app .light-row .fixture-name{font-size:11px}
+#versionInfo{right:12px;bottom:112px}#versionInfo>summary{min-height:36px;padding:0 8px;font-size:9px}
+@media(max-width:480px){
+ :root{--viewer-edge:8px;--viewer-rail:52px;--viewer-top:68px}
+ #app .topbar{left:12px;right:12px}.environment-bar button{min-width:60px;min-height:38px;padding:0 8px}#app .brand span{max-width:85px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #app .controlbar{width:max-content;max-width:calc(100vw - 16px)}#app .controlbar .view-actions button{padding:0 9px;font-size:10px}
+}
+@media(pointer:coarse){.environment-bar button{min-height:44px}#versionInfo>summary{min-height:44px}}
+/* Keep the release badge out of open panels and preserve a full tap target. */
+#app .controlbar .view-actions button{min-width:44px}
+#app:has(.side-launchers>button[aria-expanded=true]) #versionInfo,body:has(#floorPicker[open]) #versionInfo{visibility:hidden;pointer-events:none}
+#app .quick-scroll .viewtools{display:flex;gap:6px}
+#app .quick-scroll .viewtools button{flex:1;min-height:44px;padding:6px;font-size:11px;line-height:1.3}
+#app .quick-scroll label[for=livingSpotAim]{display:block;margin:10px 0 6px;font-size:12px;color:var(--ui-text)}
+#app #livingSpotAim{display:block;width:100%;min-height:44px;padding:7px;border:1px solid var(--ui-line);border-radius:9px;background:var(--ui-selected);color:#27332b;font-size:11px}
+#app #livingSpotStudy{width:100%;min-height:44px;margin-top:6px;font-size:11px}
+#app .public-spaces{gap:6px}#app .public-spaces button{min-height:44px;font-size:11px;padding:8px}
+#app:has(.side-launchers>button[aria-expanded=true]) #captureView,body:has(#floorPicker[open]) #captureView{visibility:hidden;pointer-events:none}
