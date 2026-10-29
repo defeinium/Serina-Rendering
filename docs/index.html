@@ -7,8 +7,8 @@
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
-  <link rel="stylesheet" href="viewer-ui.css?v=20261029-cabinet-drawings-r5" />
-  
+  <link rel="stylesheet" href="viewer-ui.css?v=20261029-cabinet-corrections-r2" />
+
 <style>.panel,#measureOverlay,#viewerMore,#planView,[data-open-details]{display:none!important}.public-spaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}.public-spaces button{padding:12px;border:1px solid #888;border-radius:12px;background:#eef0e8;color:#25302c}.public-spaces button[aria-pressed=true]{background:#344b41;color:white}</style></head>
 <body>
   <main id="app">
@@ -69,7 +69,7 @@
       </div>
 
       <div id="tab-points" class="tab-pane" hidden>
-        
+
         <section><label>Show markers on model</label><div id="typeFilters" class="toggles"></div></section>
         <section id="detail" class="detail"><h2>Point details</h2><p>Tap a coloured marker or a register row to inspect source, position and mounting height.</p></section>
         <section><label id="pointListTitle">Point register</label><div id="pointRegister" class="register"></div></section>
@@ -77,8 +77,8 @@
       </div>
 
       <div id="tab-measure" class="tab-pane" hidden>
-        
-        
+
+
         <button id="measureToggle" type="button" class="measure-toggle" aria-pressed="false">Show dimensions on model</button>
         <div id="measurementContent"></div>
       </div>
@@ -95,7 +95,7 @@
       <details id="moreLights" class="more-lights"><summary>All-room controls &amp; notes</summary>
         <div id="lightSwitches"></div>
         <div class="light-actions"><button id="houseLightsOn" type="button">All rooms on</button><button id="houseLightsOff" type="button">All rooms off</button></div>
-        
+
       </details>
     </aside>
 
@@ -132,6 +132,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="viewer.js?v=20261029-cabinet-drawings-r5"></script>
+  <script type="module" src="viewer.js?v=20261029-cabinet-corrections-r2"></script>
 </body>
 </html>
