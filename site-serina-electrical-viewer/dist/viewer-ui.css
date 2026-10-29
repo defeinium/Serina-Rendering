@@ -1,356 +1,107 @@
-/* Viewer chrome: one hierarchy and one responsive layout. Model colours are separate. */
-:root{--ui-bg:rgba(27,32,30,.94);--ui-text:#f0f2ec;--ui-muted:#aeb8b0;--ui-line:rgba(235,242,233,.12);--ui-selected:#eeeae0;--ui-radius:18px}
+/* Task-first viewer shell. Geometry, material colours and renderer settings are separate. */
+:root{--ui-bg:rgba(29,34,31,.94);--ui-text:#f3f3ed;--ui-muted:#bdc5bd;--ui-line:#ffffff19;--ui-selected:#eeeae0;--viewer-edge:12px;--viewer-panel-width:320px;--viewer-panel-bottom:calc(var(--controls-height,54px) + 24px + env(safe-area-inset-bottom))}
 #app{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-optical-sizing:auto}
-#app button,#app summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-#app button:active,#app summary:active{filter:brightness(1.12)}
-#app button:focus-visible,#app summary:focus-visible{outline:2px solid #e3d2a4;outline-offset:3px}
-#app .topbar{top:max(18px,env(safe-area-inset-top));left:24px;right:24px;align-items:center}
-#app .brand{padding:0;display:flex;gap:14px;align-items:center}
-#app .brand strong{font-size:16px;letter-spacing:.25em}
-#app .brand span{font-size:12px;color:#657068;font-weight:500}
-#app.night-mode .brand span{color:#bbc4bd}
-.environment-bar{pointer-events:auto;display:flex;padding:4px;border:1px solid var(--ui-line);background:var(--ui-bg);border-radius:15px;box-shadow:0 3px 15px #0001;backdrop-filter:blur(20px)}
-.environment-bar button{display:flex;gap:7px;align-items:center;justify-content:center;min-width:85px;min-height:40px;padding:0 14px;border:0;border-radius:11px;background:transparent;color:var(--ui-muted);font-size:12px;font-weight:600}
-.environment-bar button span{font-size:20px;line-height:1}
-.environment-bar button[aria-pressed=true]{color:#27332b;background:var(--ui-selected)}
-#app .controlbar{bottom:max(18px,env(safe-area-inset-bottom));padding:7px 9px;width:max-content;max-width:calc(100vw - 32px);border:1px solid var(--ui-line);background:var(--ui-bg);border-radius:20px;box-shadow:0 8px 30px #0002;backdrop-filter:blur(24px)}
-#app .controlbar .dock{display:flex;gap:8px;align-items:center}
-#app .controlbar .dock button{height:44px;min-height:44px;min-width:0;padding:0 14px;font-size:12px;line-height:1.2;font-weight:600;color:var(--ui-muted);border:0;border-radius:11px;background:transparent}
-#app .controlbar .dock button.active,#app .controlbar .dock button[aria-expanded=true],#app .controlbar .dock button[aria-pressed=true]{background:var(--ui-selected);color:#253128}
-#app .controlbar .room-control{width:184px;min-width:130px;max-width:200px;padding:0}
-#app .controlbar .room-control .quick-space-button{justify-content:space-between;gap:10px;width:100%;padding:0 12px;color:var(--ui-text);background:rgba(255,255,255,.045)}
-#app .quick-space-button span:first-child{font-size:15px;font-weight:400;color:#afbbb1}
-#app .quick-space-button span:last-child{flex:1}
-.view-modes{display:flex;gap:2px;background:rgba(0,0,0,.25);padding:3px;border-radius:13px}
-#app .controlbar .view-modes button{height:38px;min-height:38px;padding:0 15px}
-.count-dot{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:7px;background:rgba(205,219,206,.12);font-size:10px;margin-left:5px;font-variant-numeric:tabular-nums}
-#app .controlbar button[aria-expanded=true] .count-dot{background:#27352c;color:#f0ece3}
-.tools-menu{position:relative;flex:none;color:var(--ui-muted);font-size:12px;font-weight:600}
-.tools-menu>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;cursor:pointer;list-style:none;border-radius:11px}
-.tools-menu>summary::-webkit-details-marker{display:none}
-.tools-menu[open]>summary{background:rgba(255,255,255,.1);color:var(--ui-text)}
-.tools-popover{position:absolute;right:0;bottom:calc(100% + 18px);display:grid;width:210px;padding:7px;background:#222b25;border:1px solid var(--ui-line);border-radius:15px;box-shadow:0 12px 35px #0003}
-#app .controlbar .tools-popover button{text-align:left;min-height:46px;height:auto;padding:12px;color:var(--ui-text);white-space:normal;background:transparent}
-#app .controlbar .tools-popover button:hover{background:rgba(255,255,255,.08)}
-#app .controlbar .walktools{display:flex;position:relative;flex-direction:column;align-items:stretch;gap:0;margin:6px 0 0;padding:6px 0 0;border-top:1px solid var(--ui-line)}
-#app .controlbar .walktools[hidden]{display:none}
-#app .view-actions{display:flex;justify-content:flex-end;gap:4px;grid-column:auto;grid-row:auto}
-#app .view-actions button{height:36px;min-height:36px;min-width:0;padding:0 15px;background:transparent;color:var(--ui-muted);font-size:11px;border:0;border-radius:9px}
-#app .view-actions button[aria-pressed=true],#app .view-actions button[aria-expanded=true]{background:rgba(244,237,215,.13);color:var(--ui-text)}
-#app .view-actions button[hidden]{display:none}
-#app .movement-pad{position:absolute;bottom:calc(100% + 18px);left:0;display:flex;gap:14px;padding:9px;background:var(--ui-bg);border:1px solid var(--ui-line);border-radius:16px;box-shadow:0 5px 24px #0002}
-#app .movement-pad[hidden]{display:none}
-#app .movement-pad .walk-arrows,#app .movement-pad .look-arrows{display:flex;gap:4px}
-#app .movement-pad button{min-width:44px;min-height:44px;border:0;border-radius:10px;background:rgba(255,255,255,.06);font-size:18px;color:var(--ui-text)}
-#app .walk-hint,#app .fps-badge{display:none}
-#app .hint{font-size:11px;padding:8px 13px;bottom:calc(var(--controls-height) + 30px)}
-/* Space picker is exclusively navigation; environmental controls stay in place. */
-#app .quick-drawer{left:16px;top:82px;bottom:18px;width:288px}
-#app .quick-surface{background:var(--ui-bg);border-radius:22px;border-color:var(--ui-line)}
-#app .quick-heading{padding:22px 18px 18px}
-#app .quick-heading small{font-size:10px;color:var(--ui-muted);letter-spacing:.015em;font-weight:500}
-#app .quick-heading h2{font-size:21px;letter-spacing:-.035em;margin-top:5px}
-#app .quick-heading button{min-width:40px;min-height:40px}
-#app .quick-scroll{padding:0 12px 14px}
-#app .quick-scroll h3{display:none}
-#app .quick-grid{gap:5px}
-#app .quick-surface .quick-grid button{min-height:48px;padding:12px;font-size:12px;font-weight:550;border-radius:11px}
-#app .quick-grid [data-quick-place=common]{grid-column:1/-1}
-#app .quick-footer{font-size:11px;line-height:1.5;letter-spacing:0;color:var(--ui-muted);padding:13px 18px 17px}
-.extra-viewpoints{margin:15px 4px 0;border-top:1px solid var(--ui-line);padding-top:8px}
-.extra-viewpoints summary{font-size:11px;color:var(--ui-muted);min-height:44px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;list-style:none}
-.extra-viewpoints summary::after{content:'+';font-size:18px}
-.extra-viewpoints[open] summary::after{content:'−'}
-#app .quick-grip{min-height:80px;border-radius:0 13px 13px 0;background:var(--ui-bg);padding:9px 6px}
-/* Lighting is a dedicated inspector: scene, colour, then individual switches. */
-#app .light-panel{right:20px;top:83px;width:322px;max-height:calc(100dvh - var(--controls-height) - 126px);padding:18px;background:var(--ui-bg);border:1px solid var(--ui-line);border-radius:22px;box-shadow:0 10px 40px #0003;gap:0;overflow:hidden}
-#app .light-panel[hidden]{display:none}
-#app .light-panel-head{margin:0 0 14px;align-items:center;flex:none}
-#app .light-panel-head small{font-size:9px;font-weight:600;letter-spacing:.12em;color:var(--ui-muted)}
-#app .light-panel-head strong{font-size:22px;letter-spacing:-.035em;display:flex;align-items:center;gap:10px;line-height:1.3}
-#app .light-panel-head button{width:40px;height:40px;min-width:40px;border:0;border-radius:50%;color:var(--ui-text)}
-.light-count{font-size:11px;font-weight:500;letter-spacing:0;color:var(--ui-muted);white-space:nowrap}
-#app .light-room-picker{margin:0 0 10px;flex:none}
-#app .light-room-picker>button{min-height:42px;font-size:12px;padding:0 12px;background:rgba(255,255,255,.055);border-radius:10px;color:var(--ui-text)}
-.lighting-presets{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:5px;flex:none}
-.lighting-presets button{min-height:42px;padding:7px;border:1px solid var(--ui-line);border-radius:10px;background:rgba(255,255,255,.035);color:var(--ui-text);font-size:11px;font-weight:550}
-#app .lighting-presets button:disabled{opacity:.35}
-.scene-memory-hint{font-size:10px;line-height:1.45;color:var(--ui-muted);margin:8px 1px 12px;flex:none}
-#app .temperature-compare{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 12px;padding:10px;background:rgba(0,0,0,.16);border-radius:12px;flex:none}
-#app .temperature-compare[hidden]{display:none}
-#app .temperature-compare span{flex:0 0 100%;margin-bottom:3px;font-size:10px;color:var(--ui-muted)}
-#app .temperature-compare button{min-height:38px;border:0;border-radius:9px;background:transparent;color:#c3cdc4;font-size:11px;flex:1}
-#app .temperature-compare button[aria-pressed=true]{background:var(--ui-selected);color:#26332a}
-#app .quick-light-switches{flex:1 1 auto;min-height:0;display:grid;gap:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:2px}
-#app .light-row{display:block;border-bottom:1px solid rgba(235,242,233,.06)}
-#app .light-row .light-switch{width:100%;min-height:52px;padding:12px 2px;display:flex;align-items:center;gap:10px;border:0;border-radius:0;background:transparent}
-#app .light-row .light-switch.on{background:transparent;border:0}
-#app .light-row .fixture-name{font-size:12px;line-height:1.35;color:#c6cfc7;font-weight:500;display:block;white-space:normal;overflow:visible;text-align:left}
-#app .light-row .on .fixture-name{color:var(--ui-text)}
-#app .light-state{font-size:0;letter-spacing:0;position:relative;width:34px;height:21px;border-radius:20px;background:#4b564e;flex:none;transition:background .12s}
-#app .light-state::before{position:absolute;left:3px;top:3px;width:15px;height:15px;margin:0;background:#e4e8e1;border-radius:50%;transition:transform .16s ease,background .12s}
-#app .on .light-state{background:#d1c396}
-#app .on .light-state::before{background:#27362b;transform:translateX(13px)}
-.lighting-footer{display:flex;gap:5px;align-items:center;flex:none;padding-top:10px}
-.lighting-footer button{border:0;border-radius:8px;min-height:38px;padding:0 8px;font-size:10px;color:var(--ui-text);background:rgba(255,255,255,.04)}
-.lighting-footer span{margin-left:auto;font-size:9px;line-height:1.3;color:var(--ui-muted);max-width:60px;text-align:right}
-#app .more-lights{flex:none;max-height:145px;margin-top:8px;padding-top:6px;border-color:var(--ui-line)}
-#app .more-lights summary{font-size:10px;font-weight:500;min-height:38px;padding-block:12px}
-#app #lightSwitches{display:none}
-#app .panel{top:82px;bottom:18px;right:20px;border-radius:22px;background:var(--ui-bg);border-color:var(--ui-line)}
-@media(max-width:720px){
- #app .topbar{left:16px;right:12px;top:max(12px,env(safe-area-inset-top))}
- #app .brand{display:block}#app .brand strong{font-size:14px}#app .brand span{display:block;font-size:10px;margin-top:3px}
- .environment-bar{border-radius:13px;padding:3px}.environment-bar button{min-width:64px;min-height:38px;padding:0 10px;font-size:11px;gap:5px}.environment-bar button span{font-size:18px}
- #app .controlbar{left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));width:auto;max-width:none;transform:none;padding:7px;border-radius:19px}
- #app .controlbar .dock{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:5px}
- #app .controlbar .room-control{grid-column:1;grid-row:1;min-width:0;max-width:none;width:auto;height:44px}
- #app .controlbar .room-control .quick-space-button{font-size:12px;padding:0 10px;min-height:44px}
- #app .controlbar .view-modes{grid-row:2;grid-column:1/-1;display:flex}
- #app .controlbar .view-modes button{flex:1;min-height:40px;height:40px;font-size:12px}
- #app .controlbar #lightPanelToggle{grid-row:1;grid-column:2;padding:0 10px;font-size:12px;min-height:44px}
- .tools-menu{grid-row:1;grid-column:3}.tools-menu>summary{padding:0 10px;font-size:12px}.tools-menu>summary span{display:none}
- .tools-popover{bottom:calc(100% + 15px)}
- #app .controlbar .walktools{margin-top:6px;padding-top:5px;display:flex}
- #app .view-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;gap:3px}
- #app .view-actions button{min-height:36px;height:36px;padding:0 4px;font-size:11px;min-width:0}
- #app .overview-mode .view-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
- #app .movement-pad{left:0;right:0;justify-content:space-between;gap:6px;padding:8px;bottom:calc(100% + 16px)}
- #app .movement-pad button{min-width:42px;min-height:44px}
- #app .quick-drawer{top:70px;left:12px;bottom:max(12px,env(safe-area-inset-bottom));width:min(288px,calc(100vw - 64px))}
- #app .quick-heading{padding:18px 15px 16px}#app .quick-heading h2{font-size:20px}#app .quick-grip{width:40px}
- #app .light-panel,#app.inside-mode .light-panel{top:auto;right:10px;left:10px;bottom:calc(var(--controls-height) + max(10px,env(safe-area-inset-bottom)) + 10px);width:auto;max-height:min(56dvh,calc(100dvh - var(--controls-height) - 90px));padding:15px;border-radius:21px}
- #app .light-panel-head{margin-bottom:10px}#app .light-panel-head strong{font-size:21px}
- #app .light-room-picker{margin-bottom:8px}#app .temperature-compare{margin-bottom:7px;padding:8px;gap:3px}#app .temperature-compare span{display:none}
- .scene-memory-hint{margin:6px 0 8px;font-size:10px}#app .light-row .light-switch{min-height:48px;padding:10px 3px}#app .light-row .fixture-name{font-size:12px}
- #app .more-lights{display:none}.lighting-footer{padding-top:7px}.lighting-footer span{max-width:none}
- #app .panel{top:auto;left:0;right:0;bottom:0;max-height:82dvh;height:82dvh;border-radius:24px 24px 0 0}
- #app .panel.collapsed{transform:translateY(105%)}
-}
-@media(max-width:360px){#app .controlbar .dock{gap:3px}#app .controlbar #lightPanelToggle{padding-inline:7px}#app .tools-menu>summary{padding-inline:7px}#app .movement-pad button{min-width:35px}.lighting-footer span{max-width:70px}}
-@media(prefers-reduced-motion:reduce){#app .light-state,#app .light-state::before{transition:none}}
-@media(prefers-reduced-transparency:reduce){#app .controlbar,#app .light-panel,#app .quick-surface,#app .quick-grip,#app .panel,.environment-bar{background:#222b25;backdrop-filter:none}}
-@media(prefers-contrast:more){:root{--ui-muted:#d3ddd4;--ui-line:#a7b6a8}#app .light-row{border-color:#738076}}
-
-#app.lighting-open .quick-grip{opacity:0;pointer-events:none}
-#app .quick-light-switches{scrollbar-color:#647369 transparent}
-@media(max-height:520px) and (orientation:landscape){
- #app .topbar{top:10px;left:16px;right:12px}#app .brand span{display:none}
- #app .controlbar{left:10px;right:auto;bottom:10px;transform:none;max-width:calc(100vw - 340px);padding:5px;width:calc(100vw - 340px)}
- #app .controlbar .dock{display:flex;flex-wrap:wrap;gap:4px}#app .controlbar .room-control{flex:1;width:auto;min-width:120px}#app .controlbar .view-modes{order:5;width:100%}#app .controlbar .view-modes button{flex:1}
- #app .light-panel,#app.inside-mode .light-panel{top:65px;bottom:10px;left:auto;right:10px;width:310px;max-height:calc(100dvh - 75px);padding:12px}
- #app .light-room-picker,.scene-memory-hint,#app .more-lights{display:none}#app .light-panel-head{margin-bottom:8px}#app .light-panel-head strong{font-size:18px}
- #app .lighting-presets button{min-height:36px}#app .temperature-compare{padding:3px;margin:7px 0 4px}#app .temperature-compare span{display:none}#app .temperature-compare button{min-height:32px}
- #app .light-row .light-switch{min-height:44px}#app .lighting-footer{padding-top:5px}#app .lighting-footer button{min-height:32px}
- #app .quick-drawer{top:60px;bottom:10px}#app .quick-footer{display:none}
-}
-
-/* Daily viewer: space + lights + three view options. Engineering tools are hidden. */
-#app .controlbar .dock{gap:7px}
-#app .controlbar .dock>div[hidden],#app .controlbar .walktools{display:none!important}
-#app .controlbar .view-actions{padding-left:8px;margin-left:3px;border-left:1px solid var(--ui-line);display:flex;width:auto;gap:3px}
-#app .controlbar .view-actions button{min-height:44px;height:44px;padding:0 15px;font-size:12px}
-#app .controlbar .view-actions button[aria-pressed=true]{background:var(--ui-selected);color:#253128}
-#app .light-room-picker{display:none}
-#app .light-panel-head small{font-size:9px;letter-spacing:.04em}
-@media(max-width:720px){
- #app .controlbar .dock{grid-template-columns:minmax(0,1fr) auto;gap:5px}
- #app .controlbar .room-control{grid-column:1;grid-row:1}
- #app .controlbar #lightPanelToggle{grid-column:2;grid-row:1;padding:0 16px}
- #app .controlbar .view-actions{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:0;border-top:1px solid var(--ui-line);padding:5px 0 0;margin:1px 0 0;width:100%;gap:4px}
- #app .controlbar .view-actions button{height:40px;min-height:40px;font-size:12px;padding:0 6px}
- #app .scene-memory-hint{display:none}
- #app .lighting-presets{margin-bottom:9px}
- #app .light-panel,#app.inside-mode .light-panel{max-height:min(54dvh,calc(100dvh - var(--controls-height) - 90px))}
-}
-@media(max-height:520px) and (orientation:landscape){
- #app .controlbar .dock{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px}#app .controlbar .view-actions{grid-column:1/-1;width:100%;border:0;padding:0;margin:0;display:flex}#app .controlbar .view-actions button{flex:1}
-}
-#app .quick-drawer{bottom:auto;height:auto;max-height:calc(100dvh - 100px)}
-#app .quick-surface{height:auto;max-height:inherit}
-#app .quick-heading,#app .quick-footer{flex:none}
-#app .quick-scroll{flex:1 1 auto}
-@media(max-width:720px){#app .quick-drawer{bottom:auto;max-height:calc(100dvh - 82px)}}
-@media(max-height:520px) and (orientation:landscape){#app .quick-drawer{max-height:calc(100dvh - 70px)}}
-
-/* Touch controls never start browser text selection or a long-press callout. */
-#app button,#app button *,#app summary,#app summary *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-/* Fixture controls are text rows, not round switch widgets. The whole row taps. */
-#app .light-row .light-switch{padding-inline:8px;border-radius:9px;margin-block:2px}
-#app .light-row .light-switch.on{background:rgba(221,207,166,.065)}
-#app .light-state,#app .on .light-state{width:auto;min-width:30px;height:auto;padding:4px 0;background:none;border-radius:0;color:#89998e;font-size:10px;line-height:1.3;font-weight:650;letter-spacing:.025em;text-align:right}
-#app .on .light-state{color:#e0d0a3}
-#app .light-state::before,#app .on .light-state::before{display:none}
-
-#app .controlbar #lightPanelToggle{display:flex;align-items:center;justify-content:center;gap:7px}
-#app #lightPanelToggle .count-dot{margin:0}
-.panel-chevron{font-size:14px;line-height:1;display:inline-block;transform:rotate(0deg)}
-[aria-expanded=true]>.panel-chevron{transform:rotate(180deg)}
-/* Dedicated panel launchers; the bottom strip now contains view tools only. */
-.side-launchers{position:absolute;z-index:9;left:16px;top:88px;display:grid;gap:8px;width:76px}
-.side-launchers>button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:66px;padding:10px 5px;border:1px solid var(--ui-line);border-radius:14px;background:var(--ui-bg);color:var(--ui-text);font-size:11px;font-weight:600;box-shadow:0 4px 18px #0001;backdrop-filter:blur(20px)}
-.side-launchers>button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.side-launchers>button[aria-expanded=true]{background:var(--ui-selected);color:#26342a}
-#app .side-launchers .count-dot{position:absolute;top:5px;right:5px;margin:0;min-width:15px;height:15px;padding:0 3px;font-size:9px;background:#657461;color:#fff;border-radius:5px}
-#app .side-launchers .count-dot[hidden]{display:none}
-#app .quick-grip{display:none!important;pointer-events:none}
-#app .quick-drawer{left:104px;top:88px;width:min(300px,calc(100vw - 120px));max-height:calc(100dvh - var(--controls-height) - 126px)}
-#app .light-panel,#app.inside-mode .light-panel{left:104px;right:auto;top:88px;bottom:auto;width:min(322px,calc(100vw - 120px));max-height:calc(100dvh - var(--controls-height) - 126px)}
-#app .controlbar{left:50%;right:auto;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);width:max-content;max-width:calc(100vw - 24px);padding:6px}
-#app .controlbar .dock{display:block}
-#app .controlbar .view-actions{display:flex;gap:4px;border:0;padding:0;margin:0;width:auto}
-#app .controlbar .view-actions button{min-height:48px;height:auto;min-width:128px;padding:8px 13px;font-size:12px;white-space:normal;line-height:1.3}
-#app .lighting-presets{display:flex}
-#app .lighting-presets button{flex:1}
-#app .lighting-presets button[hidden]{display:none}
-#app .lighting-presets button[aria-pressed=true]{background:var(--ui-selected);border-color:var(--ui-selected);color:#27362d}
-@media(max-width:720px){
- .side-launchers{left:10px;top:78px;width:62px;gap:7px}.side-launchers>button{min-height:61px;padding:8px 3px;font-size:10px;gap:5px;border-radius:12px}.side-launchers>button svg{width:21px;height:21px}
- #app .quick-drawer{left:82px;top:78px;width:calc(100vw - 94px);max-height:calc(100dvh - var(--controls-height) - 112px)}
- #app .light-panel,#app.inside-mode .light-panel{left:82px;right:auto;top:78px;bottom:auto;width:calc(100vw - 94px);max-height:calc(100dvh - var(--controls-height) - 112px);padding:12px;border-radius:18px}
- #app .light-panel-head strong{font-size:20px}#app .light-panel-head button{min-width:34px;width:34px;height:34px}
- #app .controlbar{left:50%;right:auto;width:calc(100vw - 24px);max-width:396px;bottom:max(12px,env(safe-area-inset-bottom));padding:5px}
- #app .controlbar .view-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;width:100%;padding:0;border:0}
- #app .controlbar .view-actions button{min-width:0;min-height:48px;height:auto;padding:7px 5px;font-size:11px}
- #app .light-row .fixture-name{font-size:11px}#app .lighting-presets button{padding:6px 4px;font-size:10px;min-height:40px}
- #app .light-panel-head small{font-size:8px}#app .scene-memory-hint{display:none}
- #app .lighting-footer span{display:none}#app .lighting-footer{justify-content:space-between}
- #app .quick-heading{padding:15px 12px 13px}#app .quick-heading h2{font-size:18px}#app .quick-surface .quick-grid button{font-size:11px;padding:10px;min-height:46px}
-}
-@media(max-height:520px) and (orientation:landscape){
- .side-launchers{top:72px;width:68px;left:12px}.side-launchers>button{min-height:57px;padding:7px 4px}
- #app .quick-drawer,#app .light-panel,#app.inside-mode .light-panel{top:72px;left:92px;width:310px;max-height:calc(100dvh - var(--controls-height) - 100px)}
- #app .controlbar{left:50%;right:auto;width:max-content;max-width:calc(100vw - 24px);bottom:10px;transform:translateX(-50%)}
- #app .controlbar .view-actions{display:flex;width:auto}#app .controlbar .view-actions button{min-width:120px;min-height:40px}
- #app .light-panel-head small{display:none}#app .light-panel-head{margin-bottom:7px}#app .lighting-footer{padding-top:4px}#app .lighting-footer button{min-height:30px}
-}
-@media(prefers-reduced-transparency:reduce){.side-launchers>button{background:#222b25;backdrop-filter:none}.side-launchers>button[aria-expanded=true]{background:var(--ui-selected)}}
-
-#app.overview-view .temperature-compare>span{display:block;font-size:9px;line-height:1.3}
-
-/* Small release badge; history is available on demand, away from daily controls. */
-.version-info{position:absolute;z-index:9;right:18px;bottom:18px;color:var(--ui-muted);font-size:10px}
-.version-info>summary{display:flex;align-items:center;justify-content:center;min-height:36px;padding:0 10px;list-style:none;cursor:pointer;border-radius:9px;background:var(--ui-bg);border:1px solid var(--ui-line);font-variant-numeric:tabular-nums;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.version-info>summary::-webkit-details-marker{display:none}.version-info[open]>summary{color:var(--ui-text);border-color:#8f9b8e}
-.version-card{position:absolute;right:0;bottom:calc(100% + 8px);width:min(330px,calc(100vw - 24px));max-height:calc(100dvh - 150px);display:flex;flex-direction:column;padding:15px;border:1px solid var(--ui-line);border-radius:18px;background:#232b26;box-shadow:0 12px 36px #0003;color:var(--ui-text)}
-.version-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none}.version-heading strong{font-size:15px;letter-spacing:-.02em}.version-heading button{height:36px;width:36px;border:0;border-radius:50%;background:#ffffff0c;color:var(--ui-text);font-size:22px}
-.release-list{overflow:auto;min-height:0;overscroll-behavior:contain;scrollbar-width:thin;margin-top:8px}.release-list article{padding:12px 0;border-top:1px solid var(--ui-line)}.release-list article>strong{font-size:12px;display:block}.release-list small{font-size:10px;display:block;margin-top:3px;color:var(--ui-muted)}.release-list p{font-size:11px;line-height:1.45;color:#c8d1c8;margin:7px 0 0}
-.version-actions{flex:none;padding-top:10px;border-top:1px solid var(--ui-line)}.version-actions button{min-height:40px;padding:0 12px;border:1px solid var(--ui-line);border-radius:9px;background:#ffffff0a;color:var(--ui-text);font-size:11px;margin-right:5px}.version-actions button[hidden]{display:none}.version-actions p{font-size:10px;line-height:1.4;color:var(--ui-muted);margin:8px 0 0}
-@media(max-width:720px){.version-info{right:12px;bottom:calc(var(--controls-height) + 22px)}.version-info>summary{font-size:9px;min-height:36px;padding:0 8px}.version-card{max-height:calc(100dvh - var(--controls-height) - 126px);padding:13px}}
-@media(max-height:520px) and (orientation:landscape){.version-info{bottom:18px;right:12px}.version-card{max-height:calc(100dvh - 90px)}}
-
-/* The space picker uses the actual Type A source-plan silhouette. */
-.space-plan-host{display:block;padding:0 2px}
-#app .quick-drawer{width:min(380px,calc(100vw - 120px))}
-#app .space-plan-host .common-space-link{width:100%;text-align:center;min-height:42px;font-size:12px;margin:0 0 10px}
-.space-plan{display:block;width:100%;height:auto;aspect-ratio:770/734;background:#fff;border-radius:9px;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.space-plan *{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.space-plan-source{pointer-events:none}
-.space-plan-room{cursor:pointer;touch-action:manipulation;outline:none}
-.space-plan-room>path{fill:#f6f6f1;stroke:#c8cdc5;stroke-width:1.2}
-.space-plan-room>text{fill:#34453a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:25px;font-weight:600;pointer-events:none;letter-spacing:-.3px}
-.space-plan-room.compact-room>text{font-size:20px}
-.space-plan-room[aria-pressed=true]>path{fill:#ccd9c0;stroke:#587653;stroke-width:4}
-.space-plan-room:hover>path{fill:#e2e9dc}
-.space-plan-room:focus-visible>path{fill:#e0e6d4;stroke:#7b5e26;stroke-width:7}
-.space-plan-cues{pointer-events:none;fill:none;stroke:#8e9c91;stroke-width:2}
-.space-plan-caption{font-size:11px;color:var(--ui-muted);margin:9px 2px 3px;text-align:center}
-#app .quick-footer{font-size:10px;padding:8px 18px 12px}
-@media(max-width:720px){
- #app .quick-drawer{left:10px;top:218px;width:calc(100vw - 20px);max-height:calc(100dvh - var(--controls-height) - 252px)}
- #app .quick-heading{padding:13px 14px 10px}#app .quick-heading h2{font-size:19px}#app .quick-scroll{padding:0 12px 8px}
- #app .space-plan-host .common-space-link{min-height:38px;margin-bottom:8px;font-size:11px}
- #app .quick-footer{display:none}
-}
-@media(max-height:520px) and (orientation:landscape){
- #app .quick-drawer{left:92px;top:72px;width:350px;max-height:calc(100dvh - var(--controls-height) - 100px)}
- #app .space-plan-host .common-space-link{min-height:35px}#app .space-plan{max-height:270px}
-}
-
-/* Calm diagram, one open public zone; large location badge stays readable. */
-.space-plan{background:#e9ede7;border:1px solid #ffffff12;border-radius:16px;padding:10px}
-.space-plan-room>path{fill:#f9faf7;stroke:#d7ded3;stroke-width:1.5;transition:fill .15s ease,stroke .15s ease}
-.space-plan-room>text{fill:#687565;font-size:25px;font-weight:550;letter-spacing:0}
-.space-plan-room.common-plan-room>text{font-size:31px;font-weight:600;fill:#52634b}
-.space-plan-room.compact-room>text{font-size:19px;fill:#7b8676}
-.space-plan-room:hover>path{fill:#edf3e7;stroke:#a8b99d}
-.space-plan-room[data-current=true]>path,.space-plan-room[aria-pressed=true]>path{fill:#d4e3c7;stroke:#91aa7a;stroke-width:2.5}
-.space-plan-room[data-current=true]>text{fill:#355233}
-.space-plan-room:focus-visible>path{stroke:#4d7643;stroke-width:5}
-.space-plan-windows{fill:none;stroke:#a6b8b0;stroke-width:5;stroke-linecap:round;pointer-events:none}
-.space-plan-person{pointer-events:none}
-.person-halo{fill:#658d50;opacity:.18;animation:location-breathe 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-.person-badge{fill:#365337;stroke:#f9fcf4;stroke-width:4;filter:drop-shadow(0 3px 4px #243e2830)}
-.person-head,.person-body{fill:#f9fcf4}
-.space-plan-caption{display:flex;align-items:center;justify-content:center;gap:7px;padding-top:4px;font-size:11px}
-.space-plan-caption:before{content:'';width:5px;height:5px;border-radius:50%;background:#b3cb9c}
-@keyframes location-breathe{0%,100%{opacity:.10;transform:scale(.86)}50%{opacity:.29;transform:scale(1.10)}}
-@media(prefers-reduced-motion:reduce){.person-halo{animation:none;opacity:.2}.space-plan-room>path{transition:none}}
-
-/* Thumb movement is independent from the three view tools, and never behind a menu. */
-#app .touch-walk-pad{position:absolute;z-index:6;left:max(12px,env(safe-area-inset-left));bottom:calc(var(--controls-height,60px) + 30px + env(safe-area-inset-bottom));padding:8px;border:1px solid var(--ui-line);border-radius:20px;background:rgba(29,36,31,.86);box-shadow:0 8px 25px #0002;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-#app .touch-walk-pad[hidden]{display:none!important}
-.touch-walk-grid{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:4px}
-#app .touch-walk-grid button{display:flex;align-items:center;justify-content:center;min-width:48px;min-height:48px;padding:0;border:1px solid #ffffff0d;border-radius:13px;background:#ffffff0b;color:#ecf2e7;touch-action:none;transition:background .1s ease,color .1s ease;outline-offset:2px}
+#app [hidden]{display:none!important}
+#app button,#app summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#app button:focus-visible,#app summary:focus-visible,#app select:focus-visible{outline:2px solid #dfc78e;outline-offset:2px}
+#app button:active,#app summary:active{filter:brightness(1.16)}
+#app .topbar{top:max(12px,env(safe-area-inset-top));left:16px;right:16px;align-items:flex-start;pointer-events:none}
+#app .brand{padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;pointer-events:auto}
+#app .brand strong{font-size:11px;letter-spacing:.22em;color:#36423a}
+#app.night-mode .brand strong{color:#eef0e7}
+#app .brand>button{min-height:44px;padding:0 6px 0 0;display:flex;gap:6px;align-items:center;background:none;border:0;border-radius:7px;color:#36423a;font-size:13px;font-weight:600}
+#app .brand>button span{font:inherit;color:inherit;max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app.night-mode .brand>button{color:#eef0e7;text-shadow:0 1px 6px #0005}
+.environment-bar{pointer-events:auto;display:flex;padding:3px;border:1px solid var(--ui-line);background:var(--ui-bg);border-radius:13px;backdrop-filter:blur(18px)}
+.environment-bar button{display:flex;gap:5px;align-items:center;justify-content:center;min-width:61px;min-height:44px;padding:0 9px;border:0;border-radius:10px;background:none;color:var(--ui-muted);font-size:11px;font-weight:600}
+.environment-bar button span{font-size:17px;line-height:1}
+.environment-bar button[aria-pressed=true]{background:var(--ui-selected);color:#26372b}
+#app .controlbar{position:absolute;z-index:20;left:var(--viewer-edge);right:auto;bottom:max(12px,env(safe-area-inset-bottom));transform:none;width:max-content;max-width:calc(100vw - 24px);padding:4px;border-radius:16px;border:1px solid var(--ui-line);background:var(--ui-bg);backdrop-filter:blur(20px);box-shadow:0 3px 18px #0002}
+#app .controlbar .dock{display:block;padding:0;border:0;background:none}
+#app .viewer-launchers{display:flex;gap:3px}
+#app .viewer-launchers>button{position:relative;display:flex;align-items:center;justify-content:center;gap:7px;min-width:82px;min-height:44px;height:44px;padding:0 12px;font-size:12px;font-weight:600;color:var(--ui-text);border:0;border-radius:12px;background:none}
+#app .viewer-launchers>button[aria-expanded=true]{background:var(--ui-selected);color:#26372b}
+#app .viewer-launchers svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#app .count-dot{position:absolute;top:3px;right:2px;min-width:12px;height:12px;padding:0 3px;margin:0;display:flex;align-items:center;justify-content:center;border-radius:5px;background:#6d7b66;color:#fff;font-size:8px}
+#app .controlbar .walktools,#app .controlbar .dock>div[hidden],#app .fps-badge,#app .hint,#app .quick-grip,#app .touch-overview-hint{display:none!important}
+/* One inspector at a time, anchored to the toolbar. No full-screen scrim. */
+#app .quick-drawer,#app .viewer-options,#app .light-panel,#app.inside-mode .light-panel{position:absolute;z-index:19;left:var(--viewer-edge);right:auto;top:auto;bottom:var(--viewer-panel-bottom);width:min(var(--viewer-panel-width),calc(100vw - 24px));height:auto;max-height:min(60dvh,calc(100dvh - var(--viewer-panel-bottom) - 80px));margin:0;padding:0;border-radius:18px;border:1px solid var(--ui-line);background:var(--ui-bg);color:var(--ui-text);box-shadow:0 10px 32px #0002;backdrop-filter:blur(20px);transform:none;pointer-events:auto;overflow:hidden;box-sizing:border-box}
+#app .quick-drawer{display:flex}
+#app .quick-surface{position:static;display:flex;flex-direction:column;width:100%;height:auto;max-height:inherit;padding:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:hidden;transform:none;pointer-events:auto}
+#app .quick-heading,#app .light-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 6px;margin:0;flex:none;background:transparent;border:0}
+#app .quick-heading h2,#app .light-panel-head strong{display:block;margin:0;font-size:18px;font-weight:650;letter-spacing:-.025em;color:var(--ui-text)}
+#app .quick-heading small,#app .light-panel-head small{display:block;margin:0 0 3px;color:var(--ui-muted);font-size:11px;letter-spacing:0;font-weight:400}
+#app .quick-heading button,#app .light-panel-head>button{display:flex;align-items:center;justify-content:center;flex:none;min-width:44px;width:44px;min-height:44px;height:44px;padding:0;background:#ffffff08;color:var(--ui-muted);border:0;border-radius:50%;font-size:22px}
+#app .quick-scroll,#app .options-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:0 12px 12px;flex:1}
+#app .viewer-options{display:flex;flex-direction:column}
+#app .quick-scroll h3,#app .options-scroll h3{display:block;margin:14px 0 6px;font-size:11px;font-weight:600;letter-spacing:.015em;color:var(--ui-muted)}
+#app .quick-scroll section+section{margin-top:0}
+#app .room-grid,#app .option-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+#app .room-grid button,#app .room-overview,#app .options-scroll button,#app .options-scroll select{min-height:44px;padding:9px 10px;font-size:12px;line-height:1.3;text-align:left;font-weight:500;border:1px solid var(--ui-line);border-radius:9px;background:#ffffff06;color:var(--ui-text);box-sizing:border-box}
+#app .room-grid button[aria-pressed=true],#app .room-overview[aria-pressed=true],#app .options-scroll button[aria-pressed=true]{background:var(--ui-selected);color:#26372b;border-color:var(--ui-selected)}
+#app .room-overview{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:4px}
+#app .options-scroll section{margin:0;padding:0;border:0}
+#app #roomActionGroup>section{margin-bottom:6px}
+#app #roomActionGroup>section>button{width:100%}
+#app #roomActionGroup h3{margin-top:6px}
+#app .options-scroll .viewtools{display:flex;gap:5px;flex-wrap:wrap;margin:5px 0}
+#app .options-scroll .viewtools button{flex:1}
+#app .options-scroll label{display:block;margin:10px 0 6px;font-size:11px;color:var(--ui-muted)}
+#app .options-scroll select{width:100%;background:#e9e9df;color:#25342a;font-size:11px}
+#app .options-scroll small,#app .options-scroll .note{display:none}
+#app .camera-options{margin-top:12px!important;padding-top:2px!important;border-top:1px solid var(--ui-line)!important}
+#app #captureSlot>button{width:100%;margin-top:5px}
+#app .option-disclosure{margin-top:8px;border-top:1px solid var(--ui-line);padding-top:2px}
+#app .option-disclosure>summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;font-size:12px;cursor:pointer;list-style:none;color:var(--ui-text)}
+#app .option-disclosure>summary::-webkit-details-marker{display:none}
+#app .option-disclosure>summary::after{content:'+';font-size:17px;color:var(--ui-muted)}
+#app .option-disclosure[open]>summary::after{content:'−'}
+#app #livingSpotStudy{width:100%;margin-top:6px}
+#app .kitchen-palette-control>div{display:flex;gap:5px;margin-top:5px}#app .kitchen-palette-control>div>button{flex:1}
+/* Lighting starts with scene and colour. Individual fittings are optional detail. */
+#app .light-panel,#app.inside-mode .light-panel{display:block;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-bottom:8px}
+#app .light-panel-head{position:sticky;top:0;background:#222a25;z-index:1;border-radius:17px 17px 0 0}
+#app .light-count{display:inline-block;color:var(--ui-muted);font-size:11px;font-weight:400;letter-spacing:0;margin-left:7px}
+#app .light-room-picker{display:block;margin:0 12px 6px}
+#app .light-room-picker>button{display:block;min-height:44px;padding:6px 0;background:none;border:0;border-radius:7px;color:var(--ui-muted);font-size:11px;text-align:left}
+#app .light-room-picker>select{display:none}
+#app .lighting-presets{display:flex;gap:5px;margin:0 12px 6px;padding:0}
+#app .lighting-presets>button{flex:1;min-height:44px;padding:6px 4px;font-size:11px;color:var(--ui-text);background:#ffffff06;border:1px solid var(--ui-line);border-radius:9px}
+#app .lighting-presets>button[aria-pressed=true]{background:var(--ui-selected);color:#26372b;border-color:var(--ui-selected)}
+#app .temperature-compare{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:8px 12px;padding:0;background:none;border:0}
+#app .temperature-compare>span{display:block;grid-column:1/-1;font-size:11px;margin:0 0 2px;color:var(--ui-muted)}
+#app .temperature-compare button{min-height:44px;padding:6px;font-size:11px;border:1px solid var(--ui-line);border-radius:9px;background:none;color:var(--ui-text)}
+#app .temperature-compare button[aria-pressed=true]{background:var(--ui-selected);color:#26372b;border-color:var(--ui-selected)}
+#app .individual-lights{margin:8px 12px 0}
+#app .quick-light-switches{overflow:visible;max-height:none;padding:0;flex:none}
+#app .light-row{margin:0;border:0;border-bottom:1px solid var(--ui-line);padding:0}
+#app .light-row .light-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:44px;margin:0;padding:9px 4px;border:0;border-radius:6px;background:none;color:var(--ui-text)}
+#app .light-row .fixture-name{font-size:12px;font-weight:400;line-height:1.35;text-align:left}
+#app .light-row .light-switch.on{background:#e4dfc409}
+#app .light-state,#app .on .light-state{display:block;flex:none;width:auto;min-width:28px;height:auto;background:none;padding:0;border-radius:0;font-size:10px;color:#a6b2a7;font-weight:600;text-align:right}
+#app .on .light-state{color:#e3d6ab}
+#app .light-state::before{display:none}
+#app .lighting-footer{display:flex;gap:8px;justify-content:space-between;margin:5px 12px 0;padding:0;border:0}
+#app .lighting-footer button{min-height:44px;padding:0 7px;border:0;border-radius:8px;font-size:11px;background:none;color:var(--ui-muted)}
+#app .scene-memory-hint,#app .lighting-footer>span,#app .paint-reference,#app .more-lights{display:none}
+/* Save / release history are part of Options, never floating over the home. */
+#app #versionInfo{position:static;margin-top:9px;padding-top:3px;border-top:1px solid var(--ui-line);font-size:11px;color:var(--ui-muted);visibility:visible;pointer-events:auto}
+#app #versionInfo>summary{min-height:44px;display:flex;align-items:center;padding:0;background:none;border:0;list-style:none;cursor:pointer}
+#app .version-card{position:static;width:auto;max-height:none;padding:4px 0;margin:0;background:none;border:0;box-shadow:none}
+#app .version-heading{display:flex;justify-content:space-between;align-items:center}
+#app .version-heading strong{font-size:12px}#app .version-heading button{min-width:44px;text-align:center}
+#app .release-list article{padding:8px 0;border-bottom:1px solid var(--ui-line)}#app .release-list strong{font-size:11px}#app .release-list small{display:block;margin-top:3px}#app .release-list p,#app .version-actions p{font-size:11px;line-height:1.5;color:var(--ui-muted)}
+#app .version-actions{padding-top:8px}#app .version-actions button{margin-right:4px}
+/* Walking is opt-in. It never takes space while browsing preset room views. */
+#app .touch-walk-pad{position:absolute;z-index:18;left:var(--viewer-edge);bottom:var(--viewer-panel-bottom);padding:6px;border:1px solid var(--ui-line);border-radius:16px;background:var(--ui-bg);backdrop-filter:blur(18px);touch-action:none;user-select:none}
+.touch-walk-grid{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:3px}
+#app .touch-walk-grid button{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0;border:0;border-radius:10px;background:#ffffff0a;color:var(--ui-text);touch-action:none}
 .touch-walk-grid [data-walk=forward]{grid-column:2;grid-row:1}.touch-walk-grid [data-walk=left]{grid-column:1;grid-row:2}.touch-walk-grid [data-walk=back]{grid-column:2;grid-row:2}.touch-walk-grid [data-walk=right]{grid-column:3;grid-row:2}
-.touch-walk-grid svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none;pointer-events:none}
-#app .touch-walk-grid button.is-held,#app .touch-walk-grid button:active{background:#e6eddd;color:#2d452e;filter:none}
-.touch-walk-pad p{margin:7px 0 1px;text-align:center;font-size:10px;line-height:1.45;font-weight:600;color:#e4ebdf;pointer-events:none}.touch-walk-pad p span{display:block;font-size:9px;font-weight:400;color:#adbba9}
-@media(max-height:520px) and (orientation:landscape){#app .touch-walk-pad{left:auto;right:max(12px,env(safe-area-inset-right));bottom:calc(var(--controls-height,52px) + 22px);padding:6px;border-radius:18px}.touch-walk-pad p span{display:none}.touch-walk-pad p{margin:5px 0 0}}
-@media(prefers-reduced-motion:reduce){#app .touch-walk-grid button{transition:none}}
-@media(prefers-reduced-transparency:reduce){#app .touch-walk-pad{background:#222b25;backdrop-filter:none;-webkit-backdrop-filter:none}}
-
-.touch-overview-hint{position:absolute;z-index:5;left:50%;bottom:calc(var(--controls-height,60px) + 24px + env(safe-area-inset-bottom));transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);margin:0;padding:8px 12px;border:1px solid var(--ui-line);border-radius:12px;background:var(--ui-bg);color:var(--ui-muted);font-size:10px;line-height:1.4;text-align:center;pointer-events:none}.touch-overview-hint[hidden]{display:none!important}
-
-.touch-overview-hint{left:12px;transform:none;max-width:calc(100vw - 138px)}.touch-overview-hint span{display:block}
-
-/* Canvas pointer focus must not draw a browser-blue frame over the room. */
-#scene:focus{outline:none} #scene:focus-visible{outline:1px solid #b9beb2;outline-offset:-2px}
-
-/* Local kitchen comparison lives in the existing Spaces drawer. */
-#app .kitchen-palette-control{margin:16px 0 0;padding:14px 4px 0;border-top:1px solid var(--ui-line)}
-#app .kitchen-palette-control label{display:block;color:var(--ui-text);font-size:13px;margin-bottom:8px}
-#app .kitchen-palette-control select{display:block;width:100%;min-height:42px;border:1px solid var(--ui-line);border-radius:10px;background:#eeeae0;color:#27332b;font:inherit;font-size:12px;padding:8px}
-
-/* Keep the release control clear of the cabinet-interior action on all widths. */
-#versionInfo{bottom:158px}
-
-/* Compact viewer sizing: one shared rail and panel inset across breakpoints. */
-:root{--viewer-edge:12px;--viewer-rail:56px;--viewer-gap:8px;--viewer-top:72px;--viewer-panel-left:calc(var(--viewer-edge) + var(--viewer-rail) + var(--viewer-gap))}
-#app .topbar{left:16px;right:16px;top:max(12px,env(safe-area-inset-top))}
-#app .brand{gap:10px}#app .brand strong{font-size:14px;letter-spacing:.22em}#app .brand span{font-size:11px}
-.environment-bar{padding:3px;border-radius:13px}.environment-bar button{min-width:68px;min-height:38px;padding:0 10px;gap:5px;font-size:11px}.environment-bar button span{font-size:17px}
-.side-launchers{left:var(--viewer-edge);top:var(--viewer-top);width:var(--viewer-rail);gap:var(--viewer-gap)}
-.side-launchers>button{min-height:56px;padding:6px 2px;gap:4px;border-radius:12px;font-size:10px}.side-launchers>button svg{width:19px;height:19px}
-#floorPicker{left:var(--viewer-edge);top:calc(var(--viewer-top) + 128px);width:var(--viewer-rail);font-size:10px}
-#floorPicker summary{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 2px;border-radius:12px}
-#floorPicker section{left:calc(var(--viewer-rail) + var(--viewer-gap));top:calc(-128px);width:min(290px,calc(100vw - var(--viewer-panel-left) - 12px));max-height:calc(100dvh - var(--viewer-top) - var(--controls-height,56px) - 36px);padding:12px;border-radius:14px;box-sizing:border-box}
-#floorPicker strong{font-size:14px;margin-bottom:10px}#floorPicker .floor-modes{gap:6px;margin-bottom:10px}#floorPicker button,#floorPicker select{min-height:44px;padding:7px;font-size:11px}#floorPicker p{font-size:11px;margin-block:8px}
-#app .controlbar{width:max-content;max-width:calc(100vw - 20px);bottom:max(10px,env(safe-area-inset-bottom));padding:4px;border-radius:15px}
-#app .controlbar .view-actions{display:flex;gap:2px;width:auto;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
-#app .controlbar .view-actions::-webkit-scrollbar{display:none}
-#app .controlbar .view-actions button{flex:0 0 auto;min-width:0;min-height:44px;height:44px;padding:0 12px;white-space:nowrap;font-size:11px;line-height:1;border-radius:11px}
-#app .quick-drawer,#app .light-panel,#app.inside-mode .light-panel{left:var(--viewer-panel-left);top:var(--viewer-top);width:min(294px,calc(100vw - var(--viewer-panel-left) - 12px));max-height:calc(100dvh - var(--viewer-top) - var(--controls-height,56px) - 36px)}
-#app .quick-surface{border-radius:16px}#app .quick-heading{padding:10px 12px 8px}#app .quick-heading h2{font-size:18px}#app .quick-heading button{min-width:44px;min-height:44px}
-#app .quick-scroll{padding:0 10px 10px}#app .quick-scroll section+section{margin-top:12px}#app .quick-surface .quick-grid button{min-height:44px;padding:8px;font-size:11px;border-radius:9px}
-#app .kitchen-palette-control{margin-top:10px;padding:10px 2px 0}#app .kitchen-palette-control label{font-size:12px;margin-bottom:6px}#app .kitchen-palette-control select{min-height:44px;font-size:11px;padding:7px}
-#app .light-panel,#app.inside-mode .light-panel{padding:12px;border-radius:16px}#app .light-panel-head{margin-bottom:8px}#app .light-panel-head strong{font-size:18px}#app .light-panel-head button{width:44px;height:44px;min-width:44px;min-height:44px}
-#app .light-room-picker>button,#app .lighting-presets button,#app .temperature-compare button,#app .lighting-footer button{min-height:44px}
-#app .lighting-presets{gap:5px}#app .lighting-presets button{font-size:10px;padding:5px}#app .temperature-compare{margin-bottom:8px;padding:7px}#app .light-row .light-switch{min-height:44px;padding:8px 4px}#app .light-row .fixture-name{font-size:11px}
-#versionInfo{right:12px;bottom:112px}#versionInfo>summary{min-height:36px;padding:0 8px;font-size:9px}
-@media(max-width:480px){
- :root{--viewer-edge:8px;--viewer-rail:52px;--viewer-top:68px}
- #app .topbar{left:12px;right:12px}.environment-bar button{min-width:60px;min-height:38px;padding:0 8px}#app .brand span{max-width:85px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- #app .controlbar{width:max-content;max-width:calc(100vw - 16px)}#app .controlbar .view-actions button{padding:0 9px;font-size:10px}
-}
-@media(pointer:coarse){.environment-bar button{min-height:44px}#versionInfo>summary{min-height:44px}}
-/* Keep the release badge out of open panels and preserve a full tap target. */
-#app .controlbar .view-actions button{min-width:44px}
-#app:has(.side-launchers>button[aria-expanded=true]) #versionInfo,body:has(#floorPicker[open]) #versionInfo{visibility:hidden;pointer-events:none}
-#app .quick-scroll .viewtools{display:flex;gap:6px}
-#app .quick-scroll .viewtools button{flex:1;min-height:44px;padding:6px;font-size:11px;line-height:1.3}
-#app .quick-scroll label[for=livingSpotAim]{display:block;margin:10px 0 6px;font-size:12px;color:var(--ui-text)}
-#app #livingSpotAim{display:block;width:100%;min-height:44px;padding:7px;border:1px solid var(--ui-line);border-radius:9px;background:var(--ui-selected);color:#27332b;font-size:11px}
-#app #livingSpotStudy{width:100%;min-height:44px;margin-top:6px;font-size:11px}
-#app .public-spaces{gap:6px}#app .public-spaces button{min-height:44px;font-size:11px;padding:8px}
-#app:has(.side-launchers>button[aria-expanded=true]) #captureView,body:has(#floorPicker[open]) #captureView{visibility:hidden;pointer-events:none}
+.touch-walk-grid svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.8;fill:none;pointer-events:none}
+#app .touch-walk-grid button.is-held{background:var(--ui-selected);color:#26372b}
+#app #hideWalk{width:100%;min-height:44px;border:0;background:none;color:var(--ui-muted);font-size:11px;padding:0;margin-top:3px}
+#scene:focus{outline:none}#scene:focus-visible{outline:1px solid #b9beb2;outline-offset:-2px}
+@media(max-width:520px){:root{--viewer-panel-width:360px}#app .brand>button span{max-width:145px}#app .viewer-launchers>button{min-width:82px}#app .topbar{left:14px;right:12px}}
+@media(max-height:520px) and (orientation:landscape){#app .quick-drawer,#app .viewer-options,#app .light-panel,#app.inside-mode .light-panel{left:auto;right:12px;bottom:12px;max-height:calc(100dvh - 78px);width:300px}}
+@media(prefers-reduced-transparency:reduce){#app .controlbar,#app .quick-drawer,#app .viewer-options,#app .light-panel,.environment-bar,#app .touch-walk-pad{background:#222a25;backdrop-filter:none}}
+@media(prefers-contrast:more){:root{--ui-bg:#202923;--ui-muted:#e1e7dc;--ui-line:#a8b6a2}}

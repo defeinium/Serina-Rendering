@@ -7,7 +7,7 @@
   <title>Serina · Current renovation plan</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
-  <link rel="stylesheet" href="viewer-ui.css?v=20261029-english-compact-r1" />
+  <link rel="stylesheet" href="viewer-ui.css?v=20261029-task-ui-r1" />
 
 <style>.panel,#measureOverlay,#viewerMore,#planView,[data-open-details]{display:none!important}.public-spaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}.public-spaces button{padding:12px;border:1px solid #888;border-radius:12px;background:#eef0e8;color:#25302c}.public-spaces button[aria-pressed=true]{background:#344b41;color:white}</style></head>
 <body>
@@ -15,28 +15,28 @@
     <canvas id="scene" aria-label="Interactive three-dimensional home plan"></canvas>
     <canvas id="measureOverlay" aria-hidden="true"></canvas>
     <header class="topbar">
-      <div class="brand"><strong>SERINA</strong><span id="quickCurrentSpace">Common area</span></div>
+      <div class="brand"><strong>SERINA</strong><button type="button" data-open-quick aria-controls="quickControls" aria-expanded="false"><span id="quickCurrentSpace">Living area</span><span aria-hidden="true">⌄</span></button></div>
       <div class="environment-bar" role="group" aria-label="Time of day"><button type="button" data-environment="day" aria-pressed="true"><span aria-hidden="true">☀</span> Day</button><button type="button" data-environment="night" aria-pressed="false"><span aria-hidden="true">☾</span> Night</button></div>
     </header>
 
-    <div id="quickDrawer" class="quick-drawer">
-      <aside id="quickControls" class="quick-surface" aria-label="Spaces and quick controls" aria-hidden="true" inert>
-        <div class="quick-heading"><div><small id="quickCurrent">Whole home</small><h2>Your home</h2></div><button type="button" data-quick-close aria-label="Close quick controls">×</button></div>
-        <div class="quick-scroll">
-          <section><h3>Space</h3><div id="quickSpaces" class="quick-grid" aria-label="Spaces"></div></section>
-          <section><h3>Living shades and spotlight</h3><div class="viewtools"><button type="button" data-living-roller="wide">Raise wide shade</button><button type="button" data-living-roller="narrow">Raise narrow shade</button></div><label for="livingSpotAim">Spotlight direction</label><select id="livingSpotAim"><option value="console">Window end of TV console · about 30°</option><option value="window">Aim at shades</option></select><button id="livingSpotStudy" type="button">Test this spotlight at night</button></section>
-          <section class="kitchen-palette-control"><label for="kitchenPalette">Kitchen finishes</label><select id="kitchenPalette"><option value="sahara">Sahara Stone uppers · Carbon Grey lowers</option><option value="dune-study">Dune Grey lowers · previous scheme</option></select></section>
-
-          <section class="kitchen-palette-control"><label for="diningPalette">Dining finishes</label><select id="diningPalette"><option value="balanced">NORDICA · dark grey upholstery / light frames</option><option value="original">Original charcoal table · light chairs</option></select></section>
-          <section class="kitchen-palette-control"><label for="decorStudy">Furnishings</label><select id="decorStudy"><option value="on">Show furnishings</option><option value="off">Original furniture</option></select></section>
-          <section class="kitchen-palette-control"><label for="petCarpet">Living modular carpet</label><select id="petCarpet"><option value="on">Carpet · grey-beige</option><option value="off">No carpet · original flooring</option></select></section>
-          <section class="kitchen-palette-control"><label>Island storage · planning study</label><button type="button" data-island-storage aria-pressed="false">Extend trays</button><div><button type="button" data-island-face="front">Kitchen side</button><button type="button" data-island-face="rear">Dining side</button></div></section>
-          <section class="kitchen-palette-control"><label for="laundryFacing">Laundry orientation</label><select id="laundryFacing"><option value="long">Along yard · compare</option><option value="ledge">Face ledge door · side access</option></select></section>
-        </div>
-        <div class="quick-footer">Interactive 3D preview</div>
+    <div id="quickDrawer" class="quick-drawer" hidden>
+      <aside id="quickControls" class="quick-surface" aria-label="Rooms" aria-hidden="true" inert>
+        <div class="quick-heading"><div><small id="quickCurrent">Living area</small><h2>Rooms</h2></div><button type="button" data-quick-close aria-label="Close rooms">×</button></div>
+        <div class="quick-scroll"><button type="button" class="room-overview" data-room-overview aria-pressed="false">Whole-home overview <span aria-hidden="true">↗</span></button><div id="quickSpaces" aria-label="Choose a room"></div></div>
       </aside>
-      <button id="quickGrip" class="quick-grip" type="button" aria-controls="quickControls" aria-expanded="false" aria-label="Open quick controls"><span class="quick-grip-lines" aria-hidden="true">⋮</span><span>Spaces</span><span aria-hidden="true">›</span></button>
     </div>
+    <aside id="optionsPanel" class="viewer-options" aria-label="Room and view options" hidden>
+      <div class="quick-heading"><div><small id="optionsRoomName">Living area</small><h2>Options</h2></div><button type="button" data-options-close aria-label="Close options">×</button></div>
+      <div class="options-scroll">
+        <div id="roomActionGroup"><h3>In this room</h3>
+          <section data-room-capability="cabinets"><button id="cabinetViewToggle" type="button" data-cabinet-interiors aria-pressed="false">Open cabinets</button></section>
+<section class="kitchen-palette-control" data-room-capability="island"><label>Island trays</label><button type="button" data-island-storage aria-pressed="false">Extend trays</button><div><button type="button" data-island-face="front">Kitchen side</button><button type="button" data-island-face="rear">Dining side</button></div></section><section data-room-capability="shades"><h3>Shades</h3><div class="viewtools"><button type="button" data-living-roller="all">Raise shades</button></div><details class="option-disclosure"><summary>Individual shades &amp; spotlight</summary><div class="viewtools"><button type="button" data-living-roller="wide">Raise wide shade</button><button type="button" data-living-roller="narrow">Raise narrow shade</button></div><label for="livingSpotAim">Spotlight direction</label><select id="livingSpotAim"><option value="console">Window end of TV console · about 30°</option><option value="window">Aim at shades</option></select><button id="livingSpotStudy" type="button">Test this spotlight at night</button></details></section><section class="kitchen-palette-control" data-room-capability="laundry"><label for="laundryFacing">Laundry orientation</label><select id="laundryFacing"><option value="long">Along yard · compare</option><option value="ledge">Face ledge door · side access</option></select></section>
+        </div>
+        <section class="camera-options"><h3>View</h3><div class="option-grid"><button id="wideView" type="button" aria-pressed="false">Wide angle</button><button id="resetCamera" type="button">Reset view</button><button id="overviewView" type="button" aria-pressed="false">Whole home</button><button id="walkModeToggle" type="button" aria-pressed="false">Show walking controls</button></div><div id="captureSlot"></div></section>
+        <details id="styleOptions" class="option-disclosure"><summary>Finishes &amp; furnishings</summary><section class="kitchen-palette-control" data-room-capability="kitchen"><label for="kitchenPalette">Kitchen finishes</label><select id="kitchenPalette"><option value="sahara">Sahara Stone uppers · Carbon Grey lowers</option><option value="dune-study">Dune Grey lowers · previous scheme</option></select></section><section class="kitchen-palette-control" data-room-capability="dining"><label for="diningPalette">Dining finishes</label><select id="diningPalette"><option value="balanced">NORDICA · dark grey upholstery / light frames</option><option value="original">Original charcoal table · light chairs</option></select></section><section class="kitchen-palette-control" data-room-capability="decor"><label for="decorStudy">Furnishings</label><select id="decorStudy"><option value="on">Show furnishings</option><option value="off">Original furniture</option></select></section><section class="kitchen-palette-control" data-room-capability="shades"><label for="petCarpet">Living modular carpet</label><select id="petCarpet"><option value="on">Carpet · grey-beige</option><option value="off">No carpet · original flooring</option></select></section></details>
+        <div id="versionSlot"></div>
+      </div>
+    </aside>
 
     <div id="drawerScrim" class="drawer-scrim" hidden></div>
     <aside class="panel collapsed" aria-label="Planning details" aria-hidden="true">
@@ -89,9 +89,9 @@
     <aside id="lightPanel" class="light-panel" aria-label="Quick lighting controls" hidden>
       <div class="light-panel-head"><div><small id="lightSceneCaption">DAYLIGHT</small><strong>Lighting <span id="lightCount" class="light-count" aria-live="polite">0 on</span></strong></div><button id="lightPanelClose" type="button" aria-label="Close lighting controls">×</button></div>
       <div class="light-room-picker"><button type="button" data-open-quick aria-controls="quickControls" aria-expanded="false">Area · <span id="quickLightingSpace">Common area</span> ↗</button><select id="lightRoomSelect" aria-label="Select lighting area"></select></div>
-      <div class="lighting-presets" role="group" aria-label="Lights in this area"><button id="lightsMain" type="button">Main lights</button><button id="lightsAllOn" type="button">All on</button><button id="lightsAllOff" type="button">All off</button></div><div class="lighting-presets" id="eveningSceneRow" style="grid-template-columns:1fr"><button id="lightsEvening" type="button" aria-pressed="false">Evening ambience · living + dining</button></div><p id="sceneMemoryHint" class="scene-memory-hint">Day starts with lights off. Changes are remembered.</p><button id="daylightToggle" type="button" hidden>Daylight</button>
+      <div class="lighting-presets" role="group" aria-label="Lights in this area"><button id="lightsMain" type="button">Main lights</button><button id="lightsAllOn" type="button">All on</button><button id="lightsAllOff" type="button">All off</button></div><div class="lighting-presets" id="eveningSceneRow" style="grid-template-columns:1fr"><button id="lightsEvening" type="button" aria-pressed="false">Evening ambience</button></div><p id="sceneMemoryHint" class="scene-memory-hint">Day starts with lights off. Changes are remembered.</p><button id="daylightToggle" type="button" hidden>Daylight</button>
       <div id="temperatureCompare" class="temperature-compare" role="group" aria-label="Common-area colour temperature"><span>Light colour</span><button type="button" data-cct="3000" aria-pressed="false">3000K</button><button type="button" data-cct="3500" class="active" aria-pressed="true">3500K</button><button type="button" data-cct="4000" aria-pressed="false">4000K</button></div>
-      <div id="quickLightSwitches" class="quick-light-switches" aria-label="Lights in this space"></div><div class="lighting-footer"><button id="undoLighting" type="button" disabled>↶ Undo</button><button id="restoreLighting" type="button">Reset scene</button><span>Saved on this device</span></div>
+      <details class="option-disclosure individual-lights"><summary>Individual lights</summary><div id="quickLightSwitches" class="quick-light-switches" aria-label="Lights in this space"></div></details><div class="lighting-footer"><button id="undoLighting" type="button" disabled>↶ Undo</button><button id="restoreLighting" type="button">Reset lights</button><span>Saved on this device</span></div>
       <div class="paint-reference" title="Jotun official website screen swatch #E5E2D8; independent of scene lighting"><span class="paint-reference-swatch" aria-hidden="true"></span><span>Jotun1928 Summer Snow<br></span></div>
       <details id="moreLights" class="more-lights"><summary>All-room controls &amp; notes</summary>
         <div id="lightSwitches"></div>
@@ -100,10 +100,6 @@
       </details>
     </aside>
 
-    <nav class="side-launchers" aria-label="Space and lighting panels">
-      <button type="button" class="quick-space-button" data-open-quick aria-controls="quickControls" aria-expanded="false" aria-label="Show spaces"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg><span>Spaces</span></button>
-      <button id="lightPanelToggle" type="button" aria-expanded="false" aria-controls="lightPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 15c-5-5-2-11 4-11s9 6 4 11l-1 3H9zM9 21h6M9 18h6"/></svg><span>Lights</span><span id="dockLightCount" class="count-dot" hidden>0</span></button>
-    </nav>
     <p id="touchOverviewHint" class="touch-overview-hint" hidden><span>Drag to rotate</span><span>Two fingers to move / zoom</span></p>
     <nav id="touchWalkPad" class="touch-walk-pad" aria-label="Move around the room" hidden>
       <div class="touch-walk-grid">
@@ -112,11 +108,15 @@
         <button type="button" data-walk="back" aria-label="Move back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
         <button type="button" data-walk="right" aria-label="Move right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       </div>
-      <p>Hold to move<span>Drag screen to look</span></p>
+      <button type="button" id="hideWalk" aria-label="Hide walking controls">Done</button>
     </nav>
     <div class="controlbar" aria-label="Viewer controls">
     <nav class="dock" aria-label="Main viewer controls">
-      <div class="view-actions" role="group" aria-label="View options"><button id="overviewView" type="button" aria-pressed="false">Overview</button><button id="wideView" type="button" aria-pressed="false">Wide</button><button type="button" data-island-storage aria-pressed="false">Extend trays</button><button type="button" data-living-roller="all">Raise shades</button><button id="cabinetViewToggle" type="button" data-cabinet-interiors aria-pressed="false" aria-label="Show cabinet interiors">Interiors</button></div>
+      <div class="viewer-launchers">
+        <button type="button" data-open-quick aria-controls="quickControls" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>Rooms</button>
+        <button id="lightPanelToggle" type="button" aria-expanded="false" aria-controls="lightPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 15c-5-5-2-11 4-11s9 6 4 11l-1 3H9zM9 21h6M9 18h6"/></svg>Lights<span id="dockLightCount" class="count-dot" hidden>0</span></button>
+        <button id="optionsToggle" type="button" aria-expanded="false" aria-controls="optionsPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg>Options</button>
+      </div>
       <div hidden><label class="room-label" for="roomSelect">Room</label><select id="roomSelect" aria-label="Select room"></select><label class="inside-room-picker"><span id="cameraSpaceLabel">Space</span> <select id="insideRoom" aria-label="Choose standing space">
         <option value="overview">Whole-home overview</option><option value="common">Common area</option><option value="foyer">Outer foyer / shoe cabinet</option><option value="entry">Entry</option><option value="living">Living room</option><option value="dining">Dining</option><option value="kitchen">Kitchen</option><option value="prep">Prep counter</option><option value="yard">Yard</option><option value="ledge">AC ledge</option><option value="hall">Hall</option><option value="master">Master bedroom</option><option value="b2">Bedroom 2</option><option value="b3">Bedroom 3</option><option value="bath1">Bath 1</option><option value="bath2">Bath 2</option>
       </select></label><button id="planView" type="button">Plan</button><button id="insideView" type="button">Inside</button><details id="viewerMore" class="tools-menu"><summary>More</summary><div class="tools-popover"><button id="measureQuick" type="button">Dimensions</button><button id="panelToggle" type="button">Electrical points</button><button id="schemeQuick" type="button">Design &amp; drawings</button></div></details></div>
@@ -133,6 +133,6 @@
     <div id="fpsBadge" class="fps-badge" title="Measured rendering rate on this device">FPS —</div>
     <div id="roomFilters" hidden></div>
   </main>
-  <script type="module" src="viewer.js?v=20261029-english-compact-r1"></script>
+  <script type="module" src="viewer.js?v=20261029-task-ui-r1"></script>
 </body>
 </html>
