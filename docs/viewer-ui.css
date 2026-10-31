@@ -1,13 +1,13 @@
 /* Task-first viewer shell. Geometry, material colours and renderer settings are separate. */
-:root{--ui-bg:rgba(29,34,31,.94);--ui-text:#f3f3ed;--ui-muted:#bdc5bd;--ui-line:#ffffff19;--ui-selected:#eeeae0;--viewer-edge:12px;--viewer-panel-width:320px;--viewer-panel-bottom:calc(var(--controls-height,54px) + 24px + env(safe-area-inset-bottom))}
+:root{--ui-bg:rgba(29,34,31,.94);--ui-text:#f3f3ed;--ui-muted:#bdc5bd;--ui-line:#ffffff19;--ui-selected:#eeeae0;--viewer-edge:12px;--viewer-panel-width:292px;--viewer-panel-bottom:calc(var(--controls-height,54px) + 18px + env(safe-area-inset-bottom))}
 #app{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-optical-sizing:auto}
 #app [hidden]{display:none!important}
 #app button,#app summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 #app button:focus-visible,#app summary:focus-visible,#app select:focus-visible{outline:2px solid #dfc78e;outline-offset:2px}
 #app button:active,#app summary:active{filter:brightness(1.16)}
 #app .topbar{top:max(12px,env(safe-area-inset-top));left:16px;right:16px;align-items:flex-start;pointer-events:none}
-#app .brand{padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;pointer-events:auto}
-#app .brand strong{font-size:11px;letter-spacing:.22em;color:#36423a}
+#app .brand{padding:0;display:flex;flex-direction:row;align-items:center;gap:9px;pointer-events:auto}
+#app .brand strong{font-size:9px;letter-spacing:.15em;color:#36423a}
 #app.night-mode .brand strong{color:#eef0e7}
 #app .brand>button{min-height:44px;padding:0 6px 0 0;display:flex;gap:6px;align-items:center;background:none;border:0;border-radius:7px;color:#36423a;font-size:13px;font-weight:600}
 #app .brand>button span{font:inherit;color:inherit;max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -19,39 +19,45 @@
 #app .controlbar{position:absolute;z-index:20;left:var(--viewer-edge);right:auto;bottom:max(12px,env(safe-area-inset-bottom));transform:none;width:max-content;max-width:calc(100vw - 24px);padding:4px;border-radius:16px;border:1px solid var(--ui-line);background:var(--ui-bg);backdrop-filter:blur(20px);box-shadow:0 3px 18px #0002}
 #app .controlbar .dock{display:block;padding:0;border:0;background:none}
 #app .viewer-launchers{display:flex;gap:3px}
-#app .viewer-launchers>button{position:relative;display:flex;align-items:center;justify-content:center;gap:7px;min-width:82px;min-height:44px;height:44px;padding:0 12px;font-size:12px;font-weight:600;color:var(--ui-text);border:0;border-radius:12px;background:none}
+#app .viewer-launchers>button{position:relative;display:flex;align-items:center;justify-content:center;gap:5px;min-width:72px;min-height:44px;height:44px;padding:0 9px;font-size:12px;font-weight:600;color:var(--ui-text);border:0;border-radius:12px;background:none}
 #app .viewer-launchers>button[aria-expanded=true]{background:var(--ui-selected);color:#26372b}
 #app .viewer-launchers svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 #app .count-dot{position:absolute;top:3px;right:2px;min-width:12px;height:12px;padding:0 3px;margin:0;display:flex;align-items:center;justify-content:center;border-radius:5px;background:#6d7b66;color:#fff;font-size:8px}
 #app .controlbar .walktools,#app .controlbar .dock>div[hidden],#app .fps-badge,#app .hint,#app .quick-grip,#app .touch-overview-hint{display:none!important}
 /* One inspector at a time, anchored to the toolbar. No full-screen scrim. */
-#app .quick-drawer,#app .viewer-options,#app .light-panel,#app.inside-mode .light-panel{position:absolute;z-index:19;left:var(--viewer-edge);right:auto;top:auto;bottom:var(--viewer-panel-bottom);width:min(var(--viewer-panel-width),calc(100vw - 24px));height:auto;max-height:min(60dvh,calc(100dvh - var(--viewer-panel-bottom) - 80px));margin:0;padding:0;border-radius:18px;border:1px solid var(--ui-line);background:var(--ui-bg);color:var(--ui-text);box-shadow:0 10px 32px #0002;backdrop-filter:blur(20px);transform:none;pointer-events:auto;overflow:hidden;box-sizing:border-box}
+#app .quick-drawer,#app .viewer-options,#app .light-panel,#app.inside-mode .light-panel{position:absolute;z-index:19;left:var(--viewer-edge);right:auto;top:auto;bottom:var(--viewer-panel-bottom);width:min(var(--viewer-panel-width),calc(100vw - 24px));height:auto;max-height:min(46dvh,calc(100dvh - var(--viewer-panel-bottom) - 80px));margin:0;padding:0;border-radius:14px;border:1px solid var(--ui-line);background:var(--ui-bg);color:var(--ui-text);box-shadow:0 10px 32px #0002;backdrop-filter:blur(20px);transform:none;pointer-events:auto;overflow:hidden;box-sizing:border-box}
 #app .quick-drawer{display:flex}
 #app .quick-surface{position:static;display:flex;flex-direction:column;width:100%;height:auto;max-height:inherit;padding:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:hidden;transform:none;pointer-events:auto}
-#app .quick-heading,#app .light-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 6px;margin:0;flex:none;background:transparent;border:0}
-#app .quick-heading h2,#app .light-panel-head strong{display:block;margin:0;font-size:18px;font-weight:650;letter-spacing:-.025em;color:var(--ui-text)}
+#app .quick-heading,#app .light-panel-head{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 6px 0 12px;margin:0;flex:none;background:transparent;border:0}
+#app .quick-heading h2,#app .light-panel-head strong{display:block;margin:0;font-size:14px;font-weight:650;letter-spacing:-.025em;color:var(--ui-text)}
 #app .quick-heading small,#app .light-panel-head small{display:block;margin:0 0 3px;color:var(--ui-muted);font-size:11px;letter-spacing:0;font-weight:400}
 #app .quick-heading button,#app .light-panel-head>button{display:flex;align-items:center;justify-content:center;flex:none;min-width:44px;width:44px;min-height:44px;height:44px;padding:0;background:#ffffff08;color:var(--ui-muted);border:0;border-radius:50%;font-size:22px}
-#app .quick-scroll,#app .options-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:0 12px 12px;flex:1}
+#app .quick-scroll,#app .options-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:0 10px 8px;flex:1}
 #app .viewer-options{display:flex;flex-direction:column}
-#app .quick-scroll h3,#app .options-scroll h3{display:block;margin:14px 0 6px;font-size:11px;font-weight:600;letter-spacing:.015em;color:var(--ui-muted)}
+#app .quick-scroll h3,#app .options-scroll h3{display:block;margin:8px 0 4px;font-size:11px;font-weight:600;letter-spacing:.015em;color:var(--ui-muted)}
 #app .quick-scroll section+section{margin-top:0}
 #app .room-grid,#app .option-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-#app .room-grid button,#app .room-overview,#app .options-scroll button,#app .options-scroll select{min-height:44px;padding:9px 10px;font-size:12px;line-height:1.3;text-align:left;font-weight:500;border:1px solid var(--ui-line);border-radius:9px;background:#ffffff06;color:var(--ui-text);box-sizing:border-box}
+#app .room-grid button,#app .room-overview,#app .options-scroll button,#app .options-scroll select{min-height:44px;padding:6px 8px;font-size:12px;line-height:1.3;text-align:left;font-weight:500;border:1px solid var(--ui-line);border-radius:9px;background:#ffffff06;color:var(--ui-text);box-sizing:border-box}
 #app .room-grid button[aria-pressed=true],#app .room-overview[aria-pressed=true],#app .options-scroll button[aria-pressed=true]{background:var(--ui-selected);color:#26372b;border-color:var(--ui-selected)}
 #app .room-overview{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:4px}
 #app .options-scroll section{margin:0;padding:0;border:0}
-#app #roomActionGroup>section{margin-bottom:6px}
-#app #roomActionGroup>section>button{width:100%}
+#app #roomActionGroup>.room-actions>section{margin-bottom:6px}
+#app #roomActionGroup>.room-actions>section>button{width:100%}
 #app #roomActionGroup h3{margin-top:6px}
 #app .options-scroll .viewtools{display:flex;gap:5px;flex-wrap:wrap;margin:5px 0}
 #app .options-scroll .viewtools button{flex:1}
 #app .options-scroll label{display:block;margin:10px 0 6px;font-size:11px;color:var(--ui-muted)}
 #app .options-scroll select{width:100%;background:#e9e9df;color:#25342a;font-size:11px}
 #app .options-scroll small,#app .options-scroll .note{display:none}
-#app .camera-options{margin-top:12px!important;padding-top:2px!important;border-top:1px solid var(--ui-line)!important}
-#app #captureSlot>button{width:100%;margin-top:5px}
-#app .option-disclosure{margin-top:8px;border-top:1px solid var(--ui-line);padding-top:2px}
+#app .camera-options{margin-top:4px!important;padding:0!important;border:0!important}
+#app .camera-quick-actions{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:4px}
+#app #captureSlot{display:contents}
+#app .camera-quick-actions>button,#app #captureSlot>button{text-align:center;min-width:0;padding:6px 4px}
+#app .inspector-title{display:flex;align-items:baseline;gap:8px;min-width:0}
+#app .inspector-title small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0}
+#app .quick-heading:not(:has(.inspector-title)) small,#app .light-panel-head small{display:none}
+#app #captureSlot>button{width:100%;margin:0}
+#app .option-disclosure{margin-top:3px;border-top:1px solid var(--ui-line);padding-top:2px}
 #app .option-disclosure>summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;font-size:12px;cursor:pointer;list-style:none;color:var(--ui-text)}
 #app .option-disclosure>summary::-webkit-details-marker{display:none}
 #app .option-disclosure>summary::after{content:'+';font-size:17px;color:var(--ui-muted)}
@@ -62,17 +68,17 @@
 #app .light-panel,#app.inside-mode .light-panel{display:block;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-bottom:8px}
 #app .light-panel-head{position:sticky;top:0;background:#222a25;z-index:1;border-radius:17px 17px 0 0}
 #app .light-count{display:inline-block;color:var(--ui-muted);font-size:11px;font-weight:400;letter-spacing:0;margin-left:7px}
-#app .light-room-picker{display:block;margin:0 12px 6px}
-#app .light-room-picker>button{display:block;min-height:44px;padding:6px 0;background:none;border:0;border-radius:7px;color:var(--ui-muted);font-size:11px;text-align:left}
+#app .light-room-picker{display:block;margin:0 10px 3px}
+#app .light-room-picker>button{display:block;min-height:44px;padding:0;background:none;border:0;border-radius:7px;color:var(--ui-muted);font-size:11px;text-align:left}
 #app .light-room-picker>select{display:none}
-#app .lighting-presets{display:flex;gap:5px;margin:0 12px 6px;padding:0}
+#app .lighting-presets{display:flex;gap:5px;margin:0 10px 3px;padding:0}
 #app .lighting-presets>button{flex:1;min-height:44px;padding:6px 4px;font-size:11px;color:var(--ui-text);background:#ffffff06;border:1px solid var(--ui-line);border-radius:9px}
 #app .lighting-presets>button[aria-pressed=true]{background:var(--ui-selected);color:#26372b;border-color:var(--ui-selected)}
-#app .temperature-compare{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:8px 12px;padding:0;background:none;border:0}
-#app .temperature-compare>span{display:block;grid-column:1/-1;font-size:11px;margin:0 0 2px;color:var(--ui-muted)}
+#app .temperature-compare{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:4px 10px;padding:0;background:none;border:0}
+#app .temperature-compare>span{display:none;grid-column:1/-1;font-size:11px;margin:0 0 2px;color:var(--ui-muted)}
 #app .temperature-compare button{min-height:44px;padding:6px;font-size:11px;border:1px solid var(--ui-line);border-radius:9px;background:none;color:var(--ui-text)}
 #app .temperature-compare button[aria-pressed=true]{background:var(--ui-selected);color:#26372b;border-color:var(--ui-selected)}
-#app .individual-lights{margin:8px 12px 0}
+#app .individual-lights{margin:4px 10px 0}
 #app .quick-light-switches{overflow:visible;max-height:none;padding:0;flex:none}
 #app .light-row{margin:0;border:0;border-bottom:1px solid var(--ui-line);padding:0}
 #app .light-row .light-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:44px;margin:0;padding:9px 4px;border:0;border-radius:6px;background:none;color:var(--ui-text)}
@@ -81,7 +87,7 @@
 #app .light-state,#app .on .light-state{display:block;flex:none;width:auto;min-width:28px;height:auto;background:none;padding:0;border-radius:0;font-size:10px;color:#a6b2a7;font-weight:600;text-align:right}
 #app .on .light-state{color:#e3d6ab}
 #app .light-state::before{display:none}
-#app .lighting-footer{display:flex;gap:8px;justify-content:space-between;margin:5px 12px 0;padding:0;border:0}
+#app .lighting-footer{display:flex;gap:8px;justify-content:space-between;margin:0 10px;padding:0;border:0}
 #app .lighting-footer button{min-height:44px;padding:0 7px;border:0;border-radius:8px;font-size:11px;background:none;color:var(--ui-muted)}
 #app .scene-memory-hint,#app .lighting-footer>span,#app .paint-reference,#app .more-lights{display:none}
 /* Save / release history are part of Options, never floating over the home. */
@@ -101,7 +107,17 @@
 #app .touch-walk-grid button.is-held{background:var(--ui-selected);color:#26372b}
 #app #hideWalk{width:100%;min-height:44px;border:0;background:none;color:var(--ui-muted);font-size:11px;padding:0;margin-top:3px}
 #scene:focus{outline:none}#scene:focus-visible{outline:1px solid #b9beb2;outline-offset:-2px}
-@media(max-width:520px){:root{--viewer-panel-width:360px}#app .brand>button span{max-width:145px}#app .viewer-launchers>button{min-width:82px}#app .topbar{left:14px;right:12px}}
+@media(max-width:520px){:root{--viewer-panel-width:288px;--viewer-edge:8px}#app .brand strong{display:none}#app .brand>button span{max-width:165px}#app .viewer-launchers>button{min-width:70px}#app .topbar{left:12px;right:8px;top:max(8px,env(safe-area-inset-top))}.environment-bar button{min-width:44px;width:44px;padding:0}.environment-bar .environment-label{display:none}#app .controlbar{padding:3px;bottom:max(8px,env(safe-area-inset-bottom))}#app .room-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#app .room-grid button{font-size:11px;padding:5px}#app .quick-drawer{max-height:min(52dvh,calc(100dvh - 150px))}}
 @media(max-height:520px) and (orientation:landscape){#app .quick-drawer,#app .viewer-options,#app .light-panel,#app.inside-mode .light-panel{left:auto;right:12px;bottom:12px;max-height:calc(100dvh - 78px);width:300px}}
 @media(prefers-reduced-transparency:reduce){#app .controlbar,#app .quick-drawer,#app .viewer-options,#app .light-panel,.environment-bar,#app .touch-walk-pad{background:#222a25;backdrop-filter:none}}
 @media(prefers-contrast:more){:root{--ui-bg:#202923;--ui-muted:#e1e7dc;--ui-line:#a8b6a2}}
+
+/* Pointer hints are small, non-blocking and never cover the touched object. */
+#app .object-hint{position:absolute;z-index:18;max-width:min(260px,calc(100vw - 24px));padding:7px 10px;border:1px solid var(--ui-line);border-radius:9px;background:var(--ui-bg);color:var(--ui-text);font-size:12px;line-height:1.35;pointer-events:none;box-shadow:0 2px 12px #0002}
+#scene[data-interactive=true]{cursor:pointer}
+
+#app #roomActionGroup:not(.collapsed-room-actions){border:0;margin-top:0;padding-top:0}
+#app #roomActionGroup:not(.collapsed-room-actions)>.room-action-summary{display:none}
+
+#app .object-hint:has(button:not([hidden])){display:flex;align-items:center;gap:8px;padding:3px 4px 3px 9px}
+#app .object-hint button{pointer-events:auto;min-width:44px;min-height:44px;padding:0 9px;border:1px solid var(--ui-line);border-radius:7px;background:#ffffff14;color:var(--ui-text);font-size:12px}
