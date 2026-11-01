@@ -17,8 +17,7 @@
       <div id="objectHint" class="object-hint" role="status" aria-live="polite" hidden></div>
       <header class="topbar">
         <div class="brand">
-          <strong>SERINA</strong
-          ><button
+          <strong>SERINA</strong><button
             type="button"
             data-open-quick
             aria-controls="quickControls"
@@ -35,8 +34,7 @@
             title="Day"
             aria-pressed="true"
           >
-            <span aria-hidden="true">☀</span><span class="environment-label">Day</span></button
-          ><button
+            <span aria-hidden="true">☀</span><span class="environment-label">Day</span></button><button
             type="button"
             data-environment="night"
             aria-label="Night"
@@ -88,14 +86,95 @@
                 </button>
               </section>
               <section class="kitchen-palette-control" data-room-capability="island">
-                <label>Island trays</label
-                ><button type="button" data-island-storage aria-pressed="false">
+                <label>Island trays</label><button type="button" data-island-storage aria-pressed="false">
                   Extend trays
                 </button>
                 <div>
-                  <button type="button" data-island-face="front">Kitchen side</button
-                  ><button type="button" data-island-face="rear">Dining side</button>
+                  <button type="button" data-island-face="front">Kitchen side</button><button type="button" data-island-face="rear">Dining side</button>
                 </div>
+
+              </section>
+              <section data-room-capability="shades">
+                <h3>Shades</h3>
+                <div class="viewtools">
+                  <button type="button" data-living-roller="all">Raise shades</button><button type="button" data-shade-fold>Close fabric folds</button>
+                </div>
+                <details class="option-disclosure">
+                  <summary>Individual shades &amp; spotlight</summary>
+                  <div class="viewtools">
+                    <button type="button" data-living-roller="wide">Raise wide shade</button><button type="button" data-living-roller="narrow">Raise narrow shade</button>
+                  </div>
+                  <label for="livingSpotAim">Spotlight direction</label><select id="livingSpotAim">
+                    <option value="console">Window end of TV console · about 30°</option>
+                    <option value="window">Aim at shades</option></select><button id="livingSpotStudy" type="button">Test this spotlight at night</button>
+
+                </details>
+              </section>
+              <section data-room-capability="masterCurtains">
+                <h3>Curtains</h3>
+                <div class="viewtools">
+                  <button type="button" data-master-curtain="drapes">Close drapes</button><button type="button" data-master-curtain="sheers">Open sheers</button>
+                </div>
+              </section>
+              <section data-room-capability="bedroomShades">
+                <h3>Butterfly shade</h3>
+                <div class="viewtools">
+                  <button type="button" data-bedroom-shade>Raise shade</button><button type="button" data-bedroom-shade-fold>Close fabric folds</button>
+                </div>
+              </section>
+              <section class="kitchen-palette-control" data-room-capability="laundry">
+                <label for="laundryFacing">Laundry orientation</label><select id="laundryFacing">
+                  <option value="long">Along yard · compare</option>
+                  <option value="ledge">Face ledge door · side access</option></select>
+              </section>
+            </div>
+          </details>
+          <section class="camera-options" aria-label="View actions">
+            <div class="camera-quick-actions">
+              <button id="wideView" type="button" aria-pressed="false" title="Toggle wide angle">
+                Wide angle</button><button id="resetCamera" type="button" aria-label="Reset view">Reset</button>
+              <div id="captureSlot"></div>
+            </div>
+          </section>
+          <details id="styleOptions" class="option-disclosure">
+            <summary>Finishes</summary>
+            <section class="kitchen-palette-control" data-room-capability="kitchen">
+              <label for="kitchenPalette">Kitchen finishes</label><select id="kitchenPalette">
+                <option value="sahara">Sahara Stone uppers · Carbon Grey lowers</option>
+                <option value="dune-study">Dune Grey lowers · previous scheme</option>
+              </select>
+            </section>
+            <section class="kitchen-palette-control" data-room-capability="dining">
+              <label for="diningPalette">Dining finishes</label><select id="diningPalette">
+                <option value="balanced">NORDICA · dark grey upholstery / light frames</option>
+                <option value="original">Original charcoal table · light chairs</option></select>
+            </section>
+            <section class="kitchen-palette-control" data-room-capability="decor">
+              <label for="decorStudy">Furnishings</label><select id="decorStudy">
+                <option value="on">Show furnishings</option>
+                <option value="off">Original furniture</option>
+              </select>
+            </section>
+            <section class="kitchen-palette-control" data-room-capability="shades">
+              <label for="petCarpet">Living modular carpet</label><select id="petCarpet">
+                <option value="on">Carpet · grey-beige</option>
+                <option value="off">No carpet · original flooring</option></select>
+            </section>
+          </details>
+          <details id="moreOptions" class="option-disclosure">
+            <summary>More</summary>
+            <div class="option-grid">
+              <button id="overviewView" type="button" aria-pressed="false">Whole home</button><button id="walkModeToggle" type="button" aria-pressed="false">Walk around</button>
+            </div>
+            <div id="versionSlot"></div>
+          </details>
+        </div>
+      </aside>
+
+      <div id="drawerScrim" class="drawer-scrim" hidden></div>
+      <aside class="panel collapsed" aria-label="Planning details" aria-hidden="true">
+        <div class="panel-head">
+          <div>
 
             <h1 id="drawerTitle">Layout</h1>
           </div>
@@ -108,8 +187,7 @@
         </nav>
         <div class="drawer-room">
           <button type="button" data-open-quick aria-controls="quickControls" aria-expanded="false">
-            Space · <span id="quickDetailsSpace">Whole home</span> ↗</button
-          ><select id="drawerRoomSelect" aria-label="Select space for details"></select>
+            Space · <span id="quickDetailsSpace">Whole home</span> ↗</button><select id="drawerRoomSelect" aria-label="Select space for details"></select>
         </div>
 
         <div id="tab-layout" class="tab-pane">
@@ -129,11 +207,7 @@
               Exterior view. Tap Interiors to inspect shelves, rails and drawer allocation.
             </p>
 
-            <a class="brief-panel-link" href="kitchen-cabinet-design.html#drawings"
-              >Kitchen cabinet drawings ↗</a
-            ><a class="brief-panel-link" href="other-cabinet-design.html#drawings"
-              >Wardrobes, TV &amp; shoe cabinet drawings ↗</a
-            >
+
           </section>
           <section>
             <label>Camera and model</label>
@@ -147,12 +221,7 @@
             </div>
           </section>
           <section>
-            <a class="brief-panel-link" href="site-plan.html"
-              >Open current 2D lights &amp; fans drawing ↗</a
-            ><a class="brief-panel-link" href="contractor.html">Open current contractor brief ↗</a
-            ><a class="brief-panel-link" href="measure.html?v=20261016-prep-curve-r1"
-              >Open mobile site-measurement list ↗</a
-            >
+
           </section>
         </div>
 
@@ -187,9 +256,7 @@
 
         <div id="tab-measure" class="tab-pane" hidden>
 
-          <a class="brief-panel-link" href="measure.html?v=20261016-prep-curve-r1"
-            >Record actual dimensions on site ↗</a
-          >
+
           <button id="measureToggle" type="button" class="measure-toggle" aria-pressed="false">
             Show dimensions on model
           </button>
@@ -204,23 +271,18 @@
       <aside id="lightPanel" class="light-panel" aria-label="Quick lighting controls" hidden>
         <div class="light-panel-head">
           <div>
-            <small id="lightSceneCaption">DAYLIGHT</small
-            ><strong
+            <small id="lightSceneCaption">DAYLIGHT</small><strong
               >Lighting
-              <span id="lightCount" class="light-count" aria-live="polite">0 on</span></strong
-            >
+              <span id="lightCount" class="light-count" aria-live="polite">0 on</span></strong>
           </div>
           <button id="lightPanelClose" type="button" aria-label="Close lighting controls">×</button>
         </div>
         <div class="light-room-picker">
           <button type="button" data-open-quick aria-controls="quickControls" aria-expanded="false">
-            Area · <span id="quickLightingSpace">Common area</span> ↗</button
-          ><select id="lightRoomSelect" aria-label="Select lighting area"></select>
+            Area · <span id="quickLightingSpace">Common area</span> ↗</button><select id="lightRoomSelect" aria-label="Select lighting area"></select>
         </div>
         <div class="lighting-presets" role="group" aria-label="Lights in this area">
-          <button id="lightsMain" type="button">Main lights</button
-          ><button id="lightsAllOn" type="button">All on</button
-          ><button id="lightsAllOff" type="button">All off</button>
+          <button id="lightsMain" type="button">Main lights</button><button id="lightsAllOn" type="button">All on</button><button id="lightsAllOff" type="button">All off</button>
         </div>
         <div class="lighting-presets" id="eveningSceneRow" style="grid-template-columns: 1fr">
           <button id="lightsEvening" type="button" aria-pressed="false">Evening ambience</button>
@@ -235,10 +297,7 @@
           role="group"
           aria-label="Common-area colour temperature"
         >
-          <span>Light colour</span
-          ><button type="button" data-cct="3000" aria-pressed="false">3000K</button
-          ><button type="button" data-cct="3500" class="active" aria-pressed="true">3500K</button
-          ><button type="button" data-cct="4000" aria-pressed="false">4000K</button>
+          <span>Light colour</span><button type="button" data-cct="3000" aria-pressed="false">3000K</button><button type="button" data-cct="3500" class="active" aria-pressed="true">3500K</button><button type="button" data-cct="4000" aria-pressed="false">4000K</button>
         </div>
         <details class="option-disclosure individual-lights">
           <summary>Individual lights</summary>
@@ -249,27 +308,20 @@
           ></div>
         </details>
         <div class="lighting-footer">
-          <button id="undoLighting" type="button" disabled>↶ Undo</button
-          ><button id="restoreLighting" type="button">Reset lights</button
-          ><span>Saved on this device</span>
+          <button id="undoLighting" type="button" disabled>↶ Undo</button><button id="restoreLighting" type="button">Reset lights</button><span>Saved on this device</span>
         </div>
         <div
           class="paint-reference"
           title="Jotun official website screen swatch #E5E2D8; independent of scene lighting"
         >
-          <span class="paint-reference-swatch" aria-hidden="true"></span
-          ><span
-            >Jotun1928 Summer Snow<br /><small
-              >Official screen swatch · unaffected by scene lighting</small
-            ></span
-          >
+          <span class="paint-reference-swatch" aria-hidden="true"></span><span
+            >Jotun1928 Summer Snow<br /></span>
         </div>
         <details id="moreLights" class="more-lights">
           <summary>All-room controls &amp; notes</summary>
           <div id="lightSwitches"></div>
           <div class="light-actions">
-            <button id="houseLightsOn" type="button">All rooms on</button
-            ><button id="houseLightsOff" type="button">All rooms off</button>
+            <button id="houseLightsOn" type="button">All rooms on</button><button id="houseLightsOff" type="button">All rooms off</button>
           </div>
 
         </details>
@@ -308,8 +360,7 @@
                 <rect x="4" y="4" width="6" height="6" rx="1" />
                 <rect x="14" y="4" width="6" height="6" rx="1" />
                 <rect x="4" y="14" width="6" height="6" rx="1" />
-                <rect x="14" y="14" width="6" height="6" rx="1" /></svg
-              >Rooms
+                <rect x="14" y="14" width="6" height="6" rx="1" /></svg>Rooms
             </button>
             <button
               id="lightPanelToggle"
@@ -318,8 +369,7 @@
               aria-controls="lightPanel"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M8 15c-5-5-2-11 4-11s9 6 4 11l-1 3H9zM9 21h6M9 18h6" /></svg
-              >Lights<span id="dockLightCount" class="count-dot" hidden>0</span>
+                <path d="M8 15c-5-5-2-11 4-11s9 6 4 11l-1 3H9zM9 21h6M9 18h6" /></svg>Lights<span id="dockLightCount" class="count-dot" hidden>0</span>
             </button>
             <button
               id="optionsToggle"
@@ -330,14 +380,11 @@
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 7h16M4 17h16" />
                 <circle cx="9" cy="7" r="2" />
-                <circle cx="15" cy="17" r="2" /></svg
-              >Options
+                <circle cx="15" cy="17" r="2" /></svg>Options
             </button>
           </div>
           <div hidden>
-            <label class="room-label" for="roomSelect">Room</label
-            ><select id="roomSelect" aria-label="Select room"></select
-            ><label class="inside-room-picker"
+            <label class="room-label" for="roomSelect">Room</label><select id="roomSelect" aria-label="Select room"></select><label class="inside-room-picker"
               ><span id="cameraSpaceLabel">Space</span>
               <select id="insideRoom" aria-label="Choose standing space">
                 <option value="overview">Whole-home overview</option>
@@ -356,15 +403,11 @@
                 <option value="b3">Bedroom 3</option>
                 <option value="bath1">Bath 1</option>
                 <option value="bath2">Bath 2</option>
-              </select></label
-            ><button id="planView" type="button">Plan</button
-            ><button id="insideView" type="button">Inside</button>
+              </select></label><button id="planView" type="button">Plan</button><button id="insideView" type="button">Inside</button>
             <details id="viewerMore" class="tools-menu">
               <summary>More</summary>
               <div class="tools-popover">
-                <button id="measureQuick" type="button">Dimensions</button
-                ><button id="panelToggle" type="button">Electrical points</button
-                ><button id="schemeQuick" type="button">Design &amp; drawings</button>
+                <button id="measureQuick" type="button">Dimensions</button><button id="panelToggle" type="button">Electrical points</button><button id="schemeQuick" type="button">Design &amp; drawings</button>
               </div>
             </details>
           </div>
@@ -372,14 +415,10 @@
         <div id="walktools" class="walktools" hidden>
           <div id="movementPad" class="movement-pad" hidden>
             <div class="walk-arrows">
-              <button data-walk="left" aria-label="Move left">←</button
-              ><button data-walk="forward" aria-label="Move forward">↑</button
-              ><button data-walk="back" aria-label="Move back">↓</button
-              ><button data-walk="right" aria-label="Move right">→</button>
+              <button data-walk="left" aria-label="Move left">←</button><button data-walk="forward" aria-label="Move forward">↑</button><button data-walk="back" aria-label="Move back">↓</button><button data-walk="right" aria-label="Move right">→</button>
             </div>
             <div class="look-arrows">
-              <button data-look="left" aria-label="Turn left">⟲</button
-              ><button data-look="right" aria-label="Turn right">⟳</button>
+              <button data-look="left" aria-label="Turn left">⟲</button><button data-look="right" aria-label="Turn right">⟳</button>
             </div>
           </div>
           <div hidden>
@@ -389,8 +428,7 @@
               aria-expanded="false"
               aria-controls="movementPad"
             >
-              Move</button
-            ><button id="resetView" type="button">Reset view</button>
+              Move</button><button id="resetView" type="button">Reset view</button>
           </div>
           <span class="walk-hint">Drag to look · arrows or WASD to move</span>
         </div>
@@ -401,6 +439,6 @@
       </div>
       <div id="roomFilters" hidden></div>
     </main>
-    <script type="module" src="viewer.js?v=20261101-master-floor-spots-r1"></script>
+    <script type="module" src="viewer.js?v=20261101-master-floor-spots-r2"></script>
   </body>
 </html>
