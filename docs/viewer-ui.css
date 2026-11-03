@@ -121,3 +121,10 @@
 
 #app .object-hint:has(button:not([hidden])){display:flex;align-items:center;gap:8px;padding:3px 4px 3px 9px}
 #app .object-hint button{pointer-events:auto;min-width:44px;min-height:44px;padding:0 9px;border:1px solid var(--ui-line);border-radius:7px;background:#ffffff14;color:var(--ui-text);font-size:12px}
+
+/* Dining comparison stays compact and never moves the camera. */
+#app .dining-size-control{padding:4px 0 10px;border-bottom:1px solid var(--ui-line);margin-bottom:6px}
+#app .dining-size-heading{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ui-muted);margin:2px 0 6px}
+#app .dining-size-heading output{font-variant-numeric:tabular-nums;color:var(--ui-text)}
+#app .dining-size-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+#app .dining-size-buttons button{text-align:center}

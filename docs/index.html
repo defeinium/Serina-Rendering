@@ -7,7 +7,7 @@
     <title>Serina · Current renovation plan</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
-    <link rel="stylesheet" href="viewer-ui.css?v=20261031-toggle-cycle-r2" />
+    <link rel="stylesheet" href="viewer-ui.css?v=20261103-dining-sizes-r4" />
 
   <style>.panel,#measureOverlay,#viewerMore,#planView,[data-open-details]{display:none!important}.public-spaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}.public-spaces button{padding:12px;border:1px solid #888;border-radius:12px;background:#eef0e8;color:#25302c}.public-spaces button[aria-pressed=true]{background:#344b41;color:white}</style></head>
   <body>
@@ -72,6 +72,24 @@
           <button type="button" data-options-close aria-label="Close options">×</button>
         </div>
         <div class="options-scroll">
+          <section
+            class="dining-size-control"
+            data-room-capability="dining"
+            aria-label="Dining table size"
+          >
+            <div class="dining-size-heading">
+              <span>Table size</span><output id="diningSizeReadout" aria-live="polite">160 × 85 cm</output>
+            </div>
+            <div
+              class="dining-size-buttons"
+              role="group"
+              aria-label="Table length, fixed 85 cm width"
+            >
+              <button type="button" data-dining-size="140" aria-pressed="false">1.4 m</button>
+              <button type="button" data-dining-size="160" aria-pressed="true">1.6 m</button>
+              <button type="button" data-dining-size="180" aria-pressed="false">1.8 m</button>
+            </div>
+          </section>
           <details id="roomActionGroup" class="option-disclosure">
             <summary class="room-action-summary">Room controls</summary>
             <div class="room-actions">
@@ -145,9 +163,9 @@
               </select>
             </section>
             <section class="kitchen-palette-control" data-room-capability="dining">
-              <label for="diningPalette">Dining finishes</label><select id="diningPalette">
-                <option value="balanced">NORDICA · dark grey upholstery / light frames</option>
-                <option value="original">Original charcoal table · light chairs</option></select>
+              <label for="diningPalette">Bench finishes</label><select id="diningPalette">
+                <option value="balanced">Dark grey cushion · light frame</option>
+                <option value="original">Light cushion · dark frame</option></select>
             </section>
             <section class="kitchen-palette-control" data-room-capability="decor">
               <label for="decorStudy">Furnishings</label><select id="decorStudy">
@@ -439,6 +457,6 @@
       </div>
       <div id="roomFilters" hidden></div>
     </main>
-    <script type="module" src="viewer.js?v=20261101-master-floor-spots-r2"></script>
+    <script type="module" src="viewer.js?v=20261103-dining-sizes-r4"></script>
   </body>
 </html>
