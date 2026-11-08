@@ -998,3 +998,7 @@
   margin-top: 8px;
   text-underline-offset: 3px;
 }
+
+#app #diningShapeButtons {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}

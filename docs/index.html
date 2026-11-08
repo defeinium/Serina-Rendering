@@ -7,7 +7,7 @@
     <title>Serina · Current renovation plan</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
-    <link rel="stylesheet" href="viewer-ui.css?v=20261108-daylight-fridge-r2" />
+    <link rel="stylesheet" href="viewer-ui.css?v=20261108-almond-dining-r7" />
 
   <style>.panel,#measureOverlay,#viewerMore,#planView,[data-open-details]{display:none!important}.public-spaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}.public-spaces button{padding:12px;border:1px solid #888;border-radius:12px;background:#eef0e8;color:#25302c}.public-spaces button[aria-pressed=true]{background:#344b41;color:white}</style></head>
   <body>
@@ -92,10 +92,16 @@
             aria-label="Dining table size"
           >
             <div class="dining-size-heading">
-              <span>Table size</span><output id="diningSizeReadout" aria-live="polite">160 × 85 cm</output>
+              <span id="diningModelName">Almond + Belino</span><output id="diningSizeReadout" aria-live="polite">180 × 90 × 77 cm</output>
             </div>
-            <div class="dining-shape-buttons" role="group" aria-label="Table shape">
-              <button type="button" data-dining-shape="rectangle" aria-pressed="true">
+            <div
+              id="diningShapeButtons"
+              class="dining-shape-buttons"
+              role="group"
+              aria-label="Table model"
+            >
+              <button type="button" data-dining-shape="almond" aria-pressed="true">Almond</button>
+              <button type="button" data-dining-shape="rectangle" aria-pressed="false">
                 Rectangle
               </button>
               <button type="button" data-dining-shape="round" aria-pressed="false">Round</button>
@@ -129,7 +135,9 @@
             >
               Pull out to stand
             </button>
-            <p id="diningSeatingNote" class="dining-seating-note">2 chairs + bench</p>
+            <p id="diningSeatingNote" class="dining-seating-note">
+              Bench + 2 Belino chairs · tucked in
+            </p>
           </section>
           <section
             class="dining-size-control"
@@ -572,6 +580,6 @@
       </div>
       <div id="roomFilters" hidden></div>
     </main>
-    <script type="module" src="viewer.js?v=20261108-daylight-fridge-r2"></script>
+    <script type="module" src="viewer.js?v=20261108-almond-dining-r7"></script>
   </body>
 </html>
