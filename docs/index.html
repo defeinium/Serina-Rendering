@@ -7,7 +7,7 @@
     <title>Serina · Current renovation plan</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="styles.css?v=20261017-side-controls-r2" />
-    <link rel="stylesheet" href="viewer-ui.css?v=20261103-dining-sizes-r4" />
+    <link rel="stylesheet" href="viewer-ui.css?v=20261108-daylight-fridge-r2" />
 
   <style>.panel,#measureOverlay,#viewerMore,#planView,[data-open-details]{display:none!important}.public-spaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}.public-spaces button{padding:12px;border:1px solid #888;border-radius:12px;background:#eef0e8;color:#25302c}.public-spaces button[aria-pressed=true]{background:#344b41;color:white}</style></head>
   <body>
@@ -73,6 +73,20 @@
         </div>
         <div class="options-scroll">
           <section
+            class="fan-size-control"
+            data-room-capability="livingFan"
+            aria-label="Living fan size"
+          >
+            <div class="dining-size-heading">
+              <span>Living fan</span><output id="livingFanSizeReadout" aria-live="polite">52″ · Ø 132.1 cm</output>
+            </div>
+            <div class="dining-shape-buttons" role="group" aria-label="Living fan diameter">
+              <button type="button" data-living-fan-size="48" aria-pressed="false">48″</button>
+              <button type="button" data-living-fan-size="52" aria-pressed="true">52″</button>
+            </div>
+
+          </section>
+          <section
             class="dining-size-control"
             data-room-capability="dining"
             aria-label="Dining table size"
@@ -80,7 +94,14 @@
             <div class="dining-size-heading">
               <span>Table size</span><output id="diningSizeReadout" aria-live="polite">160 × 85 cm</output>
             </div>
+            <div class="dining-shape-buttons" role="group" aria-label="Table shape">
+              <button type="button" data-dining-shape="rectangle" aria-pressed="true">
+                Rectangle
+              </button>
+              <button type="button" data-dining-shape="round" aria-pressed="false">Round</button>
+            </div>
             <div
+              id="diningRectangleSizes"
               class="dining-size-buttons"
               role="group"
               aria-label="Table length, fixed 85 cm width"
@@ -89,6 +110,57 @@
               <button type="button" data-dining-size="160" aria-pressed="true">1.6 m</button>
               <button type="button" data-dining-size="180" aria-pressed="false">1.8 m</button>
             </div>
+            <div
+              id="diningRoundSizes"
+              class="dining-size-buttons"
+              role="group"
+              aria-label="Round table diameter"
+              hidden
+            >
+              <button type="button" data-dining-diameter="100" aria-pressed="false">Ø100</button>
+              <button type="button" data-dining-diameter="110" aria-pressed="true">Ø110</button>
+              <button type="button" data-dining-diameter="120" aria-pressed="false">Ø120</button>
+            </div>
+            <button
+              type="button"
+              id="diningChairsOut"
+              class="dining-chairs-out"
+              aria-pressed="false"
+            >
+              Pull out to stand
+            </button>
+            <p id="diningSeatingNote" class="dining-seating-note">2 chairs + bench</p>
+          </section>
+          <section
+            class="dining-size-control"
+            data-room-capability="fridge"
+            aria-label="Fridge door comparison"
+          >
+            <div class="dining-size-heading">
+              <span>Fridge · ETM4302C-B</span><output id="fridgeSizeReadout"></output>
+            </div>
+            <div class="dining-shape-buttons" role="group" aria-label="Fridge hinge side">
+              <button type="button" data-fridge-hinge="left" aria-pressed="false">
+                Hinge left
+              </button>
+              <button type="button" data-fridge-hinge="right" aria-pressed="true">
+                Hinge right
+              </button>
+            </div>
+            <div class="dining-size-buttons" role="group" aria-label="Fridge door angle">
+              <button type="button" data-fridge-angle="0" aria-pressed="true">Closed</button>
+              <button type="button" data-fridge-angle="90" aria-pressed="false">90°</button>
+              <button type="button" data-fridge-angle="120" aria-pressed="false">120°</button>
+            </div>
+            <p id="fridgeSwingNote" class="dining-seating-note" aria-live="polite"></p>
+            <details class="option-disclosure">
+              <summary>Fit &amp; limitations</summary>
+              <p id="fridgeFitNote" class="dining-seating-note"></p>
+              <p id="fridgeReversalNote" class="dining-seating-note"></p>
+
+            </details>
+            <a id="fridgeInspectLink">Inspect fridge corner ↗</a>
+            <script id="fridgeSwingReview" type="application/json"></script>
           </section>
           <details id="roomActionGroup" class="option-disclosure">
             <summary class="room-action-summary">Room controls</summary>
@@ -114,14 +186,34 @@
               </section>
               <section data-room-capability="shades">
                 <h3>Shades</h3>
-                <div class="viewtools">
-                  <button type="button" data-living-roller="all">Raise shades</button><button type="button" data-shade-fold>Close fabric folds</button>
+                <div class="viewtools shade-states" role="group" aria-label="Living shade state">
+                  <button
+                    type="button"
+                    data-shade-room="living"
+                    data-shade-state="open"
+                    aria-pressed="true"
+                  >
+                    View through
+                  </button>
+                  <button
+                    type="button"
+                    data-shade-room="living"
+                    data-shade-state="closed"
+                    aria-pressed="false"
+                  >
+                    Closed
+                  </button>
+                  <button
+                    type="button"
+                    data-shade-room="living"
+                    data-shade-state="raised"
+                    aria-pressed="false"
+                  >
+                    Raised
+                  </button>
                 </div>
                 <details class="option-disclosure">
-                  <summary>Individual shades &amp; spotlight</summary>
-                  <div class="viewtools">
-                    <button type="button" data-living-roller="wide">Raise wide shade</button><button type="button" data-living-roller="narrow">Raise narrow shade</button>
-                  </div>
+                  <summary>Window spotlight</summary>
                   <label for="livingSpotAim">Spotlight direction</label><select id="livingSpotAim">
                     <option value="console">Window end of TV console · about 30°</option>
                     <option value="window">Aim at shades</option></select><button id="livingSpotStudy" type="button">Test this spotlight at night</button>
@@ -136,8 +228,31 @@
               </section>
               <section data-room-capability="bedroomShades">
                 <h3>Butterfly shade</h3>
-                <div class="viewtools">
-                  <button type="button" data-bedroom-shade>Raise shade</button><button type="button" data-bedroom-shade-fold>Close fabric folds</button>
+                <div class="viewtools shade-states" role="group" aria-label="Bedroom shade state">
+                  <button
+                    type="button"
+                    data-shade-room="bedroom"
+                    data-shade-state="open"
+                    aria-pressed="true"
+                  >
+                    View through
+                  </button>
+                  <button
+                    type="button"
+                    data-shade-room="bedroom"
+                    data-shade-state="closed"
+                    aria-pressed="false"
+                  >
+                    Closed
+                  </button>
+                  <button
+                    type="button"
+                    data-shade-room="bedroom"
+                    data-shade-state="raised"
+                    aria-pressed="false"
+                  >
+                    Raised
+                  </button>
                 </div>
               </section>
               <section class="kitchen-palette-control" data-room-capability="laundry">
@@ -457,6 +572,6 @@
       </div>
       <div id="roomFilters" hidden></div>
     </main>
-    <script type="module" src="viewer.js?v=20261103-dining-sizes-r4"></script>
+    <script type="module" src="viewer.js?v=20261108-daylight-fridge-r2"></script>
   </body>
 </html>
