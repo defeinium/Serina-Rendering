@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#f4f1e9" />
     <title>Serina · Current renovation plan</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="stylesheet" href="styles.css?v=20261108-fridge-soft-light-r2" />
-    <link rel="stylesheet" href="viewer-ui.css?v=20261108-fridge-soft-light-r2" />
+    <link rel="stylesheet" href="styles.css?v=20261109-panasonic48-r2" />
+    <link rel="stylesheet" href="viewer-ui.css?v=20261109-panasonic48-r2" />
 
   <style>.panel,#measureOverlay,#viewerMore,#planView,[data-open-details]{display:none!important}.public-spaces{display:grid;grid-template-columns:1fr 1fr;gap:8px}.public-spaces button{padding:12px;border:1px solid #888;border-radius:12px;background:#eef0e8;color:#25302c}.public-spaces button[aria-pressed=true]{background:#344b41;color:white}</style></head>
   <body>
@@ -78,13 +78,11 @@
             aria-label="Living fan size"
           >
             <div class="dining-size-heading">
-              <span>Living fan</span><output id="livingFanSizeReadout" aria-live="polite">52″ · Ø 132.1 cm</output>
+              <span>Living fan</span><output id="livingFanSizeReadout" aria-live="polite">48″ · Ø 120 cm</output>
             </div>
-            <div class="dining-shape-buttons" role="group" aria-label="Living fan diameter">
-              <button type="button" data-living-fan-size="48" aria-pressed="false">48″</button>
-              <button type="button" data-living-fan-size="52" aria-pressed="true">52″</button>
-            </div>
-
+            <p id="livingFanModelNote" class="dining-seating-note">
+              Panasonic F-M12ECVBKH · Black · 3 blades · No light
+            </p>
           </section>
           <section
             class="dining-size-control"
@@ -265,8 +263,8 @@
               </section>
               <section class="kitchen-palette-control" data-room-capability="laundry">
                 <label for="laundryFacing">Laundry orientation</label><select id="laundryFacing">
-                  <option value="long">Along yard · compare</option>
-                  <option value="ledge">Face ledge door · side access</option></select>
+                  <option value="long">Along yard · operating aisle</option>
+                  <option value="ledge">Face ledge door · compare</option></select>
               </section>
             </div>
           </details>
@@ -580,6 +578,6 @@
       </div>
       <div id="roomFilters" hidden></div>
     </main>
-    <script type="module" src="viewer.js?v=20261108-fridge-soft-light-r2"></script>
+    <script type="module" src="viewer.js?v=20261109-panasonic48-r2"></script>
   </body>
 </html>
