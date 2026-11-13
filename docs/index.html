@@ -90,7 +90,7 @@
             aria-label="Dining table size"
           >
             <div class="dining-size-heading">
-              <span id="diningModelName">Almond + Belino</span><output id="diningSizeReadout" aria-live="polite">180 × 90 × 77 cm</output>
+              <span id="diningModelName">Ivory + smoked oak 180</span><output id="diningSizeReadout" aria-live="polite">180 × 90 × 77 cm</output>
             </div>
             <div
               id="diningShapeButtons"
@@ -98,32 +98,12 @@
               role="group"
               aria-label="Table model"
             >
-              <button type="button" data-dining-shape="almond" aria-pressed="true">Almond</button>
-              <button type="button" data-dining-shape="rectangle" aria-pressed="false">
-                Rectangle
+              <button type="button" data-dining-shape="oval180" aria-pressed="true">
+                Ivory + smoked oak 180
               </button>
-              <button type="button" data-dining-shape="round" aria-pressed="false">Round</button>
-            </div>
-            <div
-              id="diningRectangleSizes"
-              class="dining-size-buttons"
-              role="group"
-              aria-label="Table length, fixed 85 cm width"
-            >
-              <button type="button" data-dining-size="140" aria-pressed="false">1.4 m</button>
-              <button type="button" data-dining-size="160" aria-pressed="true">1.6 m</button>
-              <button type="button" data-dining-size="180" aria-pressed="false">1.8 m</button>
-            </div>
-            <div
-              id="diningRoundSizes"
-              class="dining-size-buttons"
-              role="group"
-              aria-label="Round table diameter"
-              hidden
-            >
-              <button type="button" data-dining-diameter="100" aria-pressed="false">Ø100</button>
-              <button type="button" data-dining-diameter="110" aria-pressed="true">Ø110</button>
-              <button type="button" data-dining-diameter="120" aria-pressed="false">Ø120</button>
+              <button type="button" data-dining-shape="almond" aria-pressed="false">
+                Almond 180
+              </button>
             </div>
             <button
               type="button"
@@ -283,7 +263,7 @@
                 <option value="dune-study">Dune Grey lowers · previous scheme</option>
               </select>
             </section>
-            <section class="kitchen-palette-control" data-room-capability="dining">
+            <section class="kitchen-palette-control" hidden>
               <label for="diningPalette">Bench finishes</label><select id="diningPalette">
                 <option value="balanced">Dark grey cushion · light frame</option>
                 <option value="original">Light cushion · dark frame</option></select>
@@ -578,6 +558,6 @@
       </div>
       <div id="roomFilters" hidden></div>
     </main>
-    <script type="module" src="viewer.js?v=20261110-night-two-cct-r1"></script>
+    <script type="module" src="viewer.js?v=20261113-night-neutral-r7"></script>
   </body>
 </html>
