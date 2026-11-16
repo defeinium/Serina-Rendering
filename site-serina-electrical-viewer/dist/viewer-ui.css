@@ -1002,3 +1002,5 @@
 #app #diningShapeButtons {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+
+#app #diningProductSource { color: inherit; opacity: .8; font-size: 12px; text-underline-offset: 3px; }
