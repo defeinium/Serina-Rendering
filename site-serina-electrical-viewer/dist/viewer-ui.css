@@ -1,169 +1,134 @@
-/* Task-first viewer shell. Geometry, material colours and renderer settings are separate. */
+/* A single navigation system: persistent scene actions, four direct inspectors. */
 :root {
-  --ui-bg: rgba(29, 34, 31, 0.94);
-  --ui-text: #f3f3ed;
-  --ui-muted: #bdc5bd;
-  --ui-line: #ffffff19;
-  --ui-selected: #eeeae0;
-  --viewer-edge: 12px;
-  --viewer-panel-width: 292px;
-  --viewer-panel-bottom: calc(var(--controls-height, 54px) + 18px + env(safe-area-inset-bottom));
+  --ui-bg: rgba(215, 211, 203, 0.97);
+  --ui-text: #242b29;
+  --ui-muted: #68716c;
+  --ui-line: #243b2b18;
+  --ui-selected: #343b36;
+  --viewer-edge: 16px;
+  --viewer-footer-height: 72px;
+  --viewer-panel-width: 440px;
+  --viewer-panel-bottom: calc(88px + env(safe-area-inset-bottom));
 }
 #app {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-optical-sizing: auto;
 }
-#app [hidden] {
+#app [hidden],
+#app [data-retired],
+#app #temperatureCompare {
   display: none !important;
 }
 #app button,
 #app summary {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  -webkit-user-select: none;
   user-select: none;
-  -webkit-touch-callout: none;
 }
 #app button:focus-visible,
 #app summary:focus-visible,
 #app select:focus-visible {
-  outline: 2px solid #dfc78e;
-  outline-offset: 2px;
+  outline: 2px solid #57806b;
+  outline-offset: 3px;
 }
-#app button:active,
-#app summary:active {
-  filter: brightness(1.16);
+#app button:active {
+  transform: scale(0.97);
 }
 #app .topbar {
-  top: max(12px, env(safe-area-inset-top));
-  left: 16px;
-  right: 16px;
-  align-items: flex-start;
-  pointer-events: none;
+  top: max(16px, env(safe-area-inset-top));
+  left: var(--viewer-edge);
+  right: var(--viewer-edge);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: start;
+  text-shadow: none;
 }
 #app .brand {
-  padding: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 9px;
-  pointer-events: auto;
+  gap: 10px;
+  pointer-events: none;
+  background: var(--ui-bg);
+  padding: 8px 12px;
+  border-radius: 10px;
+  justify-self: start;
 }
 #app .brand strong {
   font-size: 9px;
-  letter-spacing: 0.15em;
-  color: #36423a;
-}
-#app.night-mode .brand strong {
-  color: #eef0e7;
-}
-#app .brand > button {
-  min-height: 44px;
-  padding: 0 6px 0 0;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  background: none;
-  border: 0;
-  border-radius: 7px;
-  color: #36423a;
-  font-size: 13px;
-  font-weight: 600;
-}
-#app .brand > button span {
-  font: inherit;
-  color: inherit;
-  max-width: 170px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#app.night-mode .brand > button {
-  color: #eef0e7;
-  text-shadow: 0 1px 6px #0005;
-}
-.environment-bar {
-  pointer-events: auto;
-  display: flex;
-  padding: 3px;
-  border: 1px solid var(--ui-line);
-  background: var(--ui-bg);
-  border-radius: 13px;
-  backdrop-filter: blur(18px);
-}
-.environment-bar button {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  justify-content: center;
-  min-width: 61px;
-  min-height: 44px;
-  padding: 0 9px;
-  border: 0;
-  border-radius: 10px;
-  background: none;
+  letter-spacing: 0.18em;
   color: var(--ui-muted);
-  font-size: 11px;
+  padding: 0;
+}
+#app .brand > span {
+  font-size: 12px;
   font-weight: 600;
+  color: var(--ui-text);
 }
-.environment-bar button span {
-  font-size: 17px;
-  line-height: 1;
-}
-.environment-bar button[aria-pressed='true'] {
-  background: var(--ui-selected);
-  color: #26372b;
+#app #scene,
+#app #measureOverlay {
+  height: calc(100dvh - var(--viewer-footer-height) - env(safe-area-inset-bottom));
+  bottom: auto;
 }
 #app .controlbar {
   position: absolute;
   z-index: 20;
-  left: var(--viewer-edge);
-  right: auto;
-  bottom: max(12px, env(safe-area-inset-bottom));
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: none;
+  height: calc(72px + env(safe-area-inset-bottom));
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  border: 0;
+  border-top: 1px solid var(--ui-line);
+  border-radius: 0;
+  background: #d7d3cb;
+  box-shadow: none;
   transform: none;
-  width: max-content;
-  max-width: calc(100vw - 24px);
-  padding: 4px;
-  border-radius: 16px;
-  border: 1px solid var(--ui-line);
-  background: var(--ui-bg);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 3px 18px #0002;
 }
 #app .controlbar .dock {
+  position: static;
   display: block;
+  width: min(340px, 100%);
+  margin: 0 auto;
   padding: 0;
-  border: 0;
   background: none;
+  border: 0;
+  box-shadow: none;
+  transform: none;
 }
 #app .viewer-launchers {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 3px;
 }
 #app .viewer-launchers > button {
   position: relative;
   display: flex;
+  flex-direction: column;
+  gap: 5px;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  min-width: 72px;
-  min-height: 44px;
-  height: 44px;
-  padding: 0 9px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ui-text);
+  min-width: 0;
+  min-height: 54px;
+  padding: 5px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 13px;
   background: none;
+  color: var(--ui-muted);
+  font-size: 11px;
+  font-weight: 550;
 }
-#app .viewer-launchers > button[aria-expanded='true'] {
+#app .viewer-launchers > button[aria-expanded='true'],
+#app .viewer-launchers > button[aria-pressed='true'] {
   background: var(--ui-selected);
-  color: #26372b;
+  color: white;
 }
 #app .viewer-launchers svg {
-  width: 17px;
-  height: 17px;
+  width: 19px;
+  height: 19px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -172,29 +137,23 @@
 }
 #app .count-dot {
   position: absolute;
-  top: 3px;
-  right: 2px;
-  min-width: 12px;
-  height: 12px;
-  padding: 0 3px;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
-  background: #6d7b66;
-  color: #fff;
-  font-size: 8px;
+  right: 18px;
+  top: 1px;
+  min-width: 15px;
+  height: 15px;
+  background: #527460;
+  color: white;
+  padding: 1px 3px;
+  border-radius: 6px;
+  font-size: 9px;
 }
 #app .controlbar .walktools,
 #app .controlbar .dock > div[hidden],
 #app .fps-badge,
 #app .hint,
-#app .quick-grip,
 #app .touch-overview-hint {
   display: none !important;
 }
-/* One inspector at a time, anchored to the toolbar. No full-screen scrim. */
 #app .quick-drawer,
 #app .viewer-options,
 #app .light-panel,
@@ -205,24 +164,25 @@
   right: auto;
   top: auto;
   bottom: var(--viewer-panel-bottom);
-  width: min(var(--viewer-panel-width), calc(100vw - 24px));
+  width: min(var(--viewer-panel-width), calc(100vw - 32px));
   height: auto;
-  max-height: min(46dvh, calc(100dvh - var(--viewer-panel-bottom) - 80px));
+  max-height: min(62dvh, calc(100dvh - 210px));
   margin: 0;
   padding: 0;
-  border-radius: 14px;
   border: 1px solid var(--ui-line);
+  border-radius: 18px;
   background: var(--ui-bg);
   color: var(--ui-text);
-  box-shadow: 0 10px 32px #0002;
-  backdrop-filter: blur(20px);
+  box-shadow: 0 14px 40px #0002;
+  backdrop-filter: blur(22px);
   transform: none;
-  pointer-events: auto;
   overflow: hidden;
-  box-sizing: border-box;
+  pointer-events: auto;
 }
-#app .quick-drawer {
+#app .quick-drawer,
+#app .viewer-options {
   display: flex;
+  flex-direction: column;
 }
 #app .quick-surface {
   position: static;
@@ -238,54 +198,51 @@
   box-shadow: none;
   overflow: hidden;
   transform: none;
-  pointer-events: auto;
 }
 #app .quick-heading,
 #app .light-panel-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  padding: 0 6px 0 12px;
+  gap: 8px;
+  padding: 16px 12px 12px 20px;
   margin: 0;
-  flex: none;
-  background: transparent;
+  background: var(--ui-bg);
   border: 0;
+  flex: none;
 }
 #app .quick-heading h2,
 #app .light-panel-head strong {
   display: block;
   margin: 0;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 650;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   color: var(--ui-text);
 }
 #app .quick-heading small,
 #app .light-panel-head small {
   display: block;
-  margin: 0 0 3px;
-  color: var(--ui-muted);
   font-size: 11px;
+  color: var(--ui-muted);
+  margin: 3px 0;
   letter-spacing: 0;
-  font-weight: 400;
+}
+#app .inspector-title {
+  display: flex;
+  flex-direction: column;
 }
 #app .quick-heading button,
 #app .light-panel-head > button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  min-width: 44px;
   width: 44px;
-  min-height: 44px;
   height: 44px;
-  padding: 0;
-  background: #ffffff08;
-  color: var(--ui-muted);
+  min-width: 44px;
+  min-height: 44px;
   border: 0;
   border-radius: 50%;
-  font-size: 22px;
+  background: #243b2b08;
+  color: var(--ui-muted);
+  font-size: 24px;
 }
 #app .quick-scroll,
 #app .options-scroll {
@@ -293,379 +250,329 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  padding: 0 10px 8px;
+  padding: 0 20px 20px;
   flex: 1;
 }
-#app .viewer-options {
-  display: flex;
-  flex-direction: column;
-}
 #app .quick-scroll h3,
-#app .options-scroll h3 {
-  display: block;
-  margin: 8px 0 4px;
+#app .options-scroll h3,
+#app .individual-lights h3 {
   font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   font-weight: 600;
-  letter-spacing: 0.015em;
   color: var(--ui-muted);
+  margin: 18px 0 8px;
 }
-#app .quick-scroll section + section {
-  margin-top: 0;
-}
-#app .room-grid,
-#app .option-grid {
+#app .room-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 5px;
+  gap: 0 15px;
 }
 #app .room-grid button,
-#app .room-overview,
-#app .options-scroll button,
-#app .options-scroll select {
+#app .room-overview {
   min-height: 44px;
-  padding: 6px 8px;
-  font-size: 12px;
-  line-height: 1.3;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--ui-line);
+  border-radius: 0;
   text-align: left;
-  font-weight: 500;
-  border: 1px solid var(--ui-line);
-  border-radius: 9px;
-  background: #ffffff06;
+  font-size: 13px;
+  font-weight: 450;
   color: var(--ui-text);
-  box-sizing: border-box;
+  background: none;
 }
-#app .room-grid button[aria-pressed='true'],
-#app .room-overview[aria-pressed='true'],
-#app .options-scroll button[aria-pressed='true'] {
-  background: var(--ui-selected);
-  color: #26372b;
-  border-color: var(--ui-selected);
+#app .room-grid button[aria-current='location'] {
+  font-weight: 650;
+  color: #315f46;
+}
+#app .room-grid button[aria-current='location']::after {
+  content: ' •';
+  float: right;
 }
 #app .room-overview {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   width: 100%;
-  margin-bottom: 4px;
+  font-weight: 600;
 }
 #app .options-scroll section {
-  margin: 0;
   padding: 0;
+  margin: 0;
   border: 0;
 }
-#app #roomActionGroup > .room-actions > section {
-  margin-bottom: 6px;
+#app .options-scroll [data-room-capability]:not([hidden]) {
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--ui-line);
+}
+#app .options-scroll button,
+#app .options-scroll select {
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid var(--ui-line);
+  border-radius: 10px;
+  background: #fff9;
+  color: var(--ui-text);
+  font-size: 12px;
+  line-height: 1.4;
+}
+#app .options-scroll button[aria-pressed='true'] {
+  background: var(--ui-selected);
+  color: white;
+}
+#app .options-scroll select {
+  width: 100%;
+}
+#app .options-scroll label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 12px 0 8px;
+  color: var(--ui-text);
+}
+#app .options-scroll small,
+#app .options-scroll .note {
+  font-size: 11px;
+  color: var(--ui-muted);
+  line-height: 1.5;
+  display: block;
+  margin-top: 8px;
+}
+#app .options-scroll .viewtools,
+#app .kitchen-palette-control > div {
+  display: flex;
+  gap: 5px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+#app .options-scroll .viewtools button,
+#app .kitchen-palette-control > div > button {
+  flex: 1;
 }
 #app #roomActionGroup > .room-actions > section > button {
   width: 100%;
 }
-#app #roomActionGroup h3 {
-  margin-top: 6px;
-}
-#app .options-scroll .viewtools {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin: 5px 0;
-}
-#app .options-scroll .viewtools button {
-  flex: 1;
-}
-#app .options-scroll label {
-  display: block;
-  margin: 10px 0 6px;
-  font-size: 11px;
-  color: var(--ui-muted);
-}
-#app .options-scroll select {
-  width: 100%;
-  background: #e9e9df;
-  color: #25342a;
-  font-size: 11px;
-}
-#app .options-scroll small,
-#app .options-scroll .note {
-  display: none;
-}
-#app .camera-options {
-  margin-top: 4px !important;
-  padding: 0 !important;
-  border: 0 !important;
-}
-#app .camera-quick-actions {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
-  gap: 4px;
-}
-#app #captureSlot {
-  display: contents;
-}
-#app .camera-quick-actions > button,
-#app #captureSlot > button {
-  text-align: center;
-  min-width: 0;
-  padding: 6px 4px;
-}
-#app .inspector-title {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  min-width: 0;
-}
-#app .inspector-title small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin: 0;
-}
-#app .quick-heading:not(:has(.inspector-title)) small,
-#app .light-panel-head small {
-  display: none;
-}
-#app #captureSlot > button {
-  width: 100%;
-  margin: 0;
-}
 #app .option-disclosure {
-  margin-top: 3px;
+  margin-top: 10px;
   border-top: 1px solid var(--ui-line);
-  padding-top: 2px;
 }
-#app .option-disclosure > summary {
+#app summary {
+  cursor: pointer;
   min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 12px;
-  cursor: pointer;
   list-style: none;
-  color: var(--ui-text);
 }
-#app .option-disclosure > summary::-webkit-details-marker {
+#app summary::-webkit-details-marker {
   display: none;
 }
 #app .option-disclosure > summary::after {
   content: '+';
-  font-size: 17px;
   color: var(--ui-muted);
 }
 #app .option-disclosure[open] > summary::after {
   content: '−';
 }
-#app #livingSpotStudy {
+#app .camera-quick-actions,
+#app .option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+#app #captureSlot {
+  display: contents;
+}
+#app #captureSlot > button {
+  margin: 0;
+  min-width: 0;
   width: 100%;
-  margin-top: 6px;
 }
-#app .kitchen-palette-control > div {
+#app .dining-size-heading {
   display: flex;
+  flex-direction: column;
   gap: 5px;
-  margin-top: 5px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
 }
-#app .kitchen-palette-control > div > button {
-  flex: 1;
+#app .dining-size-heading output {
+  font-size: 11px;
+  font-weight: 450;
+  color: var(--ui-muted);
 }
-/* Lighting starts with scene and colour. Individual fittings are optional detail. */
+#app .dining-shape-buttons,
+#app .dining-size-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  margin: 8px 0;
+}
+#app .dining-chairs-out {
+  width: 100%;
+  margin: 6px 0;
+}
+#app .dining-seating-note {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ui-muted);
+  margin: 8px 0;
+}
+#app .options-scroll a {
+  display: inline-block;
+  color: #315f46;
+  font-size: 12px;
+  text-underline-offset: 3px;
+  margin: 8px 0;
+}
+#app .shade-states {
+  display: grid !important;
+  grid-template-columns: 1.3fr 1fr 1fr;
+}
+#app .shade-states button {
+  min-width: 0;
+  padding: 8px 4px;
+  font-size: 12px;
+}
 #app .light-panel,
 #app.inside-mode .light-panel {
-  display: block;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  padding-bottom: 8px;
+  padding-bottom: 12px;
+  display: block;
 }
 #app .light-panel-head {
   position: sticky;
   top: 0;
-  background: #222a25;
   z-index: 1;
-  border-radius: 17px 17px 0 0;
 }
 #app .light-count {
-  display: inline-block;
-  color: var(--ui-muted);
   font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0;
-  margin-left: 7px;
-}
-#app .light-room-picker {
-  display: block;
-  margin: 0 10px 3px;
-}
-#app .light-room-picker > button {
-  display: block;
-  min-height: 44px;
-  padding: 0;
-  background: none;
-  border: 0;
-  border-radius: 7px;
+  font-weight: 450;
+  margin-left: 8px;
   color: var(--ui-muted);
-  font-size: 11px;
-  text-align: left;
 }
-#app .light-room-picker > select {
+#app .light-room-picker,
+#app .paint-reference,
+#app .more-lights,
+#app .scene-memory-hint,
+#app .lighting-footer > span {
   display: none;
 }
 #app .lighting-presets {
   display: flex;
   gap: 5px;
-  margin: 0 10px 3px;
+  margin: 0 20px 8px;
   padding: 0;
 }
-#app .lighting-presets > button {
+#app .lighting-presets button {
   flex: 1;
   min-height: 44px;
-  padding: 6px 4px;
-  font-size: 11px;
-  color: var(--ui-text);
-  background: #ffffff06;
   border: 1px solid var(--ui-line);
-  border-radius: 9px;
-}
-#app .lighting-presets > button[aria-pressed='true'] {
-  background: var(--ui-selected);
-  color: #26372b;
-  border-color: var(--ui-selected);
-}
-#app .temperature-compare {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  margin: 4px 10px;
-  padding: 0;
-  background: none;
-  border: 0;
-}
-#app .temperature-compare > span {
-  display: none;
-  grid-column: 1/-1;
-  font-size: 11px;
-  margin: 0 0 2px;
-  color: var(--ui-muted);
-}
-#app .temperature-compare button {
-  min-height: 44px;
-  padding: 6px;
-  font-size: 11px;
-  border: 1px solid var(--ui-line);
-  border-radius: 9px;
-  background: none;
+  border-radius: 10px;
+  background: #e6e2da;
   color: var(--ui-text);
+  font-size: 12px;
 }
-#app .temperature-compare button[aria-pressed='true'] {
+#app .lighting-presets button.active {
   background: var(--ui-selected);
-  color: #26372b;
-  border-color: var(--ui-selected);
+  color: white;
 }
 #app .individual-lights {
-  margin: 4px 10px 0;
+  margin: 0 20px;
 }
 #app .quick-light-switches {
-  overflow: visible;
   max-height: none;
+  overflow: visible;
   padding: 0;
-  flex: none;
 }
 #app .light-row {
-  margin: 0;
   border: 0;
   border-bottom: 1px solid var(--ui-line);
+  margin: 0;
   padding: 0;
 }
 #app .light-row .light-switch {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
-  min-height: 44px;
-  margin: 0;
-  padding: 9px 4px;
+  min-height: 52px;
+  padding: 10px 0;
   border: 0;
-  border-radius: 6px;
   background: none;
+  border-radius: 0;
   color: var(--ui-text);
 }
-#app .light-row .fixture-name {
+#app .fixture-name {
   font-size: 12px;
-  font-weight: 400;
-  line-height: 1.35;
   text-align: left;
+  line-height: 1.5;
+  font-weight: 450;
 }
-#app .light-row .light-switch.on {
-  background: #e4dfc409;
-}
-#app .light-state,
-#app .on .light-state {
+#app .light-state {
+  position: relative;
   display: block;
   flex: none;
-  width: auto;
-  min-width: 28px;
-  height: auto;
-  background: none;
-  padding: 0;
-  border-radius: 0;
-  font-size: 10px;
-  color: #a6b2a7;
-  font-weight: 600;
-  text-align: right;
+  min-width: 35px;
+  width: 35px;
+  height: 22px;
+  border-radius: 20px;
+  background: #d4d8d3;
+  color: transparent;
+  font-size: 0;
 }
 #app .on .light-state {
-  color: #e3d6ab;
+  background: #395f4d;
+  color: transparent;
 }
 #app .light-state::before {
-  display: none;
+  content: '';
+  display: block;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px #0002;
+}
+#app .on .light-state::before {
+  left: 16px;
 }
 #app .lighting-footer {
   display: flex;
   gap: 8px;
-  justify-content: space-between;
-  margin: 0 10px;
+  margin: 12px 20px 0;
   padding: 0;
   border: 0;
 }
 #app .lighting-footer button {
   min-height: 44px;
-  padding: 0 7px;
+  padding: 0 10px;
   border: 0;
-  border-radius: 8px;
-  font-size: 11px;
   background: none;
   color: var(--ui-muted);
+  font-size: 12px;
 }
-#app .scene-memory-hint,
-#app .lighting-footer > span,
-#app .paint-reference,
-#app .more-lights {
-  display: none;
-}
-/* Save / release history are part of Options, never floating over the home. */
 #app #versionInfo {
   position: static;
-  margin-top: 9px;
-  padding-top: 3px;
+  margin-top: 14px;
   border-top: 1px solid var(--ui-line);
-  font-size: 11px;
   color: var(--ui-muted);
+  font-size: 11px;
   visibility: visible;
   pointer-events: auto;
-}
-#app #versionInfo > summary {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  background: none;
-  border: 0;
-  list-style: none;
-  cursor: pointer;
 }
 #app .version-card {
   position: static;
   width: auto;
   max-height: none;
-  padding: 4px 0;
-  margin: 0;
+  padding: 0;
   background: none;
   border: 0;
   box-shadow: none;
@@ -673,56 +580,45 @@
 #app .version-heading {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-#app .version-heading strong {
-  font-size: 12px;
-}
-#app .version-heading button {
-  min-width: 44px;
-  text-align: center;
 }
 #app .release-list article {
-  padding: 8px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--ui-line);
-}
-#app .release-list strong {
-  font-size: 11px;
-}
-#app .release-list small {
-  display: block;
-  margin-top: 3px;
 }
 #app .release-list p,
 #app .version-actions p {
   font-size: 11px;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--ui-muted);
 }
-#app .version-actions {
-  padding-top: 8px;
+#app .release-list small {
+  display: block;
 }
-#app .version-actions button {
-  margin-right: 4px;
+#app:has(#touchWalkPad:not([hidden])) {
+  --viewer-footer-height: 126px;
 }
-/* Walking is opt-in. It never takes space while browsing preset room views. */
 #app .touch-walk-pad {
   position: absolute;
   z-index: 18;
-  left: var(--viewer-edge);
-  bottom: var(--viewer-panel-bottom);
-  padding: 6px;
-  border: 1px solid var(--ui-line);
-  border-radius: 16px;
-  background: var(--ui-bg);
-  backdrop-filter: blur(18px);
+  left: 0;
+  right: 0;
+  bottom: calc(72px + env(safe-area-inset-bottom));
+  height: 54px;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 0;
+  border-top: 1px solid var(--ui-line);
+  border-radius: 0;
+  background: #d7d3cb;
   touch-action: none;
   user-select: none;
 }
 .touch-walk-grid {
   display: grid;
-  grid-template-columns: repeat(3, 44px);
-  grid-template-rows: repeat(2, 44px);
+  grid-template-columns: repeat(4, 44px);
+  grid-template-rows: 44px;
   gap: 3px;
 }
 #app .touch-walk-grid button {
@@ -734,7 +630,7 @@
   padding: 0;
   border: 0;
   border-radius: 10px;
-  background: #ffffff0a;
+  background: #243b2b08;
   color: var(--ui-text);
   touch-action: none;
 }
@@ -744,15 +640,15 @@
 }
 .touch-walk-grid [data-walk='left'] {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 1;
 }
 .touch-walk-grid [data-walk='back'] {
-  grid-column: 2;
-  grid-row: 2;
+  grid-column: 3;
+  grid-row: 1;
 }
 .touch-walk-grid [data-walk='right'] {
-  grid-column: 3;
-  grid-row: 2;
+  grid-column: 4;
+  grid-row: 1;
 }
 .touch-walk-grid svg {
   width: 21px;
@@ -764,68 +660,77 @@
 }
 #app .touch-walk-grid button.is-held {
   background: var(--ui-selected);
-  color: #26372b;
+  color: white;
 }
 #app #hideWalk {
+  display: none;
   width: 100%;
   min-height: 44px;
   border: 0;
   background: none;
   color: var(--ui-muted);
   font-size: 11px;
-  padding: 0;
-  margin-top: 3px;
+}
+#app .object-hint {
+  position: absolute;
+  z-index: 18;
+  max-width: min(260px, calc(100vw - 24px));
+  padding: 8px 12px;
+  border: 1px solid var(--ui-line);
+  border-radius: 10px;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  box-shadow: 0 3px 15px #0002;
+}
+#app .object-hint:has(button:not([hidden])) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#app .object-hint button {
+  pointer-events: auto;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: #243b2b08;
+  color: var(--ui-text);
+}
+#scene[data-interactive='true'] {
+  cursor: pointer;
 }
 #scene:focus {
   outline: none;
 }
 #scene:focus-visible {
-  outline: 1px solid #b9beb2;
+  outline: 2px solid #57806b;
   outline-offset: -2px;
+}
+@media (min-width: 800px) {
+  #app .quick-drawer,
+  #app .viewer-options,
+  #app .light-panel,
+  #app.inside-mode .light-panel {
+    max-height: calc(100dvh - 210px);
+  }
 }
 @media (max-width: 520px) {
   :root {
-    --viewer-panel-width: 288px;
-    --viewer-edge: 8px;
+    --viewer-edge: 12px;
+    --viewer-panel-width: calc(100vw - 24px);
+    --viewer-panel-bottom: calc(90px + env(safe-area-inset-bottom));
   }
-  #app .brand strong {
-    display: none;
-  }
-  #app .brand > button span {
-    max-width: 165px;
-  }
-  #app .viewer-launchers > button {
-    min-width: 70px;
-  }
-  #app .topbar {
-    left: 12px;
-    right: 8px;
-    top: max(8px, env(safe-area-inset-top));
-  }
-  .environment-bar button {
-    min-width: 44px;
-    width: 44px;
-    padding: 0;
-  }
-  .environment-bar .environment-label {
-    display: none;
-  }
-  #app .controlbar {
-    padding: 3px;
-    bottom: max(8px, env(safe-area-inset-bottom));
-  }
-  #app .room-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  #app .room-grid button {
-    font-size: 11px;
-    padding: 5px;
-  }
-  #app .quick-drawer {
-    max-height: min(52dvh, calc(100dvh - 150px));
+  #app .quick-drawer,
+  #app .viewer-options,
+  #app .light-panel,
+  #app.inside-mode .light-panel {
+    width: calc(100vw - 24px);
   }
 }
-@media (max-height: 520px) and (orientation: landscape) {
+@media (max-height: 520px) {
   #app .quick-drawer,
   #app .viewer-options,
   #app .light-panel,
@@ -833,174 +738,211 @@
     left: auto;
     right: 12px;
     bottom: 12px;
-    max-height: calc(100dvh - 78px);
-    width: 300px;
+    max-height: calc(100dvh - 150px);
+    width: 330px;
   }
 }
 @media (prefers-reduced-transparency: reduce) {
-  #app .controlbar,
-  #app .quick-drawer,
-  #app .viewer-options,
-  #app .light-panel,
-  .environment-bar,
-  #app .touch-walk-pad {
-    background: #222a25;
-    backdrop-filter: none;
+  :root {
+    --ui-bg: #d7d3cb;
   }
 }
 @media (prefers-contrast: more) {
   :root {
-    --ui-bg: #202923;
-    --ui-muted: #e1e7dc;
-    --ui-line: #a8b6a2;
+    --ui-bg: #fff;
+    --ui-muted: #343d38;
+    --ui-line: #526458;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #app *,
+  #app *::before {
+    animation: none !important;
+    transition: none !important;
+  }
+  #app button:active {
+    transform: none;
   }
 }
 
-/* Pointer hints are small, non-blocking and never cover the touched object. */
-#app .object-hint {
-  position: absolute;
-  z-index: 18;
-  max-width: min(260px, calc(100vw - 24px));
-  padding: 7px 10px;
+/* Persistent header actions occupy one aligned row. */
+#app #overviewView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 10px;
   border: 1px solid var(--ui-line);
-  border-radius: 9px;
+  border-radius: 11px;
   background: var(--ui-bg);
   color: var(--ui-text);
-  font-size: 12px;
-  line-height: 1.35;
-  pointer-events: none;
-  box-shadow: 0 2px 12px #0002;
+  font-size: 11px;
+  pointer-events: auto;
 }
-#scene[data-interactive='true'] {
-  cursor: pointer;
+#app #overviewView svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
 }
-
-#app #roomActionGroup:not(.collapsed-room-actions) {
+#app #overviewView[aria-pressed='true'] {
+  background: var(--ui-selected);
+  color: white;
+}
+#app .environment-bar {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  background: var(--ui-bg);
+  pointer-events: auto;
+}
+#app .environment-bar button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 38px;
+  min-width: 50px;
+  padding: 0 7px;
   border: 0;
-  margin-top: 0;
-  padding-top: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--ui-muted);
+  font-size: 12px;
 }
-#app #roomActionGroup:not(.collapsed-room-actions) > .room-action-summary {
+#app .environment-bar button[aria-pressed='true'] {
+  background: var(--ui-selected);
+  color: white;
+}
+#app .lighting-zone h3 {
+  font-size: 12px;
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 15px 0 2px;
+  color: var(--ui-muted);
+  font-weight: 650;
+}
+#app .quick-heading #quickCurrent {
   display: none;
 }
-
-#app .object-hint:has(button:not([hidden])) {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 4px 3px 9px;
-}
-#app .object-hint button {
-  pointer-events: auto;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0 9px;
-  border: 1px solid var(--ui-line);
-  border-radius: 7px;
-  background: #ffffff14;
-  color: var(--ui-text);
-  font-size: 12px;
-}
-
-/* Dining comparison stays compact and never moves the camera. */
-#app .dining-size-control,
-#app .fan-size-control {
-  padding: 4px 0 10px;
-  border-bottom: 1px solid var(--ui-line);
-  margin-bottom: 6px;
-}
-#app .dining-size-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  color: var(--ui-muted);
-  margin: 2px 0 6px;
-}
-#app .dining-size-heading output {
-  font-variant-numeric: tabular-nums;
-  color: var(--ui-text);
-}
-#app .dining-size-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 5px;
-}
-#app .dining-size-buttons button {
-  text-align: center;
+@media (max-width: 520px) {
+  #app .brand strong {
+    display: none;
+  }
+  #app .brand {
+    padding: 8px;
+    gap: 0;
+  }
+  #app .brand > span {
+    font-size: 11px;
+  }
+  #app .topbar {
+    gap: 6px;
+  }
+  #app .environment-bar button {
+    min-width: 42px;
+    padding: 0 5px;
+  }
+  #app .environment-bar button span {
+    font-size: 10px;
+  }
+  #app #overviewView {
+    padding: 0 7px;
+  }
 }
 
-.dining-shape-buttons {
+#app .room-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 5px;
-  margin-bottom: 5px;
-}
-.dining-shape-buttons button {
-  min-height: 40px;
-  padding: 7px;
-  font: inherit;
-  font-size: 12px;
-  border: 1px solid var(--ui-border);
-  border-radius: 9px;
-  background: transparent;
-  color: inherit;
-}
-.dining-shape-buttons button[aria-pressed='true'] {
-  background: var(--ui-paper, #eeece2);
-  color: #27392f;
-}
-.dining-size-buttons[hidden] {
-  display: none;
-}
-.dining-seating-note {
-  margin: 7px 0 0;
-  font-size: 11px;
-  opacity: 0.75;
-}
-
-.dining-chairs-out {
-  width: 100%;
-  min-height: 40px;
-  margin-top: 5px;
-  padding: 7px;
-  border: 1px solid var(--ui-border);
-  border-radius: 9px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-}
-.dining-chairs-out[aria-pressed='true'] {
-  background: var(--ui-paper, #eeece2);
-  color: #27392f;
-}
-
-/* Three mutually exclusive shade states fit a single compact row. */
-#optionsPanel .options-scroll .viewtools.shade-states {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr 1fr;
   gap: 4px;
 }
-#optionsPanel .options-scroll .shade-states button {
+#app .room-group {
+  padding: 8px 10px;
+  margin: 0 0 8px;
+  background: #e3dfd7;
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+}
+#app .room-group h3 {
+  margin: 0 0 5px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--ui-muted);
+}
+#app .room-grid button {
+  padding: 8px;
   min-height: 44px;
-  min-width: 0;
-  padding: 7px 4px;
+  border: 0;
+  border-radius: 8px;
   font-size: 12px;
-  white-space: nowrap;
+  text-align: left;
+  background: transparent;
 }
-
-/* Keep the contextual fridge link legible on the dark compact panel. */
-#app #fridgeInspectLink {
+#app .room-grid button[aria-current='location'] {
+  background: #434a43;
+  color: #fff;
+}
+#app .room-grid button[aria-current='location']::after {
+  content: '✓';
+}
+#app .common-lights .quick-light-switches {
+  column-count: 2;
+  column-gap: 8px;
+}
+#app .lighting-zone {
   display: inline-block;
-  color: var(--ui-text);
+  width: 100%;
+  padding: 6px 8px;
+  margin: 0 0 8px;
+  break-inside: avoid;
+  background: #e3dfd7;
+  border: 1px solid var(--ui-line);
+  border-radius: 10px;
+}
+#app .lighting-zone h3 {
+  font-size: 10px;
+  margin: 2px 0 4px;
+}
+#app .light-row .light-switch {
+  min-height: 44px;
+  padding: 5px 0;
+  gap: 7px;
+}
+#app .light-row .fixture-name {
   font-size: 11px;
-  margin-top: 8px;
-  text-underline-offset: 3px;
+  line-height: 1.3;
 }
-
-#app #diningShapeButtons {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+#app .lighting-zone .light-row:last-child {
+  border-bottom: 0;
 }
-
-#app #diningProductSource { color: inherit; opacity: .8; font-size: 12px; text-underline-offset: 3px; }
+#app .lighting-footer {
+  margin-top: 0;
+}
+#app .light-switch {
+  cursor: pointer;
+  position: relative;
+}
+#app .light-switch > input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+#app .light-switch:has(input:focus-visible) {
+  outline: 2px solid #57806b;
+  outline-offset: 2px;
+  border-radius: 5px;
+}
+#app .light-switch > input:checked + .light-state {
+  background: #395f4d;
+}
+#app .light-switch > input:checked + .light-state::before {
+  left: 16px;
+}
